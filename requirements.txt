@@ -1,0 +1,5 @@
+# server.py and accounts.py use only the Python standard library.
+# Horoscopes (tools/astro_engine.py) need Swiss Ephemeris:
+pyswisseph==2.10.3.2
+# Optional, only for tools/make_thumbs.py and tools/make_icons.py:
+# Pillow

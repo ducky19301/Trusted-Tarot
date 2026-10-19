@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#07060f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tarot" />
+  <meta name="application-name" content="Tarot" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+  <title>Natalie’s Tarot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="app.css?v=16" />
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>
+  <div class="app">
+    <header class="header">
+      <p class="eyebrow">Natalie’s Tarot</p>
+      <h1>Daily Deck</h1>
+      <p class="tagline">Shuffle · Draw · Sit with what arrives</p>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" id="tab-today" aria-controls="panel-today" aria-selected="false" data-tab="today" class="tab">Today</button>
+      <button role="tab" id="tab-journal" aria-controls="panel-journal" aria-selected="false" data-tab="journal" class="tab">Journal</button>
+      <button role="tab" id="tab-guests" aria-controls="panel-guests" aria-selected="false" data-tab="guests" class="tab tab-extra">Guests</button>
+      <button role="tab" id="tab-cards" aria-controls="panel-cards" aria-selected="false" data-tab="cards" class="tab">Cards</button>
+      <button role="tab" id="tab-practice" aria-controls="panel-practice" aria-selected="false" data-tab="practice" class="tab">Practice</button>
+      <button role="tab" id="tab-astro" aria-controls="panel-astro" aria-selected="false" data-tab="astro" class="tab tab-extra">Astro</button>
+      <button role="tab" id="tab-meditate" aria-controls="panel-meditate" aria-selected="false" data-tab="meditate" class="tab tab-extra">Meditate</button>
+      <button role="tab" id="tab-friends" aria-controls="panel-friends" aria-selected="false" data-tab="friends" class="tab tab-extra">Friends</button>
+      <!-- phone only: Guests, Astro and Meditate live behind More -->
+      <button role="tab" id="moreBtn" class="tab tab-more" aria-selected="false" aria-haspopup="menu" aria-expanded="false" aria-controls="moreMenu">More</button>
+    </nav>
+    <div class="more-menu" id="moreMenu" role="menu" aria-label="More sections" hidden>
+      <button type="button" role="menuitem" data-goto="guests"><span aria-hidden="true">♡</span> Guests</button>
+      <button type="button" role="menuitem" data-goto="astro"><span aria-hidden="true">✶</span> Astro</button>
+      <button type="button" role="menuitem" data-goto="meditate"><span aria-hidden="true">∿</span> Meditate</button>
+      <button type="button" role="menuitem" data-goto="friends"><span aria-hidden="true">☺</span> Friends</button>
+    </div>
+
+    <!-- TODAY -->
+    <section class="panel" id="panel-today" role="tabpanel" aria-labelledby="tab-today" tabindex="-1" hidden>
+      <p class="recap-line" id="todayRecap"></p>
+      <!-- today's saved card (shown instead of a fresh deck when entries.json already has today) -->
+      <div class="today-saved" id="todaySaved" hidden></div>
+      <div id="todayDraw">
+      <p class="center back-saved"><button type="button" class="link-btn" id="backToSaved" hidden>‹ Back to today’s card</button></p>
+      <div class="moon-banner" id="moonBanner" hidden></div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="How did you draw?">
+          <button class="seg-btn active" data-src="digital">Draw here</button>
+          <button class="seg-btn" data-src="physical"><span class="long">I drew from my physical deck</span><span class="short">Physical deck</span></button>
+          <button class="seg-btn" data-src="photo"><span class="long">Upload a photo of my cards</span><span class="short">Photo</span></button>
+        </div>
+        <div class="controls-row" id="spreadRow">
+        <div class="seg seg-sm" role="group" aria-label="Spread">
+          <button class="seg-btn active" data-count="1">One card</button>
+          <button class="seg-btn" data-count="3">3-card spread</button>
+        </div>
+        <select id="spreadSel" class="spread-sel" aria-label="More spreads">
+          <option value="">More spreads…</option>
+          <option value="ppf">Past · Present · Future (3)</option>
+          <option value="sao">Situation · Action · Outcome (3)</option>
+          <option value="mbs">Mind · Body · Spirit (3)</option>
+          <option value="five">Five-card cross (5)</option>
+          <option value="rel">Relationship (6)</option>
+          <option value="horseshoe">Horseshoe (7)</option>
+          <option value="celtic">Celtic Cross (10)</option>
+          <option value="newmoon">New Moon (4)</option>
+          <option value="fullmoon">Full Moon (4)</option>
+        </select>
+        <div class="seg seg-sm" id="labelSet" role="group" aria-label="Position labels" hidden>
+          <button class="seg-btn active" data-labels="lcr">Left · Center · Right</button>
+          <button class="seg-btn" data-labels="ppf">Past · Present · Future</button>
+        </div>
+        </div>
+      </div>
+
+      <div id="digitalControls" class="actions">
+        <button class="btn btn-ghost" id="shuffleBtn"><span aria-hidden="true">✦</span> Shuffle</button>
+        <button class="btn btn-gold" id="drawBtn"><span aria-hidden="true">☽</span> Draw</button>
+        <button class="btn btn-ghost" id="redrawBtn" hidden><span aria-hidden="true">↺</span> Redraw</button>
+      </div>
+
+      <div id="physicalControls" class="physical" hidden></div>
+
+      <div id="photoBox" class="photo-box" hidden>
+        <p class="photo-lead">Snap your spread. TaroBot will read the cards and orientation, then add them to your journal.</p>
+        <div class="actions">
+          <label class="btn btn-gold file-btn">📷 Take a photo<input type="file" accept="image/*" capture="environment" id="photoCamera" multiple hidden /></label>
+          <label class="btn btn-ghost file-btn">Choose photos<input type="file" accept="image/*" id="photoPick" multiple hidden /></label>
+        </div>
+        <div class="thumbs" id="photoThumbs"></div>
+        <details class="tag-details">
+          <summary>Tag the cards yourself <em>(optional)</em></summary>
+          <div id="photoTags"></div>
+        </details>
+        <label class="field"><span>Note <em>(optional)</em></span>
+          <textarea id="photoNote" rows="2" maxlength="600" placeholder="Anything TaroBot should know…"></textarea></label>
+        <div class="actions"><button class="btn btn-gold" id="savePhotoBtn" disabled>Save photo</button></div>
+        <p class="status" id="photoStatus" role="status" aria-live="polite"></p>
+      </div>
+
+      <p class="hint" id="todayHint">Shuffle when you’re ready, then draw.</p>
+
+      <div class="stage" id="stage"></div>
+      <!-- right under the card: one-line meaning, then Save; the long sections fold under Read more -->
+      <div class="quick" id="quick"></div>
+
+      <div class="save-box" id="saveBox" hidden>
+        <div class="actions">
+          <button class="btn btn-gold" id="saveMineBtn">Save as my card</button>
+          <button class="btn btn-ghost" id="saveGuestBtn">Reading for someone else</button>
+        </div>
+        <p class="status" id="saveStatus" role="status" aria-live="polite"></p>
+        <div class="actions" id="shareRow" hidden>
+          <button class="btn btn-ghost btn-sm" id="shareBtn"><span aria-hidden="true">⇪</span> Share</button>
+        </div>
+        <details class="note-fields">
+          <summary>Add a note <em>(optional)</em></summary>
+          <label class="field">
+            <span>Note</span>
+            <textarea id="noteInput" rows="2" maxlength="600" placeholder="A line about what you noticed…"></textarea>
+          </label>
+          <details class="guest-fields">
+            <summary>Reading for someone else? Who is it for?</summary>
+            <div class="guest-grid">
+              <label class="field"><span>Name</span><input id="guestName" maxlength="80" list="guestNames" placeholder="Pick or type a name" /></label>
+              <label class="field"><span>Question <em>(optional)</em></span><input id="guestQuestion" maxlength="300" /></label>
+            </div>
+          </details>
+        </details>
+      </div>
+
+      <details class="read-more" id="readMore" hidden>
+        <summary>Read more <em>love, work, money, Waite’s words, history…</em></summary>
+        <div class="readings" id="readings"></div>
+      </details>
+      </div>
+    </section>
+
+    <!-- JOURNAL -->
+    <section class="panel" id="panel-journal" role="tabpanel" aria-labelledby="tab-journal" tabindex="-1" hidden>
+      <div id="recapBox"></div>
+      <div id="gapBox"></div>
+      <div class="journal-bar">
+        <button class="nav-btn" id="jPrev" aria-label="Newer day">‹</button>
+        <div class="journal-dates" id="jDates"></div>
+        <button class="nav-btn" id="jNext" aria-label="Older day">›</button>
+      </div>
+      <div class="book"><article class="page" id="jPage"></article></div>
+      <p class="center"><a class="btn btn-ghost btn-sm" href="/journal.pdf" download>⬇ Download PDF journal</a></p>
+    </section>
+
+    <!-- GUESTS -->
+    <section class="panel" id="panel-guests" role="tabpanel" aria-labelledby="tab-guests" tabindex="-1" hidden>
+      <p class="intro">People you read for. Kept apart from your journal and never sent to Astro.</p>
+      <div class="guests-layout">
+        <aside class="people">
+          <div id="peopleList"></div>
+          <details class="add-wrap" id="addWrap"><summary>＋ Add a person</summary>
+          <form class="add-person" id="addPerson">
+            <input id="newGuestName" maxlength="80" placeholder="Name" required />
+            <input id="newGuestNote" maxlength="600" placeholder="Note (optional)" />
+            <button class="btn btn-ghost btn-sm" type="submit">Add</button>
+          </form>
+          </details>
+        </aside>
+        <div class="profile" id="profile"></div>
+      </div>
+    </section>
+
+    <!-- CARDS -->
+    <section class="panel" id="panel-cards" role="tabpanel" aria-labelledby="tab-cards" tabindex="-1" hidden>
+      <div class="library-bar">
+        <input type="search" id="cardSearch" placeholder="Search 78 cards…" aria-label="Search cards" />
+        <div class="chips" id="suitChips">
+          <button class="chip active" data-suit="all">All</button>
+          <button class="chip" data-suit="major">Major</button>
+          <button class="chip" data-suit="Wands">Wands</button>
+          <button class="chip" data-suit="Cups">Cups</button>
+          <button class="chip" data-suit="Swords">Swords</button>
+          <button class="chip" data-suit="Pentacles">Pentacles</button>
+        </div>
+        <button class="chip res-btn" id="resBtn" type="button">📚 Resources</button>
+      </div>
+      <div class="grid" id="cardGrid"></div>
+    </section>
+
+    <!-- PRACTICE (study only: saved to data/practice.json, never the journal, outbox or Astro) -->
+    <section class="panel" id="panel-practice" role="tabpanel" aria-labelledby="tab-practice" tabindex="-1" hidden>
+      <div class="p-subnav seg" role="group" aria-label="Practice sections">
+        <button class="seg-btn active" data-pv="practice">Practice</button>
+        <button class="seg-btn" data-pv="numerology">Numerology</button>
+        <button class="seg-btn" data-pv="learn">Learn</button>
+        <button class="seg-btn" data-pv="spreads">Spreads</button>
+      </div>
+      <div id="practiceRoot"><p class="center muted">Loading…</p></div>
+    </section>
+
+    <!-- ASTRO -->
+    <section class="panel" id="panel-astro" role="tabpanel" aria-labelledby="tab-astro" tabindex="-1" hidden>
+      <p class="intro">Astro’s chart weaves for each day, read-only. New saves wait here until Astro writes their tie-in.</p>
+      <div id="astroToday"></div>
+      <div id="astroPending"></div>
+      <div id="astroList"></div>
+    </section>
+
+    <!-- MEDITATE -->
+    <section class="panel" id="panel-friends" role="tabpanel" aria-labelledby="tab-friends" tabindex="-1" hidden>
+      <div class="friends" id="friendsBody"><p class="muted">Loading…</p></div>
+    </section>
+
+    <section class="panel" id="panel-meditate" role="tabpanel" aria-labelledby="tab-meditate" tabindex="-1" hidden>
+      <div class="meditate-bar">
+        <div class="seg seg-sm" role="group" aria-label="Meditation view">
+          <button class="seg-btn active" data-med="natalie-tones.html">Natalie’s tones</button>
+          <button class="seg-btn" data-med="index.html">Full soundboard</button>
+        </div>
+        <a class="open-link" id="medOpen" href="/meditate/natalie-tones.html" target="_blank" rel="noopener">Open full screen ↗</a>
+      </div>
+      <div class="med-frame">
+        <iframe id="medFrame" title="Meditation Bot" allow="autoplay; fullscreen" loading="lazy"></iframe>
+      </div>
+      <p class="hint">From Meditation Bot · sound keeps playing while this tab is open</p>
+    </section>
+
+    <footer class="footer">Public-domain Rider–Waite–Smith artwork · For reflection, not prediction
+      <form method="post" action="/logout" class="logout-form" id="logoutForm" hidden><button type="submit" class="logout-btn">Log out</button></form>
+    </footer>
+  </div>
+
+  <div class="modal" id="modal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" data-close aria-label="Close">×</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <datalist id="cardNames"></datalist>
+  <datalist id="guestNames"></datalist>
+  <script src="practice-data.js?v=16"></script>
+  <script src="app.js?v=16"></script>
+  <script src="practice.js?v=16"></script>
+</body>
+</html>

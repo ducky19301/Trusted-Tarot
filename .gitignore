@@ -1,0 +1,22 @@
+# Personal data and secrets: never commit
+data/
+backups/
+bin/
+screenshots/
+mockups/
+uploads/
+*.state
+*.env
+.env*
+public-auth*.json
+users.json
+guests.json
+social.json
+entries*.json
+outbox.json
+practice.json*
+*.bak*
+# Python / OS
+__pycache__/
+*.pyc
+.DS_Store
