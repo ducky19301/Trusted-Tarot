@@ -1,0 +1,4 @@
+/journal-img/:name  /deck-img/:name  200
+/invite/:token      /#friends?invite=:token  302
+/meditate           /meditate/natalie-tones.html  302
+/meditate/          /meditate/natalie-tones.html  200

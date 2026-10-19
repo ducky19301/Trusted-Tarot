@@ -1,22 +1,9 @@
-# Personal data and secrets: never commit
-data/
+# personal data and secrets never go to GitHub
+migration/
 backups/
-bin/
-screenshots/
-mockups/
-uploads/
-*.state
+tests/shots/
+.env
 *.env
-.env*
-public-auth*.json
-users.json
-guests.json
-social.json
-entries*.json
-outbox.json
-practice.json*
-*.bak*
-# Python / OS
 __pycache__/
-*.pyc
-.DS_Store
+node_modules/
+.github/workflows/

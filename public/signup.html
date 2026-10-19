@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#07060f" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Tarot" />
+<meta name="application-name" content="Tarot" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<title>Tarot · Sign in</title>
+<script src="/config.js"></script>
+<script src="/vendor/supabase.js"></script>
+<style>
+:root { --bg:#07060f; --gold:#d4af37; --gold-soft:#e8d48b; --gold-dim:rgba(212,175,55,.32);
+  --text:#f3efe6; --muted:#a8a0b8; --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --sans:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif; }
+*,*::before,*::after { box-sizing:border-box; }
+html,body { margin:0; }
+body { min-height:100dvh; display:grid; place-items:center; color:var(--text); font-family:var(--sans);
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  padding:calc(1.5rem + env(safe-area-inset-top)) calc(1.25rem + env(safe-area-inset-right))
+          calc(1.5rem + env(safe-area-inset-bottom)) calc(1.25rem + env(safe-area-inset-left));
+  background:radial-gradient(ellipse 80% 50% at 50% -10%, rgba(61,53,120,.5), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(42,36,88,.35), transparent 55%), var(--bg);
+  background-attachment:fixed; }
+.card { width:100%; max-width:360px; text-align:center; padding:2.2rem 1.6rem 1.8rem; border-radius:18px;
+  background:rgba(20,18,42,.72); border:1px solid var(--gold-dim); box-shadow:0 18px 50px rgba(0,0,0,.55); }
+.mark { width:72px; height:72px; border-radius:18px; display:block; margin:0 auto 1rem;
+  box-shadow:0 0 0 1px var(--gold-dim), 0 0 40px rgba(212,175,55,.15); }
+.eyebrow { margin:0; letter-spacing:.3em; text-transform:uppercase; font-size:.68rem; color:var(--gold-soft); font-weight:500; }
+h1 { margin:.25rem 0 .2rem; font-family:var(--serif); font-weight:600; font-size:2.2rem; letter-spacing:.04em;
+  text-shadow:0 0 40px rgba(212,175,55,.18); }
+p.sub { margin:0 0 1.5rem; color:var(--muted); font-weight:300; font-size:.95rem; }
+label { display:block; text-align:left; font-size:.8rem; color:var(--muted); margin-bottom:.35rem; letter-spacing:.04em; }
+input[type=password], input[type=text], input[type=date] { margin-bottom:.8rem;  width:100%; min-height:48px; font:400 16px var(--sans); color:var(--text); background:rgba(7,6,15,.65);
+  border:1px solid rgba(212,175,55,.3); border-radius:12px; padding:.7rem .9rem; outline:none; }
+input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(212,175,55,.18); }
+button { margin-top:1rem; width:100%; min-height:48px; font:600 1rem var(--sans); letter-spacing:.04em; color:#1a1405;
+  border:0; border-radius:999px; cursor:pointer; background:linear-gradient(180deg,#e8d48b,#d4af37);
+  box-shadow:0 6px 24px rgba(212,175,55,.25); }
+button:active { transform:translateY(1px); }
+.err { margin:1rem 0 0; min-height:1.3em; color:#e6a0b8; font-size:.9rem; }
+.foot { margin:1.4rem 0 0; color:var(--muted); font-size:.75rem; opacity:.7; }
+a { color:var(--gold-soft); }
+</style>
+</head><body>
+<main class="card">
+  <img class="mark" src="/icons/icon-192.png" alt="" width="72" height="72" />
+  <p class="eyebrow">Tarot</p>
+  <h1 id="title">Welcome back</h1>
+  <p class="sub" id="sub">Sign in to your deck.</p>
+  <form id="f" autocomplete="on">
+    <div id="signupOnly" hidden><label for="dn">Your name</label><input id="dn" type="text" name="display" maxlength="40" /></div>
+    <label for="un">Username</label>
+    <input id="un" type="text" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required placeholder="letters, numbers, _" />
+    <label for="pw">Password</label>
+    <input id="pw" type="password" name="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" required />
+    <div id="signupOnly2" hidden><label for="pw2">Password again</label><input id="pw2" type="password" name="password2" autocomplete="new-password" />
+      <label for="bd">Birthday <em>(optional, for your horoscope and numerology)</em></label><input id="bd" type="date" name="birth" /></div>
+    <button type="submit" id="go">Sign in</button>
+    <p class="err" role="alert" id="err"></p>
+  </form>
+  <p class="foot"><a id="swap" href="/signup">New here? Create your own account</a></p>
+  <p class="foot">Private · stays signed in on this device</p>
+</main>
+<script>
+(() => {
+  const C = window.TAROT_CONFIG || {}, DOMAIN = C.emailDomain || "users.trustedtarot.app";
+  const sb = window.supabase.createClient(C.supabaseUrl, C.supabaseKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: "trusted-tarot-auth" } });
+  const $ = (id) => document.getElementById(id), q = new URLSearchParams(location.search);
+  const signup = location.pathname.startsWith("/signup");
+  let next = q.get("next") || "/"; if (!next.startsWith("/") || next.startsWith("//")) next = "/";
+  const nq = next === "/" ? "" : "?next=" + encodeURIComponent(next);
+  if (signup) {
+    $("title").textContent = "Create your account"; $("sub").textContent = "Your own private deck. Nothing you save is shared unless you choose to.";
+    $("signupOnly").hidden = $("signupOnly2").hidden = false; $("dn").required = $("pw2").required = true; $("pw").minLength = 8;
+    $("pw").autocomplete = "new-password"; $("go").textContent = "Create account"; document.title = "Tarot · Create account";
+    $("swap").textContent = "Already have an account? Sign in"; $("swap").href = "/login" + nq;
+  } else $("swap").href = "/signup" + nq;
+  sb.auth.getSession().then(({ data }) => { if (data.session) location.replace(next); });
+  const NAME_RE = /^[a-z0-9_]{3,20}$/;
+  $("f").addEventListener("submit", async (e) => {
+    e.preventDefault(); $("err").textContent = ""; $("go").disabled = true;
+    try {
+      let u = $("un").value.trim().toLowerCase().replace(/^@/, "") || "natalie";
+      const pw = $("pw").value;
+      if (signup) {
+        if (!NAME_RE.test(u)) throw new Error("Usernames are 3–20 letters, numbers or _.");
+        if (pw.length < 8) throw new Error("Use at least 8 characters for your password.");
+        if (pw !== $("pw2").value) throw new Error("The two passwords don’t match.");
+        const { data: free } = await sb.rpc("username_available", { p_username: u });
+        if (free === false) throw new Error("That username is taken.");
+        const { data, error } = await sb.auth.signUp({ email: `${u}@${DOMAIN}`, password: pw, options: { data: { username: u, display: $("dn").value.trim().slice(0, 40) || u, birth: $("bd").value || null } } });
+        if (error) throw error;
+        if (!data.session) throw new Error("Account made, but sign-in is waiting on email confirmation. (Owner: turn off “Confirm email” in Supabase.)");
+      } else {
+        const { error } = await sb.auth.signInWithPassword({ email: `${u}@${DOMAIN}`, password: pw });
+        if (error) throw new Error(/invalid/i.test(error.message) ? "That username and password don’t match." : error.message);
+      }
+      location.replace(next);
+    } catch (err) { $("err").textContent = err.message || String(err); }
+    finally { $("go").disabled = false; }
+  });
+})();
+</script>
+</body></html>

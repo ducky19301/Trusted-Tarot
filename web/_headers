@@ -1,0 +1,16 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: same-origin
+  X-Robots-Tag: noindex, nofollow
+/sw.js
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/config.js
+  Cache-Control: no-cache
+/deck-img/*
+  Cache-Control: public, max-age=604800
+/deck-thumb/*
+  Cache-Control: public, max-age=604800
+/data/cards.json
+  Cache-Control: public, max-age=300, must-revalidate

@@ -1,0 +1,53 @@
+// node tests/schema_test.mjs : runs supabase/schema.sql (twice) in PGlite (real Postgres compiled to WASM) on top of a tiny
+// stand-in for Supabase's auth/storage schemas, then checks the row-level security and friend rules as real users.
+import { PGlite } from '/tmp/npmv/node_modules/@electric-sql/pglite/dist/index.js';
+import { pgcrypto } from '/tmp/npmv/node_modules/@electric-sql/pglite/dist/contrib/pgcrypto.js';
+import fs from 'fs';
+const db = new PGlite({ extensions: { pgcrypto } });
+const stub = `
+create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
+create schema auth; create schema storage;
+create table auth.users (id uuid primary key default gen_random_uuid(), email text, raw_user_meta_data jsonb);
+create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
+create table storage.buckets (id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
+create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text);
+alter table storage.objects enable row level security;
+create function storage.foldername(name text) returns text[] language sql immutable as $$ select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'),1)-1] $$;
+grant usage on schema public, auth, storage to anon, authenticated; grant execute on function auth.uid() to anon, authenticated;
+grant select, insert, delete on storage.objects to authenticated;`;
+await db.exec(stub);
+const sql = fs.readFileSync(new URL('../supabase/schema.sql', import.meta.url), 'utf8');
+await db.exec(sql); await db.exec(sql);   // must be re-runnable
+let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) fails++; };
+const mk = async (u, birth) => (await db.query(`insert into auth.users (email, raw_user_meta_data) values ($1, $2) returning id`, [u + '@users.trustedtarot.app', { username: u, display: u[0].toUpperCase() + u.slice(1), birth }])).rows[0].id;
+const nat = await mk('natalie', '1997-03-07'), nick = await mk('nick', ''), eve = await mk('eve');
+const as = async (uid, q, p = []) => { await db.exec(`reset role; select set_config('request.jwt.claim.sub', '${uid}', false); set role authenticated;`); try { return (await db.query(q, p)).rows; } finally { await db.exec('reset role'); } };
+const tryAs = async (uid, q, p) => { try { await as(uid, q, p); return null; } catch (e) { return e.message; } };
+ok((await as(nat, 'select * from profiles')).length === 1, 'a user sees only her own profile');
+ok(((b) => b.y === 1997 && b.m === 3 && b.d === 7)((await as(nat, 'select birth from profiles'))[0].birth), 'birth date from sign-up stored');
+ok(await tryAs(nat, `update profiles set is_owner = true`) !== null, 'cannot make yourself owner');
+ok(await tryAs(nat, `update profiles set display = 'Nat'`) === null, 'can edit display name');
+await as(nat, `insert into docs (kind, data) values ('guests', '[{"name":"Nick"}]')`);
+ok((await as(nick, 'select * from docs')).length === 0, "others can't read her docs");
+ok(await tryAs(nick, `insert into docs (user_id, kind, data) values ('${nat}', 'guests', '[]')`) !== null, "others can't write her docs");
+ok((await as(nick, `update docs set data = '[]' returning 1`)).length === 0, "others can't overwrite her docs");
+ok((await as(nat, `select username_available('natalie') a`))[0].a === false && (await as(nat, `select username_available('zed') a`))[0].a === true, 'username_available');
+ok((await as(nat, `select social_request('nick') s`))[0].s === 'requested', 'friend request sent');
+ok((await as(nick, `select social_me() m`))[0].m.incoming[0].username === 'natalie', 'nick sees incoming request');
+await as(nat, `select social_share('reading', 'r1', 'My spread', '{"cards":[1]}')`);
+ok((await as(nick, `select social_feed() f`))[0].f.length === 0, 'shares hidden until friends');
+await as(nick, `select social_respond('natalie', true)`);
+ok((await as(nick, `select social_feed() f`))[0].f[0].title === 'My spread', 'friend sees shared reading');
+ok((await as(eve, `select social_feed() f`))[0].f.length === 0, 'non-friend sees nothing');
+ok((await as(eve, `select * from shares`)).length === 0, 'non-friend cannot select shares directly');
+const tok = (await as(nat, `select social_me() m`))[0].m.invite;
+ok((await as(eve, `select social_invite_accept($1) f`, [tok]))[0].f.username === 'natalie', 'invite link makes friends');
+ok(await tryAs(eve, `select social_invite_accept('nope')`) !== null, 'bad invite refused');
+await as(nat, `select social_unfriend('eve')`);
+ok((await as(eve, `select social_feed() f`))[0].f.length === 0, 'unfriend hides shares again');
+ok(await tryAs(eve, `insert into shares (owner_id, kind, ref) values ('${nat}', 'reading', 'x')`) !== null, 'no forged shares');
+ok(await tryAs(nat, `insert into storage.objects (bucket_id, name) values ('uploads', '${nick}/a.jpg')`) !== null, "can't upload into another user's folder");
+ok(await tryAs(nat, `insert into storage.objects (bucket_id, name) values ('uploads', '${nat}/uploads/a.jpg')`) === null, 'can upload into own folder');
+ok((await as(nick, `select * from storage.objects`)).length === 0, "can't list others' files");
+ok(await tryAs(nat, `select social_request('natalie')`) !== null, "can't friend yourself");
+console.log(fails ? fails + ' FAILED' : 'all schema checks passed'); process.exit(fails ? 1 : 0);
