@@ -270,14 +270,16 @@
   }
   async function renderAstroToday() {
     const el = $("#astroToday"); if (!el) return;
-    if (S.astroToday && S.astroToday.date === localDate()) return;
+    if (el.dataset.date === localDate() && el.innerHTML) return;
+    el.dataset.date = localDate();
+    if (window.AstroUI && window.HoroscopeStory) {
+      // v20: story told by Astro from the day's computed facts; tips change daily and don't repeat for 14 days
+      return window.AstroUI.render(el, { name: (ME.name || "").split(" ")[0], date: localDate(), load: async () => { const h = await api("/api/astro/today"); S.astroToday = h; return h; } });
+    }
     try {
       const h = await api("/api/astro/today"); S.astroToday = h;
       el.innerHTML = `<article class="day astro-today"><h2>Today · ${esc(fmtDate(h.date, { weekday: "long", month: "long", day: "numeric" }))}</h2>
-        <p class="muted" style="font-size:.85rem">Moon in ${esc(h.moon.sign)} · ${esc(h.moon.phase)} · transits to your natal chart (real planet positions)</p>
-        ${h.text.map((t) => `<p>${esc(t)}</p>`).join("")}
-        ${h.dos.length ? `<p><b>Do:</b></p><ul>${h.dos.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
-        ${h.donts.length ? `<p><b>Don’t:</b></p><ul>${h.donts.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}</article>`;
+        ${h.text.map((t) => `<p>${esc(t)}</p>`).join("")}</article>`;
     } catch (e) { el.innerHTML = `<p class="muted">Today’s horoscope isn’t available right now (${esc(e.message)}).</p>`; }
   }
 

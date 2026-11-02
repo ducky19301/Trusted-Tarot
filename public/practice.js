@@ -54,6 +54,7 @@
   /* ---------------- sub-navigation ---------------- */
   $$("[data-pv]").forEach((b) => b.addEventListener("click", () => { T().segSelect(b.parentElement, b); V.view = b.dataset.pv; render(); window.scrollTo({ top: 0 }); }));
   function setView(v) { const b = $(`[data-pv="${v}"]`); if (b) { T().segSelect(b.parentElement, b); V.view = v; } }
+  document.addEventListener("click", (e) => { const b = e.target.closest("[data-lnarea]"); if (!b || !window.LearnUI) return; window.LearnUI.home(root(), b.dataset.lnarea); });
   function render() {
     if (!P || !cards().length) return;
     ({ practice: renderPracticeHome, numerology: renderNumerology, learn: renderLearn, spreads: renderSpreads })[V.view]();
@@ -218,9 +219,9 @@
           ${flipCardHTML("sp-card", "", cardImgTag(c, d.orientation), d.faceUp, d.faceUp ? c.name : "Face-down card")}
           <p class="sp-cap">${d.faceUp ? `<b>${esc(c.name)}</b> · ${orientLabel(d.orientation)}` : "&nbsp;"}</p>
           <div class="sp-imp-box" ${d.faceUp ? "" : "hidden"}>
-            <label class="field"><span>First impression <em>(optional)</em></span>
+            <label class="field"><span>Write first: what do you think it says? <em>(optional)</em></span>
               <textarea rows="2" maxlength="2000" class="sp-imp" placeholder="What do you see? What does it feel like?" ${d.meaning ? "readonly" : ""}>${esc(d.impression)}</textarea></label>
-            ${d.meaning ? "" : `<div class="actions"><button type="button" class="btn btn-gold sp-flipmeaning">Flip the meaning</button></div>`}
+            ${d.meaning ? "" : `<div class="sp-hints"></div><div class="actions"><button type="button" class="btn btn-gold sp-flipmeaning">Flip the meaning</button></div>`}
           </div>
         </div>
         <div class="sp-col">
@@ -237,6 +238,7 @@
     $$(".sp-pair", st).forEach((el) => {
       const i = Number(el.dataset.i), d = SP.drawn[i];
       $(".sp-card", el).addEventListener("click", () => { if (!d.faceUp) flipDrawn(i); });
+      const hb = $(".sp-hints", el); if (hb && window.LearnUI) window.LearnUI.hintsBlock(hb, window.LearnUI.cardGuide(d.card, d.orientation).hints);
       $$(".flip[role=button]", el).forEach((f) => f.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); f.click(); } }));
       $(".sp-info", el).addEventListener("click", (e) => { if (!d.meaning && d.faceUp && !e.target.closest(".ic-full")) flipMeaning(i); });
       const ta = $(".sp-imp", el); if (ta) ta.addEventListener("input", () => { d.impression = ta.value; });
@@ -365,15 +367,21 @@
       </section>`;
       $$("[data-f]", area).forEach((b) => b.addEventListener("click", () => { FC.filter = b.dataset.f; FC.queue = buildQueue(FC.filter, FC.limit); FC.i = 0; FC.flipped = false; draw(); }));
       const rv = $("#fcRev", area); if (rv) rv.addEventListener("change", (e) => { FC.randomRev = e.target.checked; FC.queue = buildQueue(FC.filter, FC.limit); FC.i = 0; FC.flipped = false; draw(); });
+      if (cur && window.LearnUI) {
+        const host = document.createElement("div"); host.id = "fcGuided";
+        const fcCard = $("#fcCard", area); if (fcCard) { fcCard.replaceWith(host); $$(".rate, .hint.center, .actions .open-card", area).forEach((x) => (x.closest(".actions") || x).remove()); }
+        const g = window.LearnUI.cardGuide(cur.card, cur.orientation);
+        window.LearnUI.guided(host, { ...g, media: cardImgTag(cur.card, cur.orientation, "fc-img"), rateLabels: [["didnt", "Didn’t"], ["sort", "Sort of"], ["knew", "Knew it"]], onRate: (r) => rateFC(r), onNext: () => { FC.i++; FC.flipped = false; if (FC.i >= FC.queue.length && FC.onDone) return FC.onDone(); draw(); } });
+      }
       const card = $("#fcCard", area); if (card) card.addEventListener("click", () => { if (!FC.flipped) { FC.flipped = true; card.classList.add("flipped"); setTimeout(draw, reduced() ? 0 : 600); } });
-      $$("[data-r]", area).forEach((b) => b.addEventListener("click", async () => {
-        const r = b.dataset.r;
+      async function rateFC(r) {
         try { const res = await post("/api/practice/review", { card: cur.card.id, orientation: cur.orientation, rating: r, mode: FC.mode }); if (!DEMO && res.review) P.reviews[cur.card.id] = res.review; } catch (e) { /* keep going */ }
         if (r === "didnt" && !opts.embedded) FC.queue.push({ ...cur });
         FC.i++; FC.done++; FC.flipped = false;
         if (FC.i >= FC.queue.length && FC.onDone) { FC.onDone(); return; }
         draw();
-      }));
+      }
+      $$("[data-r]", area).forEach((b) => b.addEventListener("click", () => rateFC(b.dataset.r)));
       const more = $("#fcMore", area); if (more) more.addEventListener("click", () => { FC.queue = buildQueue(FC.filter === "all" ? "all" : FC.filter, FC.limit); if (!FC.queue.length) FC.queue = shuffle(fcPool(FC.filter)).slice(0, 10).map((c) => ({ card: c, orientation: "upright" })); FC.i = 0; FC.done = 0; draw(); });
     };
     FC.redraw = draw;
@@ -387,13 +395,13 @@
     picture() {
       const c = pick(cards()), same = cards().filter((x) => group(x) === group(c));
       const opts = mkOpts(c, others(c, 3, Math.random() < 0.6 && same.length > 4 ? same : cards()));
-      return { kind: "picture", prompt: "Which card is this?", media: cardImgTag(c, "upright", "q-img"), options: opts.map((o) => o.name), answer: opts.indexOf(c),
+      return { card: c, kind: "picture", prompt: "Which card is this?", media: cardImgTag(c, "upright", "q-img"), options: opts.map((o) => o.name), answer: opts.indexOf(c),
         why: `This is ${theName(c.name)}. ${firstSents(c.imagery, 1)}` };
     },
     keyword() {
       const c = pick(cards()), o = Math.random() < 0.3 ? "reversed" : "upright", k = kws(c, o, 3);
       const opts = mkOpts(c, others(c, 3));
-      return { kind: "keyword", prompt: `Which card${isRev(o) ? ", reversed," : ""} matches these keywords?`, media: `<div class="kw ${isRev(o) ? "rev" : ""}">${k.map((w) => `<span>${esc(w)}</span>`).join("")}</div>`,
+      return { card: c, kind: "keyword", prompt: `Which card${isRev(o) ? ", reversed," : ""} matches these keywords?`, media: `<div class="kw ${isRev(o) ? "rev" : ""}">${k.map((w) => `<span>${esc(w)}</span>`).join("")}</div>`,
         options: opts.map((x) => x.name), answer: opts.indexOf(c), why: `${c.name}${isRev(o) ? " reversed" : ""}: ${kws(c, o, 5).join(", ")}.` };
     },
     meaning() {
@@ -402,18 +410,18 @@
       let s = firstSents(c.upright, 2);
       words.forEach((w) => { s = s.replace(new RegExp(`\\b(the\\s+)?${w}\\b`, "gi"), "▢▢▢"); });
       const opts = mkOpts(c, others(c, 3));
-      return { kind: "meaning", prompt: "Which card does this meaning describe?", media: `<blockquote class="q-quote">${esc(s)}</blockquote>`, options: opts.map((x) => x.name), answer: opts.indexOf(c),
+      return { card: c, kind: "meaning", prompt: "Which card does this meaning describe?", media: `<blockquote class="q-quote">${esc(s)}</blockquote>`, options: opts.map((x) => x.name), answer: opts.indexOf(c),
         why: `That’s ${theName(c.name)} upright. Keywords: ${kws(c, "upright", 4).join(", ")}.` };
     },
     suit() {
       const c = pick(cards().filter((x) => x.arcana !== "major"));
       if (Math.random() < 0.5) {
         const opts = [...SUITS];
-        return { kind: "suit", prompt: "Which suit is this card from?", media: cardImgTag(c, "upright", "q-img"), options: opts, answer: opts.indexOf(c.suit),
+        return { card: c, kind: "suit", prompt: "Which suit is this card from?", media: cardImgTag(c, "upright", "q-img"), options: opts, answer: opts.indexOf(c.suit),
           why: `It’s the ${c.name}. ${c.suit} is the suit of ${SUIT_TOPIC[c.suit]}.` };
       }
       const opts = ["Fire", "Water", "Air", "Earth"];
-      return { kind: "suit", prompt: `What element goes with the ${c.name}?`, media: cardImgTag(c, "upright", "q-img"), options: opts, answer: opts.indexOf(ELEMENT[c.suit]),
+      return { card: c, kind: "suit", prompt: `What element goes with the ${c.name}?`, media: cardImgTag(c, "upright", "q-img"), options: opts, answer: opts.indexOf(ELEMENT[c.suit]),
         why: `${c.suit} go with ${ELEMENT[c.suit]} in the usual Golden Dawn scheme: Wands Fire, Cups Water, Swords Air, Pentacles Earth.` };
     },
     mixed() { return Q[pick(["picture", "keyword", "meaning", "suit"])](); },
@@ -444,10 +452,11 @@
       }
       const q = qs[i];
       area.innerHTML = `<section class="p-panel quiz" aria-live="polite"><div class="q-head"><h3>${esc(title)}</h3><span class="q-prog">Question ${i + 1} of ${qs.length} · Score ${score}</span></div>
-        <p class="q-prompt">${esc(q.prompt)}</p><div class="q-media">${q.media || ""}</div>
+        <p class="q-prompt">${esc(q.prompt)}</p><div class="q-media">${q.media || ""}</div>${answered === null && q.card && window.LearnUI ? `<div class="q-hints"></div>` : ""}
         <div class="q-opts">${q.options.map((o, k) => `<button class="q-opt ${answered === null ? "" : k === q.answer ? "right" : k === answered ? "wrong" : "dim"}" data-k="${k}" ${answered === null ? "" : "disabled"}>${esc(o)}</button>`).join("")}</div>
         ${answered === null ? "" : `<div class="q-fb ${answered === q.answer ? "ok" : "no"}"><b>${answered === q.answer ? "Correct." : "Not quite."}</b> ${esc(q.why)}</div>
           <div class="actions"><button class="btn btn-gold" id="qNext">${i + 1 < qs.length ? "Next ›" : "See score"}</button></div>`}</section>`;
+      const qh = $(".q-hints", area); if (qh) window.LearnUI.hintsBlock(qh, window.LearnUI.cardGuide(q.card, "upright").hints.filter((h) => !(q.kind === "picture" && h.skill === "Look at the picture") && h.skill !== "Combine").slice(0, 2));
       $$(".q-opt", area).forEach((b) => b.addEventListener("click", () => { answered = Number(b.dataset.k); if (answered === q.answer) score++; draw(); }));
       const nx = $("#qNext", area); if (nx) nx.addEventListener("click", () => { i++; answered = null; draw(); });
     };
@@ -527,7 +536,7 @@
   function miniCard(c, o = "upright") { return c ? `<button class="mini-card open-card" data-id="${c.id}" data-o="${o}">${cardImgTag(c, o)}<span>${esc(c.name)}</span></button>` : ""; }
   function renderNumerology() {
     const chips = [...D.NUMBERS.map((n) => [String(n.n), String(n.n)]), ["courts", "Courts"], ["majors", "Majors"], ["birth", "Birth card"], ["quiz", "Quiz"]];
-    root().innerHTML = `<section class="p-panel"><h2>Numbers in the tarot</h2>
+    root().innerHTML = `<section class="p-panel"><h2>Numbers in the tarot</h2><button class="btn btn-ghost btn-sm ln-incards" data-lnarea="numbers">Learn in cards ›</button>
       <p class="muted">Each pip card carries its number’s theme, dressed in its suit. Learn ten themes and you have a head start on forty cards.</p>
       <div class="chips num-chips" role="group" aria-label="Numerology pages">${chips.map(([k, l]) => `<button class="chip ${NUMV.page === k ? "active" : ""}" data-np="${k}">${l}</button>`).join("")}</div>
       <div id="numArea"></div></section>`;
@@ -553,12 +562,14 @@
       const r = birthCard(y, m, d);
       area.innerHTML = `<article class="num-page birth"><h3>Birth card</h3>
         <ol class="plain-ol">${D.BIRTH_CARD.method.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>
+        <div class="bc-try"><span class="label">Try it yourself first</span><div id="bcHints"></div></div>
         <form class="birth-form" id="birthForm"><label class="field"><span>Birthday</span><input type="date" id="bdIn" value="${esc(bd)}" required /></label><button class="btn btn-gold btn-sm">Work it out</button></form>
         <div class="working"><span class="label">Working${bd === "1997-03-07" ? " · your birthday, March 7, 1997" : ""}</span><ul class="plain">${r.work.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>
         <p class="birth-result">${r.chain.map((n) => `<b>${esc(major(n).name)}</b> (${n})`).join(" and ")}</p>
         <div class="maj-row">${r.chain.map((n) => miniCard(major(n))).join("")}</div>
         ${r.chain.length === 1 ? `<p>${esc(firstSents(major(r.chain[0]).upright, 2))}</p>` : `<p class="muted">With a pair, the higher card is the outer lesson and the single digit is the core of it.</p>`}
         <p class="credit">${esc(D.BIRTH_CARD.credit)}</p></article>`;
+      if (window.LearnUI) window.LearnUI.hintsBlock($("#bcHints"), D.BIRTH_CARD.method.map((m, k) => ({ skill: `Step ${k + 1}`, text: m })));
       $("#birthForm").addEventListener("submit", (e) => { e.preventDefault(); const v = $("#bdIn").value; if (/^\d{4}-\d{2}-\d{2}$/.test(v)) { NUMV.bday = v; renderNumerology(); } });
     } else if (pg === "quiz") {
       const NQ = {
@@ -574,25 +585,9 @@
   /* ================= LEARN ================= */
   const resByKey = () => Object.fromEntries(D.RESOURCES.flatMap((g) => g.items.map((i) => [i.key, i])));
   function renderLearn() {
-    const R = resByKey(), done = P.lessons || {};
-    root().innerHTML = `<section class="p-panel"><h2>Learn</h2><p class="muted">Twelve short lessons. Tick each one off when you’ve done the exercise. ${Object.keys(done).length} of ${D.LESSONS.length} done.</p>
-      <div class="lessons">${D.LESSONS.map((l) => `<details class="lesson ${done[l.id] ? "done" : ""}" id="lesson-${l.id}" ${V.lesson === l.id ? "open" : ""}>
-        <summary><span class="ls-check" aria-hidden="true">${done[l.id] ? "✓" : ""}</span>${esc(l.title)}</summary>
-        <div class="ls-body">${l.body.map((p) => `<p>${esc(p)}</p>`).join("")}
-          <div class="exercise"><span class="label">Try this</span><p>${esc(l.exercise)}</p>${l.id === "journaling" ? `<button class="btn btn-ghost btn-sm" data-go="journal">Open the Journal tab ›</button>` : ""}</div>
-          ${l.cards && l.cards.length ? `<div class="maj-row">${l.cards.map((id) => miniCard(byId(id))).join("")}</div>` : ""}
-          ${l.resources && l.resources.length ? `<p class="ls-res"><span class="label">Read more</span> ${l.resources.map((k) => R[k] ? `<a href="${esc(R[k].url)}" target="_blank" rel="noopener">${esc(R[k].title)}</a>` : "").join(" · ")}</p>` : ""}
-          <label class="check"><input type="checkbox" data-lesson="${l.id}" ${done[l.id] ? "checked" : ""}/> Mark as done</label>
-        </div></details>`).join("")}</div>
-      <h3>Glossary</h3><dl class="glossary">${D.GLOSSARY.map(([t, d]) => `<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join("")}</dl>
-      <p><button class="link-btn open-resources">All resources ›</button></p></section>`;
-    $$("[data-lesson]").forEach((cb) => cb.addEventListener("change", async () => {
-      const id = cb.dataset.lesson;
-      try { const r = await post("/api/practice/lesson", { id, done: cb.checked }); if (!DEMO) P.lessons = r.lessons; else { if (cb.checked) P.lessons[id] = new Date().toISOString(); else delete P.lessons[id]; } } catch (e) { cb.checked = !cb.checked; }
-      V.lesson = id; renderLearn();
-    }));
-    $$("[data-go]").forEach((b) => b.addEventListener("click", () => T().showTab(b.dataset.go)));
-    $$(".lesson").forEach((d) => d.addEventListener("toggle", () => { if (d.open) V.lesson = d.id.replace("lesson-", ""); }));
+    // v20: bite-sized cards, Put it together and a quiz per section; no outside links until the bottom of Learn more
+    if (window.LearnUI) return window.LearnUI.home(root(), V.learnArea || "tarot", { title: "Learn" });
+    root().innerHTML = `<section class="p-panel"><p class="muted">Lessons are loading…</p></section>`;
   }
 
   /* ================= SPREADS ================= */
@@ -607,7 +602,7 @@
   const numFill = (p) => `<div class="lay-card"><b>${p.n}</b><small>${esc(p.name)}</small></div>`;
   function renderSpreads() {
     const tabs = [["library", "Library"], ["practice", "Practice reading"], ["history", "History"], ["quiz", "Quiz"]];
-    root().innerHTML = `<section class="p-panel"><h2>Spreads</h2>
+    root().innerHTML = `<section class="p-panel"><h2>Spreads</h2><button class="btn btn-ghost btn-sm ln-incards" data-lnarea="spreads">Learn in cards ›</button>
       <div class="seg seg-sm sp-tabs" role="group" aria-label="Spread sections">${tabs.map(([k, l]) => `<button class="seg-btn ${SPV.tab === k ? "active" : ""}" data-st="${k}">${l}</button>`).join("")}</div>
       <div id="spArea"></div></section>`;
     $$("[data-st]").forEach((b) => b.addEventListener("click", () => { SPV.tab = b.dataset.st; if (b.dataset.st === "library") SPV.detail = null; if (b.dataset.st === "practice" && PR.readOnly) resetPR(); renderSpreads(); }));
@@ -676,9 +671,11 @@
     if (PR.phase === "notes") {
       area.innerHTML = `${head}<p class="hint">Write what you see in each position before looking anything up.</p>
         <ol class="pr-list">${s.positions.map((p, i) => { const d = PR.cards[i]; return `<li><div class="pr-head">${cardImgTag(d.card, d.orientation, "thumb-sm")}<div><b>${p.n}. ${esc(p.name)}</b> <small class="muted">${esc(p.meaning)}</small><br/>${esc(d.card.name)}${isRev(d.orientation) ? " <small>(reversed)</small>" : ""}</div></div>
-          <textarea rows="2" maxlength="4000" data-note="${i}" placeholder="Your reading of this card here">${esc(d.note)}</textarea></li>`; }).join("")}</ol>
+          <textarea rows="2" maxlength="4000" data-note="${i}" placeholder="Your reading of this card here">${esc(d.note)}</textarea><div class="pr-hints" data-ph="${i}"></div></li>`; }).join("")}</ol>
         <label class="field"><span>The whole picture</span><textarea id="prOverall" rows="3" maxlength="4000" placeholder="How do the cards talk to each other?">${esc(PR.overall)}</textarea></label>
         <div class="actions"><button class="btn btn-gold" id="prReveal">Reveal the book meanings</button></div>`;
+      if (window.LearnUI) $$("[data-ph]", area).forEach((h) => { const i = Number(h.dataset.ph), d = PR.cards[i], p = s.positions[i];
+        window.LearnUI.hintsBlock(h, [{ skill: "Position", text: `${p.name}: ${p.meaning}` }, ...window.LearnUI.cardGuide(d.card, d.orientation).hints]); });
       $$("[data-note]", area).forEach((t) => t.addEventListener("input", () => { PR.cards[Number(t.dataset.note)].note = t.value; }));
       $("#prOverall").addEventListener("input", (e) => { PR.overall = e.target.value; });
       $("#prReveal").addEventListener("click", async () => {
