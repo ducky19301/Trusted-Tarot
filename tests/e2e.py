@@ -14,6 +14,8 @@ with sync_playwright() as p:
     b = p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox"])
     ctx = b.new_context(viewport={"width": 390, "height": 844}, device_scale_factor=2, is_mobile=True, has_touch=True, service_workers="block")
     ctx.add_init_script("window.MOCK_SEED = " + json.dumps(seed) + ";")
+    # v21: older flows test other features, so the daily pop-up and award cards are off here (e2e_habits.py covers them)
+    ctx.add_init_script("try { if (!localStorage.getItem('tt.habits.v1')) localStorage.setItem('tt.habits.v1', JSON.stringify({ popup: { on: false }, awardPopups: false })); } catch (e) {}")
     ctx.route("**/vendor/supabase.js*", lambda r: r.fulfill(body=mock, content_type="text/javascript"))
     ctx.route("https://fonts.googleapis.com/**", lambda r: r.abort()); ctx.route("https://fonts.gstatic.com/**", lambda r: r.abort())
     page = ctx.new_page(); errs = []

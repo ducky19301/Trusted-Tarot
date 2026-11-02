@@ -55,9 +55,11 @@
   $$("[data-pv]").forEach((b) => b.addEventListener("click", () => { T().segSelect(b.parentElement, b); V.view = b.dataset.pv; render(); window.scrollTo({ top: 0 }); }));
   function setView(v) { const b = $(`[data-pv="${v}"]`); if (b) { T().segSelect(b.parentElement, b); V.view = v; } }
   document.addEventListener("click", (e) => { const b = e.target.closest("[data-lnarea]"); if (!b || !window.LearnUI) return; window.LearnUI.home(root(), b.dataset.lnarea); });
+  function renderGlossary() { if (window.LearnUI) window.LearnUI.glossary(root()); }
+  document.addEventListener("ln:glossary", () => { setView("glossary"); render(); window.scrollTo({ top: 0 }); });
   function render() {
     if (!P || !cards().length) return;
-    ({ practice: renderPracticeHome, numerology: renderNumerology, learn: renderLearn, spreads: renderSpreads })[V.view]();
+    ({ practice: renderPracticeHome, numerology: renderNumerology, learn: renderLearn, spreads: renderSpreads, glossary: renderGlossary })[V.view]();
   }
 
   /* ================= fast card picker (real deck) ================= */
@@ -468,6 +470,8 @@
   async function markDaily() {
     const res = await post("/api/practice/day", {});
     if (!DEMO && res.dailyDone) P.dailyDone = res.dailyDone;
+    if (!(P.dailyDone || []).includes(today())) (P.dailyDone = P.dailyDone || []).push(today());
+    if (window.Habits) window.Habits.mark("daily");
   }
   function renderDaily(area) {
     const done = (P.dailyDone || []).includes(today());
@@ -509,7 +513,7 @@
     const pulls = [...(P.pulls || [])].reverse().slice(0, 30);
     const rateLabel = { knew: "Knew it", sort: "Sort of", didnt: "Didn’t" };
     area.innerHTML = `<section class="p-panel"><h3>Progress</h3>
-      <div class="stats"><div><b>${known}</b><small>of 78 known</small></div><div><b>${Object.keys(R).length}</b><small>studied</small></div><div><b>${streak()}</b><small>day streak</small></div><div><b>${Object.keys(P.lessons || {}).length}</b><small>of ${D.LESSONS.length} lessons</small></div></div>
+      <div class="stats"><div><b>${known}</b><small>of 78 known</small></div><div><b>${Object.keys(R).length}</b><small>studied</small></div><div><b>${streak()}</b><small>practice-day streak</small></div><div><b>${Object.keys(P.lessons || {}).length}</b><small>of ${D.LESSONS.length} lessons</small></div></div>
       <div class="bars">${groups.map((x) => `<div class="bar-row"><span>${x.g}</span><div class="bar" role="img" aria-label="${x.g}: ${x.k} known, ${x.s} studied of ${x.n}"><i class="studied" style="width:${(x.s / x.n) * 100}%"></i><i class="known" style="width:${(x.k / x.n) * 100}%"></i></div><small>${x.k}/${x.n}</small></div>`).join("")}</div>
       <p class="legend"><span class="lg known"></span> known (box 4 or 5) <span class="lg studied"></span> studied</p>
       ${recentQuizzesHTML()}
@@ -517,6 +521,7 @@
       ${pulls.length ? `<ul class="pull-list">${pulls.map((p) => `<li><div class="pl-head"><b>${esc(T().short(p.date))}</b> · ${p.mode === "real" ? "own deck" : "app deck"}${p.context === "daily" ? " · daily" : ""}</div>
         ${p.cards.map((c) => { const k = byId(c.id); return `<div class="pl-card">${k ? `<button class="thumb-sm open-card" data-id="${c.id}" data-o="${c.orientation}">${cardImgTag(k, c.orientation)}</button>` : ""}<div><b>${c.position ? esc(c.position) + ": " : ""}${esc(c.name)}</b>${isRev(c.orientation) ? " <small>(reversed)</small>" : ""}${c.rating ? ` <span class="rate-chip ${c.rating}">${rateLabel[c.rating]}</span>` : ""}${c.impression ? `<p class="imp">“${esc(c.impression)}”</p>` : ""}</div></div>`; }).join("")}</li>`).join("")}</ul>` : `<p class="muted">No practice pulls yet. Try Shuffle &amp; pick at the top.</p>`}
       </section>`;
+    if (window.Habits) window.Habits.panel(area);
   }
 
   /* ================= NUMEROLOGY ================= */

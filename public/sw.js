@@ -1,10 +1,10 @@
 /* Tarot service worker: caches the static app shell (plus, since v10, the last good copy of read-only /api GETs for link drops) so the app opens instantly.
    Never caches /api writes, uploads, journal PDF/images, meditate audio, login/logout or anything private.
    Bump VERSION whenever index.html / app.css / app.js / practice*.js change so phones pick up the update. */
-const VERSION = "tarot-shell-v20";
+const VERSION = "tarot-shell-v21";
 const NG = {};
 const SHELL = [
-  "/", "/app.css?v=20", "/app.js?v=20", "/practice-data.js?v=20", "/practice.js?v=20", "/learn-data.js?v=20", "/learn-ui.js?v=20", "/horoscope-story.js?v=20", "/astro-ui.js?v=20", "/config.js", "/vendor/supabase.js?v=20", "/vendor/astronomy.browser.min.js?v=20", "/places.js?v=20", "/astro.js?v=20", "/backend.js?v=20", "/appearance.js?v=20", "/settings.js?v=20", "/compat.js?v=20", "/compat-kb.js?v=20", "/compat-story.js?v=20", "/compat-ui.js?v=20", "/data/cards.json", "/login", "/manifest.webmanifest",
+  "/", "/app.css?v=21", "/app.js?v=21", "/practice-data.js?v=21", "/practice.js?v=21", "/learn-data.js?v=21", "/learn-ui.js?v=21", "/habits.js?v=21", "/horoscope-story.js?v=21", "/astro-ui.js?v=21", "/config.js", "/vendor/supabase.js?v=21", "/vendor/astronomy.browser.min.js?v=21", "/places.js?v=21", "/astro.js?v=21", "/backend.js?v=21", "/appearance.js?v=21", "/settings.js?v=21", "/compat.js?v=21", "/compat-kb.js?v=21", "/compat-story.js?v=21", "/compat-ui.js?v=21", "/data/cards.json", "/login", "/manifest.webmanifest",
   "/icons/icon-192.png", "/icons/icon-512.png", "/icons/apple-touch-icon.png", "/icons/favicon-32.png",
 ];
 // v10: last good copy of a few read-only /api GETs, served only while the public link is down
@@ -89,4 +89,11 @@ self.addEventListener("fetch", (e) => {
     return;
   }
   // Everything else (/api, /uploads, /journal*, /meditate, /login, ...) goes straight to the network.
+});
+
+// v21: tap a lesson reminder → open the app
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || "./";
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((cs) => { for (const c of cs) if ("focus" in c) return c.focus(); return self.clients.openWindow(url); }));
 });

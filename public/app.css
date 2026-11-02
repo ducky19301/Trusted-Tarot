@@ -1206,3 +1206,23 @@ html[data-theme="light"] .tj-btn.pri{color:#fff;background:linear-gradient(180de
 .cx-locked .cx-me{margin:.6rem 0 .1rem;padding:.7rem .9rem;border:1px solid var(--gold-dim);border-radius:12px;background:rgba(var(--deep-rgb),.6)}
 .cx-locked .cx-me-sub{font-size:.85rem;margin:.3rem 0 .2rem}
 .cx-locked .link-btn{min-height:40px}
+/* v21 habits + glossary */
+.hb-banner{display:flex;align-items:center;gap:10px;margin:8px 0 12px;padding:10px 12px;border:1px solid var(--gold,#c9a227);border-radius:14px;background:rgba(201,162,39,.08)}
+.hb-banner .hb-bt{flex:1;display:flex;flex-direction:column}.hb-banner small{opacity:.8}
+.hb-medal{width:110px;height:110px;margin:6px auto 4px;border-radius:50%;display:grid;place-items:center;font-size:44px;font-weight:700;background:radial-gradient(circle at 35% 30%,#f3dc8a,#c9a227 60%,#8a6d12);color:#1a1530}
+.hb-share-img{display:block;width:100%;max-width:300px;margin:6px auto;border-radius:16px}
+.hb-panel .hb-flame{text-align:center}.hb-panel .hb-flame b{font-size:44px;display:block;line-height:1.1}
+.hb-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:8px 0}
+.hb-cal i{font-style:normal;text-align:center;height:28px;line-height:28px;border-radius:8px;border:1px solid rgba(201,162,39,.25);font-size:12px}
+.hb-cal i.hd{border:0;opacity:.7}.hb-cal i.d{background:var(--gold,#c9a227);color:#1a1530}.hb-cal i.fz{background:#2f4a6a}.hb-cal i.rs{background:rgba(255,255,255,.06)}
+.hb-cal i.now{outline:2px solid var(--gold,#c9a227)}.hb-cal i.fut{opacity:.35}
+.hb-back{border:1px solid var(--gold,#c9a227);border-radius:14px;padding:10px 12px;margin-bottom:12px}
+.hb-aw{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.hb-a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border-radius:12px;border:1px solid rgba(201,162,39,.5);background:transparent;color:inherit;font:inherit}
+.hb-a b{font-size:20px}.hb-a small{font-size:11px;text-align:center}.hb-a.off{opacity:.4}
+.hb-tgl{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.hb-tgl span{display:flex;flex-direction:column}.hb-tgl small{opacity:.7}.hb-tgl input{width:22px;height:22px;flex:none}
+.hb-rest{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.hb-card{max-height:86vh;overflow-y:auto}
+.ln-gloss .gl-card b{display:block;margin-bottom:4px}.ln-gloss .gl-card p{margin:4px 0}
+.ln-gloss input[type=search]{width:100%}

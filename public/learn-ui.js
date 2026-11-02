@@ -81,8 +81,9 @@
       <h3 class="center">${esc(s.title)} · ${s.cards.length} of ${s.cards.length} cards ✓</h3>
       <div class="ln-ctas"><button class="btn btn-gold" id="lnPut">✎ Put it together</button><button class="btn btn-ghost" id="lnQuiz">Take the quiz</button></div>
       <p class="muted small">Put it together comes first so you use the idea while it's fresh. What you write is saved in My notes.</p>
-      ${sourcesFooter(s)}<div class="actions"><button class="btn btn-ghost btn-sm" id="lnMore">Learn more ›</button></div></section>`;
+      ${sourcesFooter(s)}<div class="actions"><button class="btn btn-ghost btn-sm" id="lnMore">Learn more ›</button>${id === "learn.glossary" ? `<button class="btn btn-ghost btn-sm" id="lnGlossTab">Practice these terms ›</button>` : ""}</div></section>`;
     $("#lnBack", el).addEventListener("click", back);
+    const gt = $("#lnGlossTab", el); if (gt) gt.addEventListener("click", () => document.dispatchEvent(new CustomEvent("ln:glossary")));
     $("#lnPut", el).addEventListener("click", () => putTogether(el, id, () => end(el, id, back)));
     $("#lnQuiz", el).addEventListener("click", () => quiz(el, id, () => end(el, id, back)));
     $("#lnMore", el).addEventListener("click", () => learnMore(el, id, () => end(el, id, back)));
@@ -241,5 +242,51 @@
     draw();
   }
 
-  window.LearnUI = { home, deck, quiz, learnMore, putTogether, notes, guided, hintsBlock, cardGuide, makeQuestions, sections: secs, store, sheet };
+
+  /* ---------- Glossary tab (Practice › Glossary): search, guided practice, quiz, in-app Learn more ---------- */
+  const GL = () => (window.PRACTICE_DATA.GLOSSARY || []).map(([term, def]) => ({ term, def, parts: L.chunk(def) }));
+  function glossHints(g) {
+    const ss = sentsOf(g.def), w = ss[0].split(/\s+/), out = [];
+    out.push({ skill: "Starts with", text: `The meaning begins: “${w.slice(0, Math.max(2, Math.ceil(w.length / 3))).join(" ")}…”`, source: "app" });
+    if (ss.length > 1) out.push({ skill: "More detail", text: ss.slice(1).join(" "), source: "app" });
+    else if (w.length > 6) out.push({ skill: "More of it", text: `“${w.slice(0, Math.ceil(w.length * 2 / 3)).join(" ")}…”`, source: "app" });
+    return out;
+  }
+  function glossary(el, opts = {}) {
+    let q = opts.q || "";
+    const list = () => GL().filter((g) => !q || (g.term + " " + g.def).toLowerCase().includes(q.toLowerCase()));
+    const draw = () => {
+      const L2 = list();
+      el.innerHTML = `<section class="p-panel ln-gloss"><h2>Glossary</h2>
+        <p class="muted">${GL().length} terms, one idea per card. Search, practise them in your own words, or take the quiz. Nothing here opens another site.</p>
+        <div class="ln-ctas"><button class="btn btn-gold" id="glPractice">Practice glossary</button><button class="btn btn-ghost" id="glQuiz">Glossary quiz</button><button class="btn btn-ghost btn-sm" id="glMore">Learn more ›</button></div>
+        <label class="field"><span>Search the glossary</span><input type="search" id="glSearch" value="${esc(q)}" placeholder="e.g. reversal, suit, court" autocomplete="off" /></label>
+        <p class="muted small" id="glCount">${L2.length} of ${GL().length}</p>
+        <div class="gl-list">${L2.map((g) => `<article class="ln-card gl-card" data-term="${esc(g.term)}"><b>${esc(g.term)}</b>${g.parts.map((t) => `<p>${esc(t)}</p>`).join("")}${srcChip("app")}<button class="link-btn gl-one" data-gt="${esc(g.term)}">Practise this one ›</button></article>`).join("") || `<p class="muted">No term matches “${esc(q)}”.</p>`}</div></section>`;
+      const inp = $("#glSearch", el);
+      inp.addEventListener("input", () => { q = inp.value; const pos = inp.selectionStart; draw(); const n = $("#glSearch", el); n.focus(); n.setSelectionRange(pos, pos); });
+      $("#glPractice", el).addEventListener("click", () => practiceGloss(el, shuffle(GL()).slice(0, 10), 0, draw));
+      $("#glQuiz", el).addEventListener("click", () => quiz(el, "learn.glossary", draw));
+      $("#glMore", el).addEventListener("click", () => learnMore(el, "learn.glossary", draw));
+      $$("[data-gt]", el).forEach((b) => b.addEventListener("click", () => practiceGloss(el, GL().filter((g) => g.term === b.dataset.gt), 0, draw)));
+    };
+    draw();
+  }
+  function practiceGloss(el, items, i, back) {
+    if (i >= items.length) {
+      el.innerHTML = `<section class="p-panel"><h3>Glossary practice</h3><p><b>${items.length} term${items.length === 1 ? "" : "s"} done.</b> Your writing is never scored.</p><div class="actions"><button class="btn btn-gold" id="glDone">Back to Glossary</button><button class="btn btn-ghost" id="glQ2">Take the glossary quiz</button></div></section>`;
+      $("#glDone", el).addEventListener("click", back); $("#glQ2", el).addEventListener("click", () => quiz(el, "learn.glossary", back));
+      const st = store.get(); st.glossary = (st.glossary || 0) + items.length; st.glossDate = today(); store.set(st);
+      return;
+    }
+    const g = items[i];
+    el.innerHTML = `<section class="p-panel"><div class="ln-top"><button class="link-btn" id="glBack">‹ Glossary</button><span class="muted">Practice · ${i + 1} of ${items.length}</span></div><div id="glStage"></div></section>`;
+    $("#glBack", el).addEventListener("click", back);
+    guided($("#glStage", el), { title: `What does “${g.term}” mean?`, prompt: "Write it in your own words first", checklist: [], hints: glossHints(g), reveal: g.parts, revealLabel: `${g.term}: the meaning`,
+      rateLabels: [["didnt", "Again"], ["sort", "Close"], ["knew", "Got it"]],
+      onRate: (r) => { const st = store.get(); st.ratings["g:" + g.term] = { r, date: today() }; store.set(st); practiceGloss(el, items, i + 1, back); },
+      onNext: () => practiceGloss(el, items, i + 1, back) });
+  }
+
+  window.LearnUI = { glossary, home, deck, quiz, learnMore, putTogether, notes, guided, hintsBlock, cardGuide, makeQuestions, sections: secs, store, sheet };
 })();
