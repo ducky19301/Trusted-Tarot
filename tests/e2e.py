@@ -92,8 +92,14 @@ with sync_playwright() as p:
     page.wait_for_timeout(1500); print("profile:", page.inner_text("#profile")[:160].replace("\n"," | "))
     check(page.evaluate("() => [...document.querySelectorAll('img')].some(i => i.src.startsWith('data:image/png') || i.src.includes('/storage/v1/object/sign/'))"), "private photo shows through a signed link")
     page.screenshot(path=str(SHOTS / "05-guest-nick.png"), full_page=True)
-    for tab in ["today", "journal", "guests", "cards", "practice", "astro", "meditate", "friends"]:
+    for tab in ["today", "journal", "guests", "cards", "practice", "astro", "meditate", "friends", "compat"]:
         page.evaluate(f"location.hash = '{tab}'"); page.wait_for_timeout(900); page.screenshot(path=str(SHOTS / f"tab-{tab}.png"))
+    page.evaluate("location.hash='compat'"); page.wait_for_timeout(1200)
+    check(page.locator("#compatBody").is_visible(), "compatibility tab opens")
+    page.locator("#compatBody button", has_text="New reading").first.click(); page.wait_for_timeout(800)
+    t = page.inner_text("#compatBody"); check("Natalie" in t and "from your profile" in t, "compat: Person 1 prefilled from her profile")
+    page.screenshot(path=str(SHOTS / "tab-compat-form.png"))
+    check(page.locator("#tjGear").count() == 1, "Settings gear in the header")
     page.evaluate("location.hash='journal'"); page.wait_for_timeout(800)
     ok_imgs = page.evaluate("() => [...document.querySelectorAll('img')].filter(i => i.complete && i.naturalWidth > 0 && /deck-|journal-img/.test(i.src)).length")
     check(ok_imgs > 0, f"card pictures load ({ok_imgs} on the journal tab)")

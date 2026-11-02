@@ -332,6 +332,7 @@
       if (!b) throw Object.assign(bad("Add your birthday to your account to get a daily horoscope."), { extra: { needs: "birth" } });
       return cachedAstro(p.is_owner ? "owner" : "me", b, today());
     }
+    if (path === "/api/profile/birth") { const p = await profile(), b = p.birth && p.birth.y ? p.birth : null; return { birth: b, name: b ? (p.display || p.username || "") : null }; }   // compat tab: Person 1 (own row only)
     if (path === "/api/moon") {
       const mo = cachedAstro("moon", { y: 2000, m: 1, d: 1, hour: null, minute: null, tz: "UTC", lat: 0, lon: 0 }, today()).moon, el = +mo.elongation;
       return { date: today(), phase: mo.phase, sign: mo.sign, elongation: el, special: el < 12 || el > 348 ? "new" : Math.abs(el - 180) < 12 ? "full" : null };

@@ -1,17 +1,17 @@
 /* Tarot service worker: caches the static app shell (plus, since v10, the last good copy of read-only /api GETs for link drops) so the app opens instantly.
    Never caches /api writes, uploads, journal PDF/images, meditate audio, login/logout or anything private.
    Bump VERSION whenever index.html / app.css / app.js / practice*.js change so phones pick up the update. */
-const VERSION = "tarot-shell-v17";
+const VERSION = "tarot-shell-v19";
 const NG = {};
 const SHELL = [
-  "/", "/app.css?v=17", "/app.js?v=17", "/practice-data.js?v=17", "/practice.js?v=17", "/config.js", "/vendor/supabase.js?v=17", "/vendor/astronomy.browser.min.js?v=17", "/places.js?v=17", "/astro.js?v=17", "/backend.js?v=17", "/data/cards.json", "/login", "/manifest.webmanifest",
+  "/", "/app.css?v=19", "/app.js?v=19", "/practice-data.js?v=19", "/practice.js?v=19", "/config.js", "/vendor/supabase.js?v=19", "/vendor/astronomy.browser.min.js?v=19", "/places.js?v=19", "/astro.js?v=19", "/backend.js?v=19", "/appearance.js?v=19", "/settings.js?v=19", "/compat.js?v=19", "/compat-kb.js?v=19", "/compat-story.js?v=19", "/compat-ui.js?v=19", "/data/cards.json", "/login", "/manifest.webmanifest",
   "/icons/icon-192.png", "/icons/icon-512.png", "/icons/apple-touch-icon.png", "/icons/favicon-32.png",
 ];
 // v10: last good copy of a few read-only /api GETs, served only while the public link is down
 const API_CACHE = "tarot-api-v1";
 const API_RE = /^$/;   // v17: data comes from Supabase (backend.js keeps its own offline copy)
 const CACHE_OK = (res) => res && res.ok && !res.redirected && res.type === "basic";
-const STATIC_RE = /^\/(app\.css|app\.js|practice\.js|practice-data\.js|backend\.js|astro\.js|places\.js|vendor\/[\w.-]+\.js|data\/cards\.json|manifest\.webmanifest|icons\/[\w.-]+\.png|(deck-img|deck-thumb)\/[a-z0-9]{4}\.jpg)$/;
+const STATIC_RE = /^\/(app\.css|app\.js|practice\.js|practice-data\.js|backend\.js|appearance\.js|settings\.js|compat(-kb|-story|-ui)?\.js|astro\.js|places\.js|vendor\/[\w.-]+\.js|data\/cards\.json|manifest\.webmanifest|icons\/[\w.-]+\.png|(deck-img|deck-thumb)\/[a-z0-9]{4}\.jpg)$/;
 
 self.addEventListener("install", (e) => {
   e.waitUntil((async () => {

@@ -11,8 +11,8 @@
   const uploadUrl = (p) => "/" + String(p || "").replace(/^\/+/, "");
   const REVERSED_CHANCE = 0.4;
   const LABELS = { lcr: ["Left", "Center", "Right"], ppf: ["Past", "Present", "Future"] };
-  const TABS = ["today", "journal", "guests", "cards", "practice", "astro", "meditate", "friends"];
-  const MORE_TABS = ["guests", "astro", "meditate", "friends"];   // behind "More" in the phone bottom bar
+  const TABS = ["today", "journal", "compat", "guests", "cards", "practice", "astro", "meditate", "friends"];
+  const MORE_TABS = ["compat", "guests", "astro", "meditate", "friends"];   // behind "More" in the phone bottom bar
 
   const S = {
     cards: [], byName: new Map(), entries: [], gaps: [], guests: [], outbox: [],
@@ -429,6 +429,7 @@
     if (window.TarotApp && window.TarotApp.onShow) window.TarotApp.onShow(name);
     if (name === "meditate" && !S.medLoaded) { setMed($(".seg-btn[data-med].active").dataset.med); S.medLoaded = true; }
     if (name === "friends") renderFriends();
+    if (name === "compat" && window.TAROT_COMPAT_UI) window.TAROT_COMPAT_UI.show();
     if (location.hash.slice(1).split("?")[0] !== name) history.replaceState(null, "", location.pathname + location.search + "#" + name);
   }
   $$(".tab[data-tab]").forEach((t) => t.addEventListener("click", () => showTab(t.dataset.tab)));
