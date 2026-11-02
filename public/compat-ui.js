@@ -239,9 +239,9 @@
     const st = ST.story(res);
     const canWheel = res.people.every((p) => p.birth);
     el().innerHTML = `<button class="link-btn cx-backlink" id="cxBack">‹ Readings</button>
-      <header class="cx-rhead"><p class="label">Compatibility</p><h2>${esc(st.people[0])} &amp; ${esc(st.people[1])}</h2>
-        <p class="muted">${fmtDay(rec.created)}${S.cur.readOnly ? " · shared with you" : ""}</p></header>
-      <article class="cx-story">${st.paras.map((p) => `<section class="cx-para" data-id="${esc(p.id)}"><h3>${esc(p.title)} <button class="cx-i" data-info="${esc(p.info)}" aria-label="How this was worked out: ${esc(p.title)}">i</button></h3><p>${esc(p.text)}</p></section>`).join("")}</article>
+      <header class="cx-rhead"><p class="label">Compatibility for ${esc(st.people[0])} &amp; ${esc(st.people[1])}</p><h2>Your reading</h2>
+        <p class="muted">from Astro · ${fmtDay(rec.created)}${S.cur.readOnly ? " · shared with you" : ""}</p></header>
+      ${storyHTML(st, true)}
       <div class="cx-tw"><section class="cx-tips"><h3>Tips</h3><ul>${st.tips.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></section>
         ${st.warnings.length ? `<section class="cx-warn"><h3>Watch for</h3><ul>${st.warnings.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></section>` : ""}</div>
       <h3 class="cx-h">Contacts at a glance</h3>${heatHTML(st.heat, st.people)}
@@ -256,6 +256,12 @@
     const sh = $("#cxShare"); if (sh) sh.onclick = share;
     const dl = $("#cxDel"); if (dl) dl.onclick = del;
     window.scrollTo({ top: 0, behavior: reduce() ? "auto" : "smooth" });
+  }
+  // v8: one continuous first-person story from Astro; each paragraph keeps an (i) to its working
+  function storyHTML(st, withInfo) {
+    return `<article class="cx-story" aria-label="Your reading, told by Astro"><p class="cx-by"><span class="cx-astro" aria-hidden="true">✦</span> <b>Astro</b> · your compatibility reader</p>
+      ${st.paras.map((p) => `<section class="cx-para" data-id="${esc(p.id)}"><h3 class="sr-only">${esc(p.title)}</h3><p>${esc(p.text)}${withInfo && p.info ? ` <button class="cx-i" data-info="${esc(p.info)}" aria-label="How this was worked out: ${esc(p.title)}">i</button>` : ""}</p></section>`).join("")}
+      <p class="cx-sign">Astro ✦</p></article>`;
   }
   function sectionHTML(s) {
     const list = (t, xs) => xs && xs.length ? `<h4>${t}</h4><ul>${xs.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
@@ -277,6 +283,8 @@
       ${res.timeNotes.length ? `<p class="cx-note">${res.timeNotes.map(esc).join(" ")}</p>` : ""}
       ${res.sections.map((s) => `<details class="cx-det"><summary>${esc(s.title)}</summary>${sectionHTML(s)}</details>`).join("")}
       <h4>Research</h4><ul>${(res.research || []).map((r) => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.title)}</a><br><small>${esc(r.what || "")}</small></li>`).join("")}</ul>
+      <h4>Research behind the tips</h4><p class="muted">The tips and warnings in the story lean on relationship research, not on astrology. Labels say how much was read.</p>
+      <ul class="cx-srcs">${(ST.story(res).research || []).map((s) => `<li>${badge(s.status)} ${esc(s.author)}, ${esc(s.work)}${s.year ? ` <small>(${esc(s.year)})</small>` : ""}</li>`).join("")}</ul>
       <h4>Knowledge base sources</h4><p class="muted">Labels say how much of each source was actually read. “Listed only” sources are never quoted or paraphrased.</p>
       <ul class="cx-srcs">${srcs.map(([, s]) => `<li>${badge(s.status)} ${s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.author)}${s.work ? ", " + esc(s.work) : ""}</a>` : esc(s.author + (s.work ? ", " + s.work : ""))}${s.year ? ` <small>(${esc(s.year)})</small>` : ""}</li>`).join("")}</ul>`);
   }
@@ -319,7 +327,7 @@
     S.view = "shared";
     el().innerHTML = `<button class="link-btn cx-backlink" id="cxBack">‹ Readings</button>
       <header class="cx-rhead"><p class="label">Shared by ${esc(x.owner.display)}</p><h2>${esc(x.title)}</h2></header>
-      <article class="cx-story">${(p.paras || []).map((q) => `<section class="cx-para"><h3>${esc(q.title)}</h3><p>${esc(q.text)}</p></section>`).join("")}</article>
+      ${storyHTML({ paras: p.paras || [] }, false)}
       <div class="cx-tw"><section class="cx-tips"><h3>Tips</h3><ul>${(p.tips || []).map((t) => `<li>${esc(t)}</li>`).join("")}</ul></section>
       ${(p.warnings || []).length ? `<section class="cx-warn"><h3>Watch for</h3><ul>${p.warnings.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></section>` : ""}</div>
       <div class="cx-bar"><button class="btn btn-ghost" id="cxRemove">Remove from my list</button></div>`;

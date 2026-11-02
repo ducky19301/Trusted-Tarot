@@ -1,10 +1,10 @@
 /* Tarot service worker: caches the static app shell (plus, since v10, the last good copy of read-only /api GETs for link drops) so the app opens instantly.
    Never caches /api writes, uploads, journal PDF/images, meditate audio, login/logout or anything private.
    Bump VERSION whenever index.html / app.css / app.js / practice*.js change so phones pick up the update. */
-const VERSION = "tarot-shell-v21";
+const VERSION = "tarot-shell-v22";
 const NG = {};
 const SHELL = [
-  "/", "/app.css?v=21", "/app.js?v=21", "/practice-data.js?v=21", "/practice.js?v=21", "/learn-data.js?v=21", "/learn-ui.js?v=21", "/habits.js?v=21", "/horoscope-story.js?v=21", "/astro-ui.js?v=21", "/config.js", "/vendor/supabase.js?v=21", "/vendor/astronomy.browser.min.js?v=21", "/places.js?v=21", "/astro.js?v=21", "/backend.js?v=21", "/appearance.js?v=21", "/settings.js?v=21", "/compat.js?v=21", "/compat-kb.js?v=21", "/compat-story.js?v=21", "/compat-ui.js?v=21", "/data/cards.json", "/login", "/manifest.webmanifest",
+  "/", "/app.css?v=22", "/app.js?v=22", "/practice-data.js?v=22", "/practice.js?v=22", "/learn-data.js?v=22", "/learn-ui.js?v=22", "/habits.js?v=22", "/horoscope-story.js?v=22", "/astro-ui.js?v=22", "/config.js", "/vendor/supabase.js?v=22", "/vendor/astronomy.browser.min.js?v=22", "/places.js?v=22", "/astro.js?v=22", "/backend.js?v=22", "/appearance.js?v=22", "/settings.js?v=22", "/compat.js?v=22", "/compat-kb.js?v=22", "/compat-story.js?v=22", "/compat-ui.js?v=22", "/data/cards.json", "/login", "/manifest.webmanifest",
   "/icons/icon-192.png", "/icons/icon-512.png", "/icons/apple-touch-icon.png", "/icons/favicon-32.png",
 ];
 // v10: last good copy of a few read-only /api GETs, served only while the public link is down

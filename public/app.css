@@ -1226,3 +1226,12 @@ html[data-theme="light"] .tj-btn.pri{color:#fff;background:linear-gradient(180de
 .hb-card{max-height:86vh;overflow-y:auto}
 .ln-gloss .gl-card b{display:block;margin-bottom:4px}.ln-gloss .gl-card p{margin:4px 0}
 .ln-gloss input[type=search]{width:100%}
+/* v8 compatibility story: one card, told by Astro */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.cx-story { background: var(--card, rgba(255,255,255,.04)); border: 1px solid var(--line, rgba(255,255,255,.12)); border-radius: 16px; padding: 1.1rem 1.1rem .8rem; margin: .8rem 0 1rem; }
+.cx-by { margin: 0 0 .8rem; color: var(--gold-soft); font-size: .9rem; }
+.cx-astro { display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: rgba(212,175,55,.18); }
+.cx-story .cx-para { margin-bottom: .9rem; }
+.cx-story .cx-para p { color: var(--text, inherit); font-size: 1rem; line-height: 1.7; }
+.cx-story .cx-i { vertical-align: middle; }
+.cx-sign { text-align: right; font: italic 1rem var(--serif); color: var(--gold-soft); margin: .2rem 0 0; }
