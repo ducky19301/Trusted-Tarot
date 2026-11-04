@@ -18,7 +18,7 @@
   const sec = (id) => secs().find((s) => s.id === id);
   const AREA_NAME = { learn: "Learn", numbers: "Numbers", spreads: "Spreads", sky: "Learn to read charts", tarot: "Learn" };
   const srcChip = (k) => { const s = L.SOURCES[k] || L.SOURCES.app; return `<button type="button" class="ln-chip" data-src="${k}">${esc(s.author.split(",")[0])} · ${esc(L.READ_LABEL[s.read])}</button>`; };
-  const KIND = { traditional: "Tradition", study: "What studies show", "how-to": "How to", method: "Method" };
+  const KIND = { traditional: "Tradition", study: "What studies show", "how-to": "How to", method: "Method", ourmethod: "Our method" };
 
   /* ---------- in-app sheets ---------- */
   function sheet(html) {
@@ -34,7 +34,7 @@
     sheet(`<h3>${esc(s.work)}</h3><p><b>${esc(s.author)}</b>${s.year ? ` · ${esc(s.year)}` : ""}</p><p><span class="ln-status st-${s.read}">${esc(L.READ_LABEL[s.read])}</span></p>
       ${s.note ? `<p>${esc(s.note)}</p>` : ""}<p class="muted">Where to read it: ${esc(s.where)}</p><p class="muted small">The link to the source is at the bottom of Learn more, at the end of the section.</p>`);
   }
-  document.addEventListener("click", (e) => { const b = e.target.closest("[data-src]"); if (b) sourceSheet(b.dataset.src); });
+  document.addEventListener("click", (e) => { const b = e.target.closest(".ln-chip[data-src]"); if (b) sourceSheet(b.dataset.src); });
 
   /* ---------- home ---------- */
   function home(el, area, opts = {}) {
@@ -81,9 +81,10 @@
       <h3 class="center">${esc(s.title)} · ${s.cards.length} of ${s.cards.length} cards ✓</h3>
       <div class="ln-ctas"><button class="btn btn-gold" id="lnPut">✎ Put it together</button><button class="btn btn-ghost" id="lnQuiz">Take the quiz</button></div>
       <p class="muted small">Put it together comes first so you use the idea while it's fresh. What you write is saved in My notes.</p>
-      ${sourcesFooter(s)}<div class="actions"><button class="btn btn-ghost btn-sm" id="lnMore">Learn more ›</button>${id === "learn.glossary" ? `<button class="btn btn-ghost btn-sm" id="lnGlossTab">Practice these terms ›</button>` : ""}</div></section>`;
+      ${sourcesFooter(s)}<div class="actions"><button class="btn btn-ghost btn-sm" id="lnMore">Learn more ›</button>${id === "learn.glossary" ? `<button class="btn btn-ghost btn-sm" id="lnGlossTab">Practice these terms ›</button>` : ""}${id === "learn.cohesive" && window.Cohesive ? `<button class="btn btn-ghost btn-sm" id="lnCohPr">Practice a whole reading ›</button>` : ""}</div></section>`;
     $("#lnBack", el).addEventListener("click", back);
     const gt = $("#lnGlossTab", el); if (gt) gt.addEventListener("click", () => document.dispatchEvent(new CustomEvent("ln:glossary")));
+    const cp = $("#lnCohPr", el); if (cp) cp.addEventListener("click", () => cohPractice(el, () => end(el, id, back)));
     $("#lnPut", el).addEventListener("click", () => putTogether(el, id, () => end(el, id, back)));
     $("#lnQuiz", el).addEventListener("click", () => quiz(el, id, () => end(el, id, back)));
     $("#lnMore", el).addEventListener("click", () => learnMore(el, id, () => end(el, id, back)));
@@ -151,6 +152,13 @@
     for (const c of shuffle(cards.filter((x) => !(x.term || x.theme || x.pos || x.house || x.key)))) {
       if (qs.length >= n || pool.length < 3) break;
       qs.push(mc("Which of these did this section teach?", c.text, shuffle(pool).slice(0, 6).map((x) => x.text), c, `It starts “${words(c.text, 4)}…”`));
+    }
+    if (s.id === "learn.cohesive") {
+      const c0 = cards[0], c4 = cards[4] || cards[0], c5 = cards[5] || cards[0];
+      qs.unshift(
+        { prompt: "You are reading for Jordan. Which past readings should you tie in?", options: ["Your own last four", "Jordan's last two to four", "Anyone's with the same cards", "None, ever"], answer: 1, card: c4, hints: ["Look at card 5 of this section.", "Same person only."], why: c4.text },
+        { prompt: "The Nine of Wands sits in the Situation position. What does it describe?", options: ["What to do next", "Where things stand now", "How it will end"], answer: 1, card: c0, hints: ["Read the position before the card."], why: c0.text },
+        { prompt: "How should a whole reading end?", options: ["With a verdict", "With a yes or no", "With questions to think about"], answer: 2, card: c5, hints: ["Leave out any verdict."], why: c5.text });
     }
     if (s.id === "learn.reversals") {
       const c = cards.find((x) => /Overdone/.test(x.text)) || cards[0];
@@ -233,6 +241,24 @@
     };
     draw();
     return S;
+  }
+  /* v23: practise reading a whole spread together (write first → hints → the app's combined reading beside yours) */
+  function cohPractice(el, back) {
+    const all = (window.TarotApp && window.TarotApp.S.cards) || [], P = window.PRACTICE_DATA || {};
+    if (all.length < 3) return back();
+    const pick = shuffle(all).slice(0, 3), POS = [["Situation", "what is really going on"], ["Action", "what to do about it"], ["Outcome", "the likely result of that action"]];
+    const rows = pick.map((c, i) => ({ id: c.id, orientation: Math.random() < 0.35 ? "reversed" : "upright", position: POS[i][0], pm: POS[i][1] }));
+    const res = window.Cohesive.build({ cards: rows, intent: null, past: [], person: { kind: "me" } }, { cards: all, numbers: P.NUMBERS || [], courts: (P.COURT_STAGES || []).filter((x) => x.rank) });
+    const sec_ = (k) => (res.sections.find((x) => x.id === k) || { paras: [] }).paras;
+    const hints = [{ skill: "Positions", text: POS.map((p) => `${p[0]}: ${p[1]}`).join(" · "), source: "app" }].concat(sec_("connect").slice(1, 4).map((t) => ({ skill: "Thread", text: t, source: "app" })));
+    el.innerHTML = `<section class="p-panel"><div class="ln-top"><button class="link-btn" id="lnBack">✕ Close</button><span class="muted">Practice · a whole reading</span></div><div id="cohGp"></div></section>`;
+    $("#lnBack", el).addEventListener("click", back);
+    const media = pick.map((c, i) => `<figure class="coh-fig"><img src="/deck-thumb/${esc(String(c.img).split("/").pop())}" alt="${esc(c.name)}" class="${rows[i].orientation === "reversed" ? "reversed-img" : ""}"/><figcaption><small>${POS[i][0]}</small><br/>${esc(c.name)}${rows[i].orientation === "reversed" ? " (reversed)" : ""}</figcaption></figure>`).join("");
+    guided($("#cohGp", el), { media: `<div class="coh-figs">${media}</div>`, title: "Read these three cards as one reading", prompt: "Write what the three cards say together, in one paragraph.",
+      firstTip: "Check each position, any reversal, shared suits, elements or numbers, and the Major cards.", hints,
+      reveal: sec_("together").concat(sec_("connect").slice(0, 1)), revealLabel: "The app's combined reading (Our method, from the app's card text)",
+      extra: { label: "Questions to think about", text: res.questions.slice(0, 3).join(" ") }, onNext: () => cohPractice(el, back) });
+    window.scrollTo({ top: 0 });
   }
   // a small hints block (for places that already have their own write box, like Shuffle & pick and Spreads practice)
   function hintsBlock(el, hints) {

@@ -37,7 +37,7 @@
     const secs = [];
     for (const l of D.LESSONS) {
       const cards = [];
-      l.body.forEach((p, pi) => chunk(p).forEach((t) => cards.push({ text: t, para: pi, kind: "traditional", source: l.resources && l.resources.includes("pkt") && /Waite/.test(t) ? "pkt" : "app" })));
+      l.body.forEach((p, pi) => chunk(p).forEach((t) => cards.push({ text: t, para: pi, kind: l.method ? "ourmethod" : "traditional", source: l.resources && l.resources.includes("pkt") && /Waite/.test(t) ? "pkt" : "app" })));
       secs.push({ id: "learn." + l.id, area: "learn", system: "tarot", title: l.title, cards, tryThis: l.exercise, original: l.body, deckCards: l.cards || [],
         sources: ["app", ...(l.resources || []).includes("pkt") ? ["pkt"] : []],
         put: { prompt: l.exercise, fields: ["What did you do or notice?", "What would you tell yourself next time?"] } });

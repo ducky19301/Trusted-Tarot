@@ -163,6 +163,16 @@ window.PRACTICE_DATA = (() => {
         "A. E. Waite and Pamela Colman Smith were both members of the Golden Dawn. Their deck, published by Rider in 1909, gave every numbered card a scene, which is why it's so readable. A few of Smith's pictures echo the fifteenth-century Sola Busca deck, whose photographs reached the British Museum in 1907.",
       ],
       exercise: "Look up the Tarot of Marseilles on Wikipedia and compare its Ten of Swords with yours. Write down what Smith added and what she kept." },
+    { id: "cohesive", title: "13. Reading cards together: the whole reading", cards: ["wa09", "cu03", "ar17"], resources: ["pkt"], method: true,
+      body: [
+        "Read the position before the card. Each position asks its own question, so the Nine of Wands as Situation means where you are, not what to do.",
+        "Find the thread the cards share. Look for the same suit or element, a repeated number, several Major cards, or a card's In a spread note that names another card in the reading.",
+        "Let a reversal change the card's role. Ask whether it is blocked, delayed or overdone, and notice how that changes what the cards say together.",
+        "Hold every card against your intention. Say each card's key words in terms of what you asked, one sentence per card; with no intention, keep the reading general.",
+        "Look back at the same person's last two to four readings. A card, number or suit that keeps coming back is worth a sentence of its own, and never mix one person's readings with another's.",
+        "Say it as one plain paragraph and end with questions. Join the cards with and, but and so, leave out any verdict, and ask what each card could mean in your life.",
+      ],
+      exercise: "Open your last saved reading in the Journal. Write it as one paragraph using the six steps, then write two questions it leaves you with." },
     { id: "one-card-deeply", title: "12. Getting to know one card deeply", cards: ["ar09", "ar17"], resources: ["greer21", "pollack78"],
       body: [
         "Reading lots of meanings is useful, but real confidence comes from knowing a few cards very well. Choosing one card and spending a week with it teaches you more than a month of flashcards.",

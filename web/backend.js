@@ -150,7 +150,7 @@
     return rec;
   }
   const summaryFor = (c, o) => o === "reversed" ? c.reversed : o === "unknown" ? `Orientation not recorded. Upright: ${c.upright} Reversed: ${c.reversed}` : c.upright;
-  async function savePersonal(date, rows, note = "", labels = null, photos = null, reading = "") {
+  async function savePersonal(date, rows, note = "", labels = null, photos = null, reading = "", meta = null) {
     let added = [], skipped = [];
     await mutate("entries", (entries) => {
       if (!Array.isArray(entries)) throw bad("entries is not a list");
@@ -163,6 +163,8 @@
         (day.cards = day.cards || []).push({ ...(pos ? { position: pos } : {}), name: c.name, orientation: o, img: `img/${f}`, source: s, summary: summaryFor(c, o), sitWith: c.sitWith, astro: null });
         added.push(c.name);
       }
+      // v23: intention and spread are real fields now (old entries keep the "Intention: ..." line in notes)
+      if (meta && added.length) { if (meta.intent) day.intent = meta.intent; if (meta.spread) day.spread = meta.spread; if (meta.cohesive) day.cohesive = meta.cohesive; }
       const newPhotos = (photos || []).filter((p) => !(day.photos || []).includes(p));
       if (!added.length && !newPhotos.length) return;
       const extra = [], nm = (c, o) => `${c.name}${o === "reversed" ? " (reversed)" : ""}`;
@@ -397,7 +399,9 @@
     if (path === "/api/entries") {
       const rows = await parseCards(body);
       const labels = Array.isArray(body.spreadLabels) ? body.spreadLabels.map((x) => clean(x, 40)).slice(0, 12) : null;
-      return { ok: true, date, ...(await savePersonal(date, rows, clean(body.note), labels)) };
+      const it = body.intent && typeof body.intent === "object" && clean(body.intent.text, 300) ? { type: body.intent.type === "question" ? "question" : "intention", text: clean(body.intent.text, 300) } : null;
+      const ex = body.cohesive && Array.isArray(body.cohesive.exclude) ? body.cohesive.exclude.map((x) => clean(x, 40)).filter(Boolean).slice(0, 20) : [];
+      return { ok: true, date, ...(await savePersonal(date, rows, clean(body.note), labels, null, "", { intent: it, spread: clean(body.spread, 80) || null, cohesive: { exclude: ex } })) };
     }
     if ((m = path.match(/^\/api\/entries\/(\d{4}-\d{2}-\d{2})\/astro$/))) {
       const d = m[1], cardAstro = body.cardAstro || {}; let weave = String(body.weave || "").trim();

@@ -1235,3 +1235,9 @@ html[data-theme="light"] .tj-btn.pri{color:#fff;background:linear-gradient(180de
 .cx-story .cx-para p { color: var(--text, inherit); font-size: 1rem; line-height: 1.7; }
 .cx-story .cx-i { vertical-align: middle; }
 .cx-sign { text-align: right; font: italic 1rem var(--serif); color: var(--gold-soft); margin: .2rem 0 0; }
+/* v23 cohesive reading */
+.coh-today{margin:.8rem 0}.coh-sum{background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.35);border-radius:14px;padding:.8rem .9rem}
+.coh-sum p{margin:.35rem 0 .6rem;line-height:1.5}.coh-pick{margin:.5rem 0;display:flex;flex-direction:column;gap:.25rem;font-size:.85rem}
+.coh-pk{display:flex;gap:.4rem;align-items:flex-start}.coh-sec{margin:.9rem 0}.coh-sec h4{margin:.2rem 0}.coh-lab{display:block;opacity:.7;font-size:.75rem;margin-bottom:.3rem}
+.coh-sec p{line-height:1.55;margin:.4rem 0}.coh-q li{margin:.35rem 0;line-height:1.45}.coh-det{margin:.6rem 0;font-size:.88rem}.coh-det summary{cursor:pointer;font-weight:600}
+.coh-figs{display:flex;gap:.5rem;justify-content:center}.coh-fig{margin:0;text-align:center;width:31%;font-size:.75rem}.coh-fig img{width:100%;border-radius:8px}

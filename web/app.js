@@ -482,7 +482,7 @@
     $("#physicalControls").hidden = S.src !== "physical";
     $("#photoBox").hidden = S.src !== "photo";
     $("#spreadRow").hidden = S.src === "photo";
-    if (S.src === "physical") renderPickers();
+    if (S.src === "physical") { renderPickers(); cohIntentPhysical(); }
     hint.textContent = S.src === "digital" ? "Shuffle when you’re ready, then draw."
       : S.src === "physical" ? "Tap the card" + (S.count > 1 ? "s" : "") + " you pulled, then set how " + (S.count > 1 ? "each" : "it") + " landed." : "";
     renderToday();
@@ -586,6 +586,56 @@
     const r = $("#redrawBtn"); r.hidden = !drawn;
     r.innerHTML = S.saved ? `<span aria-hidden="true">✦</span> Pull another` : `<span aria-hidden="true">↺</span> Redraw`;
   }
+
+  /* v23 cohesive reading: all cards together + the same person's last 2-4 readings (public/cohesive.js) */
+  const cohKB = () => { const pm = {}; Object.values(SPREADS).forEach((sp) => sp.pos.forEach(([n, m]) => { pm[n] = pm[n] || m; })); Object.entries(LCR_MEAN).forEach(([n, m]) => { pm[n] = m; });
+    return { cards: S.cards, numbers: (window.PRACTICE_DATA || {}).NUMBERS || [], courts: ((window.PRACTICE_DATA || {}).COURT_STAGES || []).filter((x) => x.rank), posMeanings: pm }; };
+  const cohExKey = (d) => "tt.coh.ex." + d;
+  const cohEx = (d, day) => { try { const v = JSON.parse(localStorage.getItem(cohExKey(d)) || "null"); if (Array.isArray(v)) return v; } catch (e) {} return (day && day.cohesive && day.cohesive.exclude) || []; };
+  const cohSetEx = (d, arr) => { try { localStorage.setItem(cohExKey(d), JSON.stringify(arr)); } catch (e) {} };
+  const cohMine = () => S.entries || [];
+  function cohPickerHTML(offered, ex) {
+    if (!offered.length) return `<p class="muted small coh-none">No earlier readings yet, so there is nothing to tie in.</p>`;
+    return `<div class="coh-pick"><span class="label">Past readings tied in · yours only · last ${offered.length}</span>${offered.map((e) => { const k = e.id || e.date; return `<label class="coh-pk"><input type="checkbox" data-coh-ex="${esc(k)}" ${ex.includes(k) ? "" : "checked"}/> <b>${esc(short(e.date))}</b> · ${esc((e.cards || []).map((c) => c.name + (isRev(c.orientation) ? " (rev)" : "")).join(", "))}</label>`; }).join("")}<small class="muted">Untick any you want left out.</small></div>`;
+  }
+  function wireCohPicker(root, date, rerender) {
+    $$("[data-coh-ex]", root).forEach((b) => b.addEventListener("change", () => { const ex = new Set(cohEx(date)); b.checked ? ex.delete(b.dataset.cohEx) : ex.add(b.dataset.cohEx); cohSetEx(date, [...ex]); rerender(); }));
+  }
+  function renderCohToday(complete) {
+    let box = $("#cohToday");
+    if (!box) { box = document.createElement("div"); box.id = "cohToday"; box.className = "coh-today"; stage.after(box); }
+    const guest = S.forWho && S.forWho.kind === "guest";
+    if (!complete || S.src === "photo" || guest || !window.Cohesive || S.drawn.length < 1) { box.innerHTML = ""; box.hidden = true; return; }
+    box.hidden = false;
+    const date = localDate(), ex = cohEx(date), pk = Cohesive.pickPast(cohMine(), date, { exclude: ex });
+    const res = Cohesive.build({ cards: S.drawn.map((d, i) => ({ id: d.card.id, orientation: d.orientation, position: posLabel(i) || "", pm: (posMeaning(i) || {}).meaning || "" })), intent: S.intent, past: pk.used, person: { kind: "me" } }, cohKB());
+    box.innerHTML = `<div class="coh-sum"><span class="label">The cards together${res.general ? " · general reading" : ""}</span><p>${esc(res.summary)}</p>
+      ${cohPickerHTML(pk.offered, ex)}
+      <button class="btn btn-gold btn-sm" id="cohMore">${S.saved && S.savedMine ? "Read more in Journal ›" : "Save and read more in Journal ›"}</button>
+      <small class="muted">The full reading ends with questions to think about.</small></div>`;
+    wireCohPicker(box, date, () => renderCohToday(true));
+    $("#cohMore", box).addEventListener("click", async () => {
+      if (!(S.saved && S.savedMine)) { $("#saveMineBtn").click(); for (let i = 0; i < 40 && !S.savedMine; i++) await new Promise((r) => setTimeout(r, 150)); }
+      const days = sortedDays(); const i = days.findIndex((d) => d.date === date); if (i >= 0) S.jIndex = i;
+      showTab("journal"); renderJournal(); const j = $("#cohJournal"); if (j) j.scrollIntoView({ block: "start" });
+    });
+  }
+  function cohJournalHTML(day) {
+    if (!window.Cohesive || !(day.cards || []).length) return "";
+    const ex = cohEx(day.date, day), pk = Cohesive.pickPast(cohMine(), day.date, { exclude: ex });
+    const res = Cohesive.build({ cards: day.cards, intent: Cohesive.intentOf(day), past: pk.used, person: { kind: "me" } }, cohKB());
+    return `<div class="notes coh-journal" id="cohJournal"><span class="label">The reading together · ${day.cards.length} card${day.cards.length === 1 ? "" : "s"}${res.general ? " · general" : ""}</span>${cohPickerHTML(pk.offered, ex)}${Cohesive.html(res)}</div>`;
+  }
+  function cohGuestHTML(g, r) {
+    if (!window.Cohesive || !(r.cards || []).length) return "";
+    const pk = Cohesive.pickPast((g.readings || []).filter((x) => x.id !== r.id), r.date + "\uffff", {});
+    const res = Cohesive.build({ cards: r.cards, intent: Cohesive.intentOf(r), past: pk.used.filter((x) => x.date <= r.date), person: { kind: "guest", name: g.name } }, cohKB());
+    return `<details class="gen-wrap coh-guest"><summary>The cards together${pk.used.length ? ` · with ${esc(g.name)}’s past readings` : ""}</summary><p class="muted small">Only ${esc(g.name)}’s own readings are used.</p>${Cohesive.html(res)}</details>`;
+  }
+  function cohIntentPhysical() {
+    const pc = $("#physicalControls"); if (!pc || $("#cohIntentP")) return;
+    const w = document.createElement("div"); w.id = "cohIntentP"; w.innerHTML = `<p class="muted small">Your own deck: set an intention (optional), pick each card and whether it came up upright or reversed.</p>${intentHTML()}`; pc.prepend(w); wireIntent(w);
+  }
   function renderReadings() {
     const shown = S.drawn.map((d, i) => [d, i]).filter(([d]) => d.card && d.flipped);
     quick.innerHTML = shown.map(([d, i]) => quickHTML(d, i)).join("");
@@ -598,6 +648,7 @@
     $("#shareRow").hidden = !(S.saved && S.savedMine);
     updateDrawButtons();
     afterFlip(shown, complete);
+    renderCohToday(complete);
     if (S.src === "digital" && S.drawn.length && !complete) hint.textContent = "Tap " + (S.count > 1 ? "each card" : "the card") + " to turn it over.";
     else if (S.src === "digital" && complete) hint.textContent = S.saved ? "Saved. Sit with what arrived." : "Sit with what arrived. Save it, or tap Redraw to start over.";
     else if (S.src === "physical") hint.textContent = complete ? (S.saved ? "Saved." : "Check how " + (S.count > 1 ? "each one" : "it") + " landed, then save.")
@@ -830,7 +881,7 @@
       lockSave(true);
       const clar = (S.clar || []).map((x) => ({ id: x.card.id, orientation: x.orientation, source: drawSource(), position: clarLabel(x) }));
       const note = [intentNote(), $("#noteInput").value].filter(Boolean).join("\n");
-      const res = await api("/api/entries", { date: localDate(), cards: [...payloadCards(), ...clar], note, spreadLabels: clar.length ? null : labelsNow() });
+      const res = await api("/api/entries", { date: localDate(), cards: [...payloadCards(), ...clar], note, spreadLabels: clar.length ? null : labelsNow(), intent: S.intent && S.intent.text.trim() ? { type: S.intent.type, text: S.intent.text.trim() } : null, spread: S.spreadKey ? SPREADS[S.spreadKey].name : S.count === 3 ? `3-card (${LABELS[S.labels].join(" · ")})` : S.count === 1 ? "One card" : `${S.count} cards`, cohesive: { exclude: cohEx(localDate()) } });
       S.saved = true; S.savedMine = true;
       $("#dfFull") && $(".clar-bar", $("#dfFull")) && $(".clar-bar", $("#dfFull")).remove();
       S.lastShare = S.drawn.map((d, i) => ({ name: d.card.name, orientation: d.orientation, source: drawSource(), position: posLabel(i) }));
@@ -1034,9 +1085,11 @@
             ${astroLine(day.date, c)}
           </div>
         </div>`).join("")}</div>
+      ${cohJournalHTML(day)}
       ${day.photos && day.photos.length ? `<div class="notes"><span class="label">Photo of the spread</span>${photosHTML(day.photos)}</div>` : ""}
       ${day.notes ? `<div class="notes"><span class="label">Day notes</span>${notesHTML(day.notes)}</div>` : ""}
       <div class="j-share">${shareToggle("reading", day.date)}</div>`;
+    wireCohPicker($("#jPage"), day.date, renderJournal);
     const chip = $(".date-chip.active"); if (chip && !$("#panel-journal").hidden) chip.scrollIntoView({ block: "nearest", inline: "center" });
   }
   function showDay(i) {
@@ -1139,6 +1192,7 @@
           ${r.spread ? `<span class="tag">${esc(r.spread)}</span>` : ""}
           ${r.cards && r.cards.length ? `<div class="g-cards">${r.cards.map((c) => { const k = S.byName.get(c.name.toLowerCase()); return `<div class="g-card"><img src="${thumbImg(c.img || (k && k.img))}" alt="" loading="lazy" class="${isRev(c.orientation) ? "reversed-img" : ""}" /><div>${esc(c.name)}<small>${c.position ? esc(c.position) + " · " : ""}${isRev(c.orientation) ? "reversed" : "upright"}</small></div></div>`; }).join("")}</div>` : ""}
           ${photosHTML(r.photos)}
+          ${cohGuestHTML(g, r)}
           ${r.generated_reading ? `<details class="gen-wrap" open><summary>Card-by-card reading</summary>${genReadingHTML(r.generated_reading)}</details>` : ""}
           ${r.reading ? `<p class="g-text">${esc(r.reading)}</p>` : `<span class="pending" style="margin-top:.5rem">TaroBot’s reading will appear here</span>`}
           ${r.note ? `<p class="g-text muted" style="font-size:.85rem">Note: ${esc(r.note)}</p>` : ""}
