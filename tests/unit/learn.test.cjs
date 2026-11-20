@@ -20,7 +20,7 @@ test('lesson cards rejoin into the original lesson text', () => {
 });
 test('sources are honest: nothing is marked read that was not', () => {
   assert.equal(L.SOURCES.greer.read, 'listed');
-  for (const k of ['ptolemy', 'lilly', 'carlson']) assert.equal(L.SOURCES[k].read, 'partly', k);
+  for (const k of ['ptolemy', 'lilly', 'carlson', 'openstax']) assert.equal(L.SOURCES[k].read, 'partly', k);
   assert.ok(!Object.values(L.SOURCES).some((s) => /Hand\b/.test(s.author)), 'Hand was not read and is cut');
 });
 test('Ptolemy wording matches the text read (discordant, not disharmonious)', () => {
@@ -43,4 +43,46 @@ test('every Waite line quoted in the guide comes from the card data', () => {
   const cards = JSON.parse(fs.readFileSync(path.join(pub, 'data/cards.json'), 'utf8'));
   const list = Array.isArray(cards) ? cards : cards.cards; assert.equal(list.length, 78);
   for (const c of list) assert.ok(c.waite && c.waite.upright && c.waite.reversed, c.name);
+});
+
+test('mastery requires at least 80 percent and never awards an empty quiz', () => {
+  assert.equal(L.masteryPass(4, 5), true);
+  assert.equal(L.masteryPass(3, 5), false);
+  assert.equal(L.masteryPass(0, 0), false);
+  assert.equal(L.masteryPass(8, 10), true);
+});
+
+test('web learning overlays stay identical to the deployable public bundle', () => {
+  for (const file of ['learn-data.js', 'learn-ui.js', 'astro-curriculum.js', 'astro-learning-ui.js', 'astro-ui.js', 'app.js']) {
+    assert.equal(
+      fs.readFileSync(path.join(__dirname, '../../web', file), 'utf8'),
+      fs.readFileSync(path.join(pub, file), 'utf8'),
+      file + ' source overlay must match public output'
+    );
+  }
+});
+
+global.document = { addEventListener() {}, querySelector() { return null; }, querySelectorAll() { return []; } };
+require(path.join(pub, 'learn-ui.js'));
+const UI = window.LearnUI;
+test('expanded astrology curriculum has complete multi-lesson topics and explained quizzes', () => {
+  const ids = ['sky.planets.personal','sky.planets.social','sky.planets.outer','sky.signs.elements','sky.signs.modalities','sky.signs.individual','sky.houses.personal','sky.houses.relational','sky.aspects.major','sky.aspects.orbs','sky.whole.ruler','sky.whole.synthesis','sky.transits.cycles','sky.compatibility','sky.synastry','sky.growth','sky.numerology','sky.house-systems','sky.retrogrades','sky.dignities','sky.nodes-points'];
+  for (const id of ids) {
+    const section=S.find(x=>x.id===id); assert.ok(section,'missing '+id);
+    assert.ok(section.cards.length>=5,id+' has full lesson content');
+    assert.ok(section.put && section.put.prompt.length>20,id+' has an applied exercise');
+    const qs=UI.makeQuestions(section,6); assert.ok(qs.length>=3,id+' has multiple quiz questions');
+    for(const q of qs) assert.ok(q.why && q.why.length>20,id+' quiz explanations are written');
+  }
+});
+test('each astrology lesson starts its quiz with a practical scenario', () => {
+  for (const id of ['sky.anatomy', 'sky.bigthree', 'sky.planets', 'sky.signs', 'sky.houses', 'sky.aspects', 'sky.whole', 'sky.transits', 'sky.evidence', 'sky.planets.personal','sky.planets.social','sky.planets.outer','sky.signs.elements','sky.signs.modalities','sky.signs.individual','sky.houses.personal','sky.houses.relational','sky.aspects.major','sky.aspects.orbs','sky.whole.ruler','sky.whole.synthesis','sky.transits.cycles','sky.compatibility','sky.synastry','sky.growth','sky.numerology','sky.house-systems','sky.retrogrades','sky.dignities','sky.nodes-points']) {
+    const section = S.find(item => item.id === id);
+    assert.ok(section, 'missing ' + id);
+    const questions = UI.makeQuestions(section, 6);
+    assert.ok(questions.length >= 1, id + ' has a question');
+    assert.ok(questions[0].prompt.includes('?'), id + ' begins with a real-world question');
+    assert.equal(questions[0].options.length, 3, id + ' has three answer choices');
+    assert.ok(questions[0].why.length > 20, id + ' includes reasoning');
+  }
 });

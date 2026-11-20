@@ -16,7 +16,7 @@
   let SECS = null;
   const secs = () => SECS || (SECS = L.build(window.PRACTICE_DATA));
   const sec = (id) => secs().find((s) => s.id === id);
-  const AREA_NAME = { learn: "Learn", numbers: "Numbers", spreads: "Spreads", sky: "Learn to read charts", tarot: "Learn" };
+  const AREA_NAME = { learn: "Learn", numbers: "Numbers", spreads: "Spreads", sky: "Astrology Learning", tarot: "Learn" };
   const srcChip = (k) => { const s = L.SOURCES[k] || L.SOURCES.app; return `<button type="button" class="ln-chip" data-src="${k}">${esc(s.author.split(",")[0])} · ${esc(L.READ_LABEL[s.read])}</button>`; };
   const KIND = { traditional: "Tradition", study: "What studies show", "how-to": "How to", method: "Method", ourmethod: "Our method" };
 
@@ -42,8 +42,8 @@
     const list = secs().filter((s) => area === "all" || s.area === area || (area === "tarot" && s.area !== "sky"));
     el.innerHTML = `<section class="p-panel ln-home"><h2>${esc(opts.title || AREA_NAME[area] || "Study")}</h2>
       <p class="muted">One idea per card. Each section ends with Put it together, a quiz, and its sources. Nothing here opens another site.</p>
-      <div class="ln-secs">${list.map((s) => { const seen = Math.min((st.seen[s.id] || 0), s.cards.length); return `<button class="ln-sec ${st.done[s.id] ? "done" : ""}" data-sec="${s.id}">
-        <b>${esc(s.title)}</b><small>${s.cards.length} cards${st.done[s.id] ? " · done ✓" : seen ? ` · ${seen} seen` : ""}</small><span class="ln-bar"><i style="width:${Math.round(100 * seen / s.cards.length)}%"></i></span></button>`; }).join("")}</div>
+      <div class="ln-secs">${list.map((s) => { const seen = Math.min((st.seen[s.id] || 0), s.cards.length); return `<button class="ln-sec ${st.mastered && st.mastered[s.id] ? "done" : ""}" data-sec="${s.id}">
+        <b>${esc(s.title)}</b><small>${s.cards.length} cards${st.mastered && st.mastered[s.id] ? " · mastered ✓" : st.reviewQueue && st.reviewQueue[s.id] ? " · review due" : seen ? ` · ${seen} seen` : ""}</small><span class="ln-bar"><i style="width:${Math.round(100 * seen / s.cards.length)}%"></i></span></button>`; }).join("")}</div>
       <div class="actions"><button class="btn btn-ghost btn-sm" id="lnNotes">My notes (${st.notes.length})</button></div></section>`;
     $$("[data-sec]", el).forEach((b) => b.addEventListener("click", () => deck(el, b.dataset.sec, 0, () => home(el, area, opts))));
     $("#lnNotes", el).addEventListener("click", () => notes(el, () => home(el, area, opts)));
@@ -153,6 +153,47 @@
       if (qs.length >= n || pool.length < 3) break;
       qs.push(mc("Which of these did this section teach?", c.text, shuffle(pool).slice(0, 6).map((x) => x.text), c, `It starts “${words(c.text, 4)}…”`));
     }
+    const applications = {
+      "sky.anatomy": { prompt: "A chart has a birth date but no reliable birth time. Which parts should you avoid treating as exact?", options: ["Houses and Ascendant", "Sun sign only", "All planet positions"], answer: 0, card: cards[2], hints: ["The lesson says Placidus houses and the rising degree depend on birth time."], why: "The Ascendant and house cusps depend on the exact time and place. A date alone cannot establish them reliably." },
+      "sky.bigthree": { prompt: "Someone knows their birth date and place but not their birth time. Which Big Three details should the app leave uncertain or omit?", options: ["Rising sign and houses; Moon may be approximate", "Sun sign and all planets", "Only the Sun sign"], answer: 0, card: cards[3], hints: ["The Moon moves quickly; the Ascendant changes roughly every two hours."], why: "The lesson says the rising sign needs an exact time, houses need time and place, and the Moon may be approximate without a time." },
+      "sky.planets": { prompt: "A chart places the Sun in the 10th house. Using this app's modern shorthand, which combination would you start with?", options: ["Identity and vitality in career and reputation", "Feelings and needs in home and family", "Thinking and messages in partners"], answer: 0, card: cards.find((x) => x.planet === "Sun") || cards[0], hints: ["Combine the planet's theme with the house's matters."], why: "The app's shorthand gives the Sun identity and vitality, and the 10th house career and reputation. This is a modern classroom method, not a quotation from a historical source." },
+      "sky.signs": { prompt: "You find Pisces on a chart. Which group does Ptolemy place it in?", options: ["Bicorporeal", "Tropical", "Fixed"], answer: 0, card: cards[6] || cards[0], hints: ["Ptolemy's final four signs share the nature of the signs either side."], why: "Ptolemy groups Gemini, Virgo, Sagittarius and Pisces as bicorporeal. Modern books often call this mutable." },
+      "sky.houses": { prompt: "A placement is in the 5th house. Which comparison best keeps the historical and app interpretations distinct?", options: ["Lilly's older list alongside the app's modern creativity, fun and romance shorthand", "Treat the app label as Lilly's exact wording", "Ignore the house and use only the planet"], answer: 0, card: cards.find((x) => x.house === 5) || cards[0], hints: ["The lesson explicitly labels the app's short house labels as modern shorthand."], why: "The app asks learners to compare Lilly's older list with its own modern label rather than presenting them as the same tradition." },
+      "sky.aspects": { prompt: "Two planets form a 90° square. How does Ptolemy classify this aspect in the lesson?", options: ["Discordant", "Harmonious", "Not an aspect"], answer: 0, card: cards[3] || cards[0], hints: ["Ptolemy's four aspects include opposition, trine, square and sextile."], why: "Ptolemy calls the square and opposition discordant. The app distinguishes that historical classification from modern shorthand." },
+      "sky.whole": { prompt: "You are beginning a whole-chart interpretation. Which sequence best follows the app's stated method?", options: ["Big Three and planets near angles, then tight aspects, then write and check each clue", "Start with the loosest aspect, then predict an outcome", "Read every placement as a standalone personality label"], answer: 0, card: cards[0], hints: ["Look at the first, third and fourth cards in this section."], why: "The lesson says to start with the Big Three and planets nearest the angles, check the tightest aspects, and write the reading before looking things up." },
+      "sky.transits": { prompt: "Today's Mars makes a square to someone's natal Moon. Which statement correctly describes the relationship?", options: ["Today's Mars is transiting and making an aspect to a fixed natal point", "Mars is part of the person's natal chart because it is moving today", "The natal Moon changes to Mars"], answer: 0, card: cards[1] || cards[0], hints: ["Keep the fixed birth chart separate from today's moving planets."], why: "A transit is a current planet making an angle to a point in the birth chart. The natal chart itself remains fixed." },
+      "sky.evidence": { prompt: "A user asks whether a chart placement scientifically predicts their future. Which answer matches this lesson?", options: ["Planet positions are calculated, but meanings are symbolic tradition for reflection, not proven prediction", "The app proves the placement determines future events", "Carlson showed astrologers predict accurately"], answer: 0, card: cards[3] || cards[0], hints: ["Separate astronomical calculations, traditional meanings and scientific evidence."], why: "The lesson distinguishes real calculated positions from interpretive meanings and describes Carlson's study as evidence against the tested astrological hypothesis." }
+    };
+
+    Object.assign(applications, {
+      "sky.planets.personal": { prompt:"You are reading Venus in the 6th house. Which combination is the soundest starting point?", options:["Affection and values expressed through work routines and daily care","Emotional needs expressed through public reputation","Action and anger expressed through higher learning"], answer:0, card:cards[3], hints:["Combine Venus's function with the 6th house's life area."], why:"Venus is associated with affection, values and pleasure; the 6th house concerns routines, service and maintenance." },
+      "sky.planets.social": { prompt:"A chart has Saturn in the 2nd house. Which interpretation avoids treating the placement as a verdict?", options:["Money is doomed","Resources and self-worth may be areas for patient structure and responsibility","The person cannot succeed"], answer:1, card:cards[2], hints:["Saturn symbolizes limits and discipline; the 2nd house concerns resources."], why:"A placement can prompt reflection on skills, boundaries and sustainable planning. It cannot guarantee poverty or failure." },
+      "sky.planets.outer": { prompt:"Two people born in the same year share Pluto in the same sign. What would make the placement more individually specific?", options:["The house and close aspects to personal planets or angles","Their favorite color","The fact that Pluto is distant"], answer:0, card:cards[2], hints:["Slow-moving planets are shared by birth cohorts."], why:"The house and close contacts connect a generational sign placement to an individual's chart." },
+      "sky.signs.elements": { prompt:"A chart contains several planets in Air signs. What is the most careful interpretation?", options:["The person cannot feel emotions","Air themes such as ideas and exchange may be emphasized; read the whole chart","The person is guaranteed to be social"], answer:1, card:cards[2], hints:["Element balance is a whole-chart pattern, not a personality verdict."], why:"Air symbolism concerns ideas, language and exchange, but the rest of the chart and lived experience matter." },
+      "sky.signs.modalities": { prompt:"A chart has many fixed-sign placements. Which theme might an astrologer explore?", options:["Sustaining and stabilizing effort, including possible resistance to change","A guaranteed inability to adapt","Constantly starting new projects"], answer:0, card:cards[1], hints:["Fixed signs occupy the middle of each season."], why:"Fixed symbolism emphasizes persistence and stability; it is not proof of inflexibility." },
+      "sky.signs.individual": { prompt:"A learner describes Pisces as 'always weak and confused.' What correction best fits this lesson?", options:["Pisces has only negative traits","Describe both its imaginative, empathic resources and possible boundary challenges","Ignore the sign entirely"], answer:1, card:cards[5], hints:["Every sign has mature and immature expressions."], why:"Pisces is described with imagination and empathy as well as possible porous boundaries or avoidance; neither is inevitable." },
+      "sky.houses.personal": { prompt:"Mercury in the 3rd house is being interpreted. Which life area should be considered first?", options:["Communication and everyday learning","Shared resources and intimacy","Public reputation only"], answer:0, card:cards[2], hints:["Use the house as the 'where' layer."], why:"The 3rd house is associated with communication, siblings, local movement and everyday learning." },
+      "sky.houses.relational": { prompt:"A user sees a planet in the 8th house and fears it predicts death. What should the app say?", options:["Confirm the prediction","Explain the house's symbolic themes without making frightening deterministic claims","Tell them to avoid all relationships"], answer:1, card:cards[1], hints:["The lesson explicitly warns against fear-based readings."], why:"The 8th house includes shared resources, intimacy and transitions; it does not predict death." },
+      "sky.aspects.major": { prompt:"Venus and Saturn form a close square. Which is the most responsible interpretation?", options:["Love is impossible","Values and affection may meet responsibility or limits, creating a theme to work with","The chart is invalid"], answer:1, card:cards[2], hints:["A square is friction or a demand for adjustment, not a verdict."], why:"A square can describe tension between planetary functions; context, choices and the rest of the chart matter." },
+      "sky.aspects.orbs": { prompt:"Two planets are 1° from an exact trine. What does the 1° describe?", options:["The orb","The house number","The planet's age"], answer:0, card:cards[0], hints:["Orb is the distance from exactness."], why:"The orb is the angular distance between the actual separation and the exact aspect angle." },
+      "sky.whole.ruler": { prompt:"A person has Libra rising. Which planet is the traditional chart ruler?", options:["Venus","Mars","Jupiter"], answer:0, card:cards[1], hints:["Use traditional sign rulership."], why:"Venus traditionally rules Libra, so Venus is the chart ruler for Libra rising." },
+      "sky.whole.synthesis": { prompt:"A chart suggests both a need for stability and a desire for independence. What should the reader do?", options:["Delete one interpretation","Describe the tension and explore when each need appears","Choose whichever sounds more flattering"], answer:1, card:cards[3], hints:["Synthesis holds multiple themes together."], why:"A chart can contain competing needs; a nuanced reading describes both rather than forcing one label." },
+      "sky.transits.cycles": { prompt:"A user is approaching a Saturn return and asks whether a breakup is guaranteed. What is the correct response?", options:["Yes, Saturn guarantees endings","No, the return is a calculated cycle with traditional reflective meanings, not a guaranteed event","Only if Saturn is retrograde"], answer:1, card:cards[0], hints:["Separate the astronomical return from the interpretation."], why:"Saturn's return can be calculated, but it does not guarantee a particular crisis or life event." },
+      "sky.compatibility": { prompt:"A user asks if Pisces and Gemini are doomed because of their Sun signs. What is the best answer?", options:["Yes, never date a Gemini","No, Sun signs are only a limited first pass; real behavior and full-chart context matter","The app can decide for them"], answer:1, card:cards[0], hints:["Sun-sign pairing is not full synastry."], why:"Compatibility cannot be reduced to Sun signs; the whole charts and real relationship behavior matter." },
+      "sky.synastry": { prompt:"A partner's birth time is unknown. Which synastry feature should be marked uncertain?", options:["House overlays and Ascendant-based contacts","Their date of birth","Their known Sun sign"], answer:0, card:cards[4], hints:["Angles and houses depend on birth time."], why:"Without a reliable birth time, Ascendant, angles and house overlays cannot be treated as exact." },
+      "sky.growth": { prompt:"A user asks what will make them happy based on one placement. What should the app do?", options:["Give one fixed life instruction","Offer a reflective hypothesis and encourage testing it against values and lived experience","Claim the chart proves their destiny"], answer:1, card:cards[4], hints:["Fulfillment is personal and should be checked in real life."], why:"A chart can suggest questions about joy and meaning, but wellbeing and values are known through lived experience." },
+      "sky.numerology": { prompt:"A user has entered a birth date but not their full birth name. Which results can the app calculate?", options:["Life Path and date-based cycles, but not name-based Expression or Soul Urge","Every name-based number by guessing","Only a Sun sign"], answer:0, card:cards[2], hints:["Expression and Soul Urge depend on the full birth name."], why:"The app should calculate only values supported by the supplied data and never invent missing name-based numbers." }
+    });
+
+
+    Object.assign(applications, {
+      "sky.house-systems": { prompt:"A birth time is uncertain and a planet sits close to a house cusp. What should the app do?", options:["Mark the house placement as uncertain and state the house system","Present one house as exact","Change the birth time until the chart looks right"], answer:0, card:cards[0], hints:["House cusps depend on time, place and house system."], why:"The app uses Placidus and should not present uncertain cusps as exact." },
+      "sky.retrogrades": { prompt:"A planet is retrograde in a natal chart. Which statement is astronomically accurate?", options:["It physically reverses its orbit","It appears to move backward from Earth's viewpoint due to relative orbital motion","It stops moving"], answer:1, card:cards[0], hints:["Think about the observer's viewpoint."], why:"Retrograde motion is an apparent reversal caused by relative orbital motion; the planet does not reverse its orbit." },
+      "sky.dignities": { prompt:"A planet is in detriment. What does that mean in traditional astrology?", options:["The person is bad at that planet's life themes","The planet is in the sign opposite its traditional domicile","The planet is physically farther from Earth"], answer:1, card:cards[2], hints:["Dignities are sign-based technical classifications."], why:"Detriment is the sign opposite a planet's domicile; it is not a judgment of the person's worth." },
+      "sky.nodes-points": { prompt:"A learner calls the North Node a planet. What correction is accurate?", options:["It is one of the lunar orbital nodes, a calculated point rather than a physical planet","It is a dwarf planet","It is the same as the Moon"], answer:0, card:cards[0], hints:["The nodes are intersections of two orbital planes."], why:"The lunar nodes are points where the Moon's orbital path crosses the ecliptic; they are not physical planets." }
+    });
+
+    if (applications[s.id]) qs.unshift(applications[s.id]);
     if (s.id === "learn.cohesive") {
       const c0 = cards[0], c4 = cards[4] || cards[0], c5 = cards[5] || cards[0];
       qs.unshift(
@@ -166,17 +207,33 @@
     }
     return qs.slice(0, n);
   }
-  function quiz(el, id, back) {
-    const s = sec(id), qs = makeQuestions(s);
+  function quiz(el, id, back, reviewOnly = false) {
+    const s = sec(id), saved = store.get().reviewQueue && store.get().reviewQueue[id];
+    const qs = reviewOnly && saved && saved.length
+      ? saved.map((q) => ({ ...q, card: s.cards.find((c) => c.id === q.cardId) || s.cards[0] }))
+      : makeQuestions(s);
     let i = 0, score = 0, ans = null, hintN = 0;
+    const missed = [];
     const draw = () => {
       if (i >= qs.length) {
-        const st = store.get(); st.quizzes.push({ section: id, score, total: qs.length, date: today() }); st.done[id] = today(); store.set(st);
+        const st = store.get();
+        const passed = L.masteryPass(score, qs.length);
+        st.quizzes.push({ section: id, score, total: qs.length, date: today(), passed, reviewOnly });
+        if (passed) { st.mastered = st.mastered || {}; st.mastered[id] = today(); if (st.reviewQueue) delete st.reviewQueue[id]; }
+        else {
+          st.mastered = st.mastered || {}; delete st.mastered[id];
+          st.reviewQueue = st.reviewQueue || {};
+          st.reviewQueue[id] = missed.map((q) => ({ prompt: q.prompt, options: q.options, answer: q.answer, cardId: q.card && q.card.id, hints: q.hints || [], why: q.why }));
+        }
+        store.set(st);
         el.innerHTML = `<section class="p-panel q-end"><h3>${esc(s.title)} quiz</h3><p class="q-score"><b>${score}</b> / ${qs.length}</p>
-          <p class="muted center">Every question came from a card in this section. No timer, nothing lost for a miss.</p>
-          <div class="ln-ctas"><button class="btn btn-gold" id="lnBackEnd">Done</button><button class="btn btn-ghost" id="lnPut2">✎ Put it together</button></div>${sourcesFooter(s)}
+          <p class="muted center">${passed ? "Mastery check passed. You applied at least 80% correctly." : "Not mastered yet. Review the missed concepts, then try again with a fresh set."} ${reviewOnly ? "This was a review attempt." : ""}</p>
+          <div class="ln-ctas"><button class="btn btn-gold" id="lnBackEnd">Done</button><button class="btn btn-ghost" id="lnPut2">✎ Put it together</button></div>
+          ${!passed && missed.length ? `<div class="actions"><button class="btn btn-gold" id="lnReview">Review missed questions (${missed.length})</button></div>` : ""}
+          ${sourcesFooter(s)}
           <div class="actions"><button class="btn btn-ghost btn-sm" id="lnMore">Learn more ›</button></div></section>`;
         $("#lnBackEnd", el).addEventListener("click", back);
+        const rv = $("#lnReview", el); if (rv) rv.addEventListener("click", () => quiz(el, id, back, true));
         $("#lnPut2", el).addEventListener("click", () => putTogether(el, id, back));
         $("#lnMore", el).addEventListener("click", () => learnMore(el, id, back));
         return;
@@ -189,7 +246,7 @@
         ${ans === null ? "" : `<div class="q-fb ${ans === q.answer ? "ok" : "no"}"><b>${ans === q.answer ? "Yes." : "Not this time."} Reasoning:</b> ${esc(q.why)} <button class="link-btn" id="lnSee">See card ${k} ›</button></div>
           <div class="actions"><button class="btn btn-gold" id="lnNext">${i + 1 < qs.length ? "Next ›" : "See results"}</button></div>`}</section>`;
       const h = $("#lnHint", el); if (h) h.addEventListener("click", () => { hintN++; draw(); });
-      $$(".q-opt", el).forEach((b) => b.addEventListener("click", () => { ans = +b.dataset.k; if (ans === q.answer) score++; draw(); }));
+      $(".q-opt", el).forEach((b) => b.addEventListener("click", () => { ans = +b.dataset.k; if (ans === q.answer) score++; else missed.push(q); draw(); }));
       const nx = $("#lnNext", el); if (nx) nx.addEventListener("click", () => { i++; ans = null; hintN = 0; draw(); });
       const see = $("#lnSee", el); if (see) see.addEventListener("click", () => sheet(`<span class="label">${esc(s.title)} · card ${k}</span><p>${esc(q.card.text)}</p>${srcChip(q.card.source)}`));
     };
