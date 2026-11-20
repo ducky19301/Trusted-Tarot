@@ -151,12 +151,15 @@
       put: { prompt: "Write one way you'll use astrology for reflection, knowing what the study found.", fields: ["Your line"] } },
   ].map((s) => ({ ...s, area: "sky", system: "western-astrology", sources: [...new Set(s.cards.map((c) => c.source))] }));
 
+  function masteryPass(score, total) {
+    return Number.isFinite(score) && Number.isFinite(total) && total > 0 && score >= Math.ceil(total * 0.8);
+  }
   function build(D) {
     const secs = tarotSections(D).concat(CHART);
     for (const s of secs) s.cards.forEach((c, i) => { c.id = `${s.id}.${String(i + 1).padStart(2, "0")}`; });
     return secs;
   }
-  const api = { SOURCES, READ_LABEL, REVERSAL_WAYS, SIGN_GROUPS, LILLY_HOUSES, APP_HOUSES, APP_PLANETS, CHART, chunk, sents, build };
+  const api = { SOURCES, READ_LABEL, REVERSAL_WAYS, SIGN_GROUPS, LILLY_HOUSES, APP_HOUSES, APP_PLANETS, CHART, chunk, sents, build, masteryPass };
   W.LEARN_DATA = api;
   if (typeof module !== "undefined") module.exports = api;
 })();
