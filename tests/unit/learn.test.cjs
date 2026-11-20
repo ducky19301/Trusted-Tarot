@@ -20,7 +20,7 @@ test('lesson cards rejoin into the original lesson text', () => {
 });
 test('sources are honest: nothing is marked read that was not', () => {
   assert.equal(L.SOURCES.greer.read, 'listed');
-  for (const k of ['ptolemy', 'lilly', 'carlson']) assert.equal(L.SOURCES[k].read, 'partly', k);
+  for (const k of ['ptolemy', 'lilly', 'carlson', 'openstax']) assert.equal(L.SOURCES[k].read, 'partly', k);
   assert.ok(!Object.values(L.SOURCES).some((s) => /Hand\b/.test(s.author)), 'Hand was not read and is cut');
 });
 test('Ptolemy wording matches the text read (discordant, not disharmonious)', () => {
@@ -53,7 +53,7 @@ test('mastery requires at least 80 percent and never awards an empty quiz', () =
 });
 
 test('web learning overlays stay identical to the deployable public bundle', () => {
-  for (const file of ['learn-data.js', 'learn-ui.js']) {
+  for (const file of ['learn-data.js', 'learn-ui.js', 'astro-ui.js', 'app.js']) {
     assert.equal(
       fs.readFileSync(path.join(__dirname, '../../web', file), 'utf8'),
       fs.readFileSync(path.join(pub, file), 'utf8'),
@@ -66,7 +66,7 @@ global.document = { addEventListener() {}, querySelector() { return null; }, que
 require(path.join(pub, 'learn-ui.js'));
 const UI = window.LearnUI;
 test('each astrology lesson starts its quiz with a practical scenario', () => {
-  for (const id of ['sky.anatomy', 'sky.bigthree', 'sky.planets', 'sky.signs', 'sky.houses', 'sky.aspects', 'sky.whole', 'sky.transits', 'sky.evidence']) {
+  for (const id of ['sky.anatomy', 'sky.bigthree', 'sky.planets', 'sky.signs', 'sky.houses', 'sky.aspects', 'sky.whole', 'sky.transits', 'sky.evidence', 'sky.planets.personal','sky.planets.social','sky.planets.outer','sky.signs.elements','sky.signs.modalities','sky.signs.individual','sky.houses.personal','sky.houses.relational','sky.aspects.major','sky.aspects.orbs','sky.whole.ruler','sky.whole.synthesis','sky.transits.cycles','sky.compatibility','sky.synastry','sky.growth','sky.numerology']) {
     const section = S.find(item => item.id === id);
     assert.ok(section, 'missing ' + id);
     const questions = UI.makeQuestions(section, 6);
