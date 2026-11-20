@@ -46,7 +46,7 @@
       <label class="label" for="riText">Paste reading text or notes</label><textarea id="riText" rows="5" placeholder="Paste your reading, card names, positions, interpretation or notes…"></textarea>
       <label class="label" for="riCards">Card names (optional, one per line)</label><textarea id="riCards" rows="3" placeholder="The Fool upright\nThe Moon reversed"></textarea>
       <label class="label" for="riNotes">Additional journal notes (optional)</label><textarea id="riNotes" rows="3" placeholder="What you remember, the question, spread, or context…"></textarea>
-      <div id="riPreview" class="muted small" aria-live="polite">No file selected yet.</div>
+      <div id="riPreview" class="muted small" aria-live="polite">No file selected yet. Card names will be detected from the text or you can enter them above.</div>
       <div class="actions"><button type="button" class="btn btn-gold" id="riSave">Review and import</button></div>
       <p id="riStatus" class="status" role="status" aria-live="polite"></p>`;
     const anchor=$("#todayRecap");anchor.insertAdjacentElement("afterend",box);
@@ -61,12 +61,19 @@
         else {const raw=await f.text();if(f.name.toLowerCase().endsWith(".json")){const j=parseJSON(raw);if(j.date)$("#riDate").value=dateValue(j.date);$("#riText").value=raw;$("#riNotes").value=j.note||"";$("#riCards").value=(j.cards||[]).map(c=>typeof c==="string"?c:c.name+" "+(c.orientation||"")).join("\n")}else $("#riText").value=raw;$("#riPreview").textContent="File loaded. Review the text and date before importing."}
       }catch(err){$("#riPreview").textContent=err.message}
     });
+    const updatePreview=()=>{
+      if(imageData){$("#riPreview").textContent="Image ready. Add card names if known; otherwise it will enter the photo-identification queue.";return}
+      const candidates=detectCards($("#riText").value,$("#riCards").value);
+      $("#riPreview").textContent=candidates.length?"Detected cards: "+candidates.map(c=>c.name+" ("+c.orientation+")").join(", ")+". Add or correct the Card names field to control exactly what is imported.":"No known card names detected yet. Add the card names manually, one per line.";
+    };
+    $("#riText").addEventListener("input",updatePreview);
+    $("#riCards").addEventListener("input",updatePreview);
     $("#riSave").addEventListener("click",async()=>{
       const status=$("#riStatus"),btn=$("#riSave"),text=$("#riText").value.trim(),manual=$("#riCards").value.trim(),notes=$("#riNotes").value.trim(),date=dateValue($("#riDate").value);
       const app=window.TarotApp;if(!app||!app.api){status.textContent="The app is still loading. Try again in a moment.";return}
-      const parsed=detectCards(text,manual);
-      const names=manual.split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean);
-      const cards=parsed.length?parsed:names.slice(0,12).map(name=>({name:name.replace(/\s+(upright|reversed)$/i,""),orientation:/reversed/i.test(name)?"reversed":"upright",source:"physical deck"}));
+      const parsed=manual?detectCards("",manual):detectCards(text,"");
+
+      const cards=parsed;
       if(!imageData&&!text&&!cards.length){status.textContent="Choose a file, paste the reading, or enter card names.";return}
       btn.disabled=true;status.textContent="Saving…";
       try{
