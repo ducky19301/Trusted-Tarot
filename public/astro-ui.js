@@ -73,7 +73,7 @@
 
   function reduceNumber(n) { n=Math.abs(Math.trunc(n)); while(n>9&&n!==11&&n!==22&&n!==33)n=String(n).split("").reduce((a,b)=>a+Number(b),0); return n; }
   function personalCycleHTML(birthDate,date) {
-    if(!birthDate||!/^\\d{4}-\\d{2}-\\d{2}$/.test(birthDate)) return '<section class="astro-study-block"><h3>Numerology connection</h3><p>Add your birth date to calculate your Life Path and daily number themes.</p></section>';
+    if(!birthDate||!/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) return '<section class="astro-study-block"><h3>Numerology connection</h3><p>Add your birth date to calculate your Life Path and daily number themes.</p></section>';
     const [y,m,d]=birthDate.split("-").map(Number),[ty,tm,td]=date.split("-").map(Number),sum=n=>String(n).split("").reduce((a,b)=>a+Number(b),0);
     const life=reduceNumber(reduceNumber(m)+reduceNumber(d)+reduceNumber(sum(y))),year=reduceNumber(reduceNumber(m)+reduceNumber(d)+reduceNumber(sum(ty))),month=reduceNumber(year+reduceNumber(tm)),day=reduceNumber(month+reduceNumber(td));
     const meaning={1:"initiative and self-direction",2:"cooperation and patience",3:"expression and creativity",4:"structure and steady effort",5:"change and flexibility",6:"care and responsibility",7:"study and reflection",8:"stewardship and achievement",9:"compassion and completion",11:"inspiration and sensitivity",22:"building a practical vision",33:"service and teaching"};
