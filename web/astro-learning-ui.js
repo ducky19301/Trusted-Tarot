@@ -49,7 +49,7 @@
     el.innerHTML=`<section class="p-panel astro-curriculum"><h2>Astrology learning library</h2><p>Complete, written learning paths across ${C.topics.length} topics and ${total} lessons. Each lesson includes detailed explanations, an applied example and a knowledge check with answer explanations.</p>
       <p><b>${done} of ${total} lessons completed</b></p><div class="ln-bar"><i style="width:${Math.round(done/total*100)}%"></i></div><div class="ln-secs">
       ${C.topics.map(t=>{const n=t.lessons.filter(l=>p.done[t.id+"/"+l.title]).length;return `<button class="ln-sec" data-topic="${t.id}"><b>${esc(t.title)}</b><small>${esc(t.summary)}</small><small>${n}/${t.lessons.length} lessons complete</small></button>`;}).join("")}</div>
-      <p class="muted small">Progress is saved on this device. The lessons distinguish astronomical calculations, historical traditions and modern interpretation.</p></section>`;
+      <p class="muted small">Progress is saved on this device. The lessons distinguish astronomical calculations, historical traditions and modern interpretation.</p><h3>Sources and evidence</h3><ul class="astro-source-list">${C.sources.map(s=>`<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a><p class="muted small">${esc(s.note)}</p></li>`).join("")}</ul></section>`;
     $$("[data-topic]",el).forEach(b=>b.onclick=()=>{state.topic=b.dataset.topic;library(el)});
   }
   const PLANETS=data().planets,SIGNS=data().signs,HOUSES=data().houses;
