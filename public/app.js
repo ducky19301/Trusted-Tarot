@@ -273,8 +273,11 @@
     if (el.dataset.date === localDate() && el.innerHTML) return;
     el.dataset.date = localDate();
     if (window.AstroUI && window.HoroscopeStory) {
-      // v20: story told by Astro from the day's computed facts; tips change daily and don't repeat for 14 days
-      return window.AstroUI.render(el, { name: (ME.name || "").split(" ")[0], date: localDate(), birthDate: ME.birth, fullName: ME.name, entries: S.entries, load: async () => { const h = await api("/api/astro/today"); S.astroToday = h; return h; } });
+      // Load the full birth profile once so historical journal dates can be calculated against the same natal chart.
+      if (!S.birthProfile) { try { const profile = await api("/api/profile/birth"); if (profile && profile.birth) S.birthProfile = profile.birth; } catch (_) {} }
+      await window.AstroUI.render(el, { name: (ME.name || "").split(" ")[0], date: localDate(), birthDate: ME.birth, fullName: ME.name, entries: S.entries, load: async () => { const h = await api("/api/astro/today"); S.astroToday = h; return h; } });
+      if (S.birthProfile) { renderJournal(); renderAstro(); }
+      return;
     }
     try {
       const h = await api("/api/astro/today"); S.astroToday = h;
@@ -1424,8 +1427,13 @@
       const missing = day.cards.filter((c) => !c.astro).length;
       const pend = day.cards.filter((c) => !c.astro && astroPending(day.date, c.name)).length;
       const weave = weaveOf(day.notes);
+      const historical = S.birthProfile && window.TarotAstro ? window.TarotAstro.run(S.birthProfile, day.date) : null;
+      const num = ME.birth ? numerology(ME.birth, null, day.date) : null;
+      const personalDay = num && num.rows.find((r) => r.label === "Personal Day");
+      const sky = historical ? `<div class="astro-day-context"><b>Personal sky · ${esc(day.date)}</b><p>Moon in ${esc(historical.moon.sign)} · ${esc(historical.moon.phase)}.</p><p>${historical.aspects.slice(0,3).map(x => `${esc(x.transit)} ${esc(x.aspect)} natal ${esc(x.natal)} · ${x.orb}°`).join(" · ") || "No close natal transits in this guide's orb."}</p>${personalDay ? `<p>Personal Day ${personalDay.n}: ${esc(personalDay.meaning)} · Life Path ${num.lp}</p>` : ""}</div>` : personalDay ? `<div class="astro-day-context"><b>Numerology · Personal Day ${personalDay.n}</b><p>Life Path ${num.lp} · ${esc(personalDay.meaning)}</p></div>` : "";
       return `<section class="astro-day">
         <header><h3>${esc(fmtDate(day.date, { weekday: "short", month: "long", day: "numeric" }))}</h3>
+        ${sky}
           ${missing === 0 ? `<span class="pill">Woven</span>` : pend ? `<span class="pill wait">${pend === day.cards.length ? "Astro pending" : `${pend} pending`}</span>` : `<span class="pill quiet">${missing === day.cards.length ? "No astro note" : "Partly woven"}</span>`}</header>
         ${day.cards.map((c) => `<div class="astro-card"><img src="${thumbImg(c.img)}" alt="" class="${isRev(c.orientation) ? "reversed-img" : ""}" loading="lazy" /><div>
           <div class="nm">${esc(c.name)}${isRev(c.orientation) ? " · reversed" : isUnknown(c.orientation) ? " · orientation not recorded" : ""}</div>
