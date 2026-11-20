@@ -21,5 +21,7 @@ jobs:
           node-version: 22
       - name: Install astronomy test dependency
         run: npm install --no-save astronomy-engine
+      - name: Check learning JavaScript syntax
+        run: node --check public/learn-data.js && node --check public/learn-ui.js
       - name: Run unit tests
         run: node --test tests/unit/*.test.cjs
