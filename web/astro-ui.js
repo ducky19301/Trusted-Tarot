@@ -66,8 +66,8 @@
     Pisces:"Good potential: empathy, imagination, tenderness and creative connection. Friction: blurred boundaries, idealization or avoiding difficult facts. Best style: compassionate but grounded, with clear expectations. Hardest style: rescuing, guilt or chronic ambiguity. Love them through gentleness, consistency, direct communication and boundaries that protect both people."
   };
   function compatibility(el) {
-    const sun=V.h&&V.h.natal&&V.h.natal.Sun?V.h.natal.Sun.sign:"your Sun sign";
-    el.innerHTML=`<section class="p-panel"><h2>Compatibility · all twelve signs</h2><p class="muted">Your calculated Sun sign is ${esc(sun)}. These are nuanced Sun-sign starting points, not a relationship verdict or full synastry. A complete comparison needs both birth charts and should consider Moon, Venus, Mars, Ascendant, houses and inter-chart aspects.</p>${Object.entries(COMPAT_GUIDE).map(([sign,txt])=>`<details class="astro-detail"><summary><b>${esc(sign)}</b></summary><p>${esc(txt)}</p><p><b>Important:</b> consent, safety, shared values, communication and observed behavior matter more than a chart pairing.</p></details>`).join("")}</section>`;
+    const sun=V.h&&V.h.natal&&V.h.natal.Sun?V.h.natal.Sun.sign:"unavailable", label=V.sample?"Sample chart Sun sign":"Your calculated Sun sign";
+    el.innerHTML=`<section class="p-panel"><h2>Compatibility · all twelve signs</h2><p class="muted">${label} is ${esc(sun)}. These are nuanced Sun-sign starting points, not a relationship verdict or full synastry. A complete comparison needs both birth charts and should consider Moon, Venus, Mars, Ascendant, houses and inter-chart aspects.</p>${Object.entries(COMPAT_GUIDE).map(([sign,txt])=>`<details class="astro-detail"><summary><b>${esc(sign)}</b></summary><p>${esc(txt)}</p><p><b>Important:</b> consent, safety, shared values, communication and observed behavior matter more than a chart pairing.</p></details>`).join("")}</section>`;
   }
 
 
@@ -99,7 +99,7 @@
       ${s.paragraphs.map((p, i) => `<p class="hs-p">${esc(p.text)} ${p.facts.length && p.facts[0] !== "date" ? `<button class="ln-i" data-hp="${i}" aria-label="Where this comes from">i</button>` : ""}</p>`).join("")}
       <div class="hs-tips"><div><b>Do</b><ul>${s.dos.map((t) => `<li>${esc(t.text)}${t.general ? ` <small class="muted">(general tip)</small>` : ""}</li>`).join("")}</ul></div>
       <div><b>Don't</b><ul>${s.donts.map((t) => `<li>${esc(t.text)}${t.general ? ` <small class="muted">(general tip)</small>` : ""}</li>`).join("")}</ul></div></div>
-      ${personalCycleHTML(V.birthDate,h.date)}
+      ${personalCycleHTML(V.sample ? null : V.birthDate,h.date)}
       <details class="hs-details"><summary>Details and sources</summary>
         <p class="muted small">Moon in ${esc(h.moon.sign)} · ${esc(h.moon.phase)} (${h.moon.elongation}° from the Sun) · transits for 8:00 AM local time</p>
         <ul>${s.details.map((d) => `<li>${esc(d.text)}</li>`).join("") || "<li>No close transits today.</li>"}</ul>
