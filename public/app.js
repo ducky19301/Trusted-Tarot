@@ -456,6 +456,109 @@
   window.addEventListener("hashchange", () => showTab(location.hash.slice(1)));
 
   /* ---------------- today ---------------- */
+
+  /* ---------- import a past reading from the home screen ---------- */
+  const importToggle = $("#importReadingToggle"), importPanel = $("#importReadingPanel");
+  if (importToggle && importPanel) {
+    $("#importReadingDate").value = localDate();
+    importToggle.addEventListener("click", () => {
+      importPanel.hidden = !importPanel.hidden;
+      importToggle.setAttribute("aria-expanded", String(!importPanel.hidden));
+    });
+    async function loadPdfText(file) {
+      if (!window.pdfjsLib) {
+        await new Promise((resolve,reject) => {
+          const script=document.createElement("script");
+          script.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+          script.onload=resolve; script.onerror=()=>reject(new Error("Could not load the PDF reader. You can copy and paste the PDF text instead."));
+          document.head.appendChild(script);
+        });
+      }
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise, pages=[];
+      for(let n=1;n<=doc.numPages;n++){const page=await doc.getPage(n),content=await page.getTextContent();pages.push(content.items.map(x=>x.str).join(" "));}
+      return pages.join("\n\n");
+    }
+    function cardLinesFromText(text) {
+      const found=[];
+      const sorted=[...S.cards].sort((a,b)=>b.name.length-a.name.length);
+      const lower=String(text||"").toLowerCase();
+      for(const card of sorted){
+        const at=lower.indexOf(card.name.toLowerCase());
+        if(at<0||found.some(x=>x.name===card.name))continue;
+        const near=lower.slice(Math.max(0,at-50),Math.min(lower.length,at+card.name.length+55));
+        const orientation=/reversed|\brev(?:erse)?\b/.test(near)?"reversed":"upright";
+        const line=String(text).slice(Math.max(0,at-50),Math.min(String(text).length,at+card.name.length+55));
+        const pos=(line.match(/\b(past|present|future|situation|challenge|advice|outcome|self|environment|hopes|fears)\b/i)||[])[0]||"";
+        found.push({name:card.name,orientation,position:pos});
+      }
+      return found;
+    }
+    function writeCardLines(rows) {
+      $("#importReadingCards").value=rows.map(x=>x.name+" | "+(x.orientation||"upright")+" | "+(x.position||"")).join("\n");
+    }
+    function parseCardLines() {
+      const rows=[];
+      $("#importReadingCards").value.split(/\n|;/).map(x=>x.trim()).filter(Boolean).forEach(line=>{
+        const parts=line.split(/\s*\|\s*|\t|,\s*/).map(x=>x.trim()),name=parts[0];
+        const card=S.byName.get(name.toLowerCase())||S.cards.find(x=>x.name.toLowerCase()===name.toLowerCase());
+        if(!card)throw new Error("I couldn't match this card name: "+name+". Check its spelling against the Cards tab.");
+        const orientation=/rev/i.test(parts[1]||"")?"reversed":"upright";
+        const position=parts[2]||"";
+        rows.push({id:card.id,name:card.name,orientation,position,source:"physical deck"});
+      });
+      if(rows.length>12)throw new Error("A reading can contain up to 12 cards.");
+      return rows;
+    }
+    async function selectedFileText(file) {
+      if(!file)return "";
+      const name=file.name.toLowerCase();
+      if(file.type==="application/pdf"||name.endsWith(".pdf"))return loadPdfText(file);
+      if(file.type.startsWith("image/"))return null;
+      return file.text();
+    }
+    $("#importReadingDetect").addEventListener("click",async()=>{
+      const status=$("#importReadingStatus"),file=$("#importReadingFile").files[0];
+      try{
+        status.textContent="Reading file and detecting card names…";
+        if(file&&file.type.startsWith("image/")){status.textContent="This is an image. Save it to the photo-identification queue, then confirm the cards there.";return;}
+        const text=await selectedFileText(file)||$("#importReadingText").value;
+        if(text)$("#importReadingText").value=text.slice(0,8000);
+        let rows=[];
+        if(file&&file.name.toLowerCase().endsWith(".json")){
+          const data=JSON.parse(text),raw=Array.isArray(data)?data:(data.cards||(data.reading&&data.reading.cards)||[]);
+          if(data.date)$("#importReadingDate").value=String(data.date).slice(0,10);
+          if(data.question||data.intent)$("#importReadingQuestion").value=typeof data.intent==="object"?data.intent.text:(data.question||"");
+          if(data.spread||data.spreadName)$("#importReadingSpread").value=data.spread||data.spreadName;
+          const notes=data.note||data.notes||data.overall||(data.reading&&data.reading.overall)||"";
+          if(notes)$("#importReadingText").value=String(notes).slice(0,8000);
+          rows=raw.map(x=>({name:x.name||x.cardName||x.card||"",orientation:/rev/i.test(x.orientation||"")?"reversed":"upright",position:x.position||x.label||""})).filter(x=>x.name);
+        }else rows=cardLinesFromText(text);
+        writeCardLines(rows);
+        status.textContent=rows.length?("Detected "+rows.length+" card"+(rows.length===1?"":"s")+". Review names and orientations before saving."):"No card names were recognized. Add them in the Cards field using one card per line.";
+      }catch(e){status.textContent="Could not read this file: "+e.message;}
+    });
+    $("#importReadingSave").addEventListener("click",async()=>{
+      const status=$("#importReadingStatus"),file=$("#importReadingFile").files[0],date=$("#importReadingDate").value;
+      try{
+        if(!date)throw new Error("Choose the date of the original reading.");
+        status.textContent="Saving…";
+        const note=["Imported past reading",$("#importReadingQuestion").value.trim()?("Question — "+$("#importReadingQuestion").value.trim()):"",$("#importReadingText").value.trim(),file?("Original file — "+file.name):""].filter(Boolean).join("\n\n");
+        if(file&&file.type.startsWith("image/")){
+          const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("Could not read the image."));reader.readAsDataURL(file);});
+          await api("/api/photos",{date,photos:[{data}],note});
+          status.textContent="Photo uploaded to the identification queue for "+date+". Confirm the cards there and the reading will be added to Journal and Astro.";
+          await loadAll(); return;
+        }
+        const cards=parseCardLines();
+        if(!cards.length)throw new Error("Add at least one recognized card before saving the reading.");
+        const res=await api("/api/entries",{date,cards,note,spread:$("#importReadingSpread").value.trim()||"Imported reading",intent:$("#importReadingQuestion").value.trim()?{type:"question",text:$("#importReadingQuestion").value.trim()}:null});
+        await loadAll();
+        status.textContent=res.added&&res.added.length?"Saved "+res.added.length+" card"+(res.added.length===1?"":"s")+" to Journal and Astro for "+date+".":"Those cards were already in that day's journal; no duplicates were added.";
+      }catch(e){status.textContent="Could not import: "+e.message;}
+    });
+  }
+
   const stage = $("#stage"), readings = $("#readings"), saveBox = $("#saveBox"), hint = $("#todayHint"), saveStatus = $("#saveStatus");
   const quick = $("#quick"), readMore = $("#readMore");
   const todaysEntry = () => S.entries.find((d) => d.date === localDate() && d.cards && d.cards.length);
