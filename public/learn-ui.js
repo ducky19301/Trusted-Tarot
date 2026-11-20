@@ -42,7 +42,7 @@
     const list = secs().filter((s) => area === "all" || s.area === area || (area === "tarot" && s.area !== "sky"));
     el.innerHTML = `<section class="p-panel ln-home"><h2>${esc(opts.title || AREA_NAME[area] || "Study")}</h2>
       <p class="muted">One idea per card. Each section ends with Put it together, a quiz, and its sources. Nothing here opens another site.</p>
-      <div class="ln-secs">${list.map((s) => { const seen = Math.min((st.seen[s.id] || 0), s.cards.length); return `<button class="ln-sec ${st.done[s.id] ? "done" : ""}" data-sec="${s.id}">
+      <div class="ln-secs">${list.map((s) => { const seen = Math.min((st.seen[s.id] || 0), s.cards.length); return `<button class="ln-sec ${st.mastered && st.mastered[s.id] ? "done" : ""}" data-sec="${s.id}">
         <b>${esc(s.title)}</b><small>${s.cards.length} cards${st.mastered && st.mastered[s.id] ? " · mastered ✓" : st.reviewQueue && st.reviewQueue[s.id] ? " · review due" : seen ? ` · ${seen} seen` : ""}</small><span class="ln-bar"><i style="width:${Math.round(100 * seen / s.cards.length)}%"></i></span></button>`; }).join("")}</div>
       <div class="actions"><button class="btn btn-ghost btn-sm" id="lnNotes">My notes (${st.notes.length})</button></div></section>`;
     $$("[data-sec]", el).forEach((b) => b.addEventListener("click", () => deck(el, b.dataset.sec, 0, () => home(el, area, opts))));
@@ -176,7 +176,7 @@
     const draw = () => {
       if (i >= qs.length) {
         const st = store.get();
-        const passed = score >= Math.ceil(qs.length * 0.8);
+        const passed = L.masteryPass(score, qs.length);
         st.quizzes.push({ section: id, score, total: qs.length, date: today(), passed, reviewOnly });
         if (passed) { st.mastered = st.mastered || {}; st.mastered[id] = today(); if (st.reviewQueue) delete st.reviewQueue[id]; }
         else {
