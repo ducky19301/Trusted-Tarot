@@ -53,7 +53,7 @@ test('mastery requires at least 80 percent and never awards an empty quiz', () =
 });
 
 test('web learning overlays stay identical to the deployable public bundle', () => {
-  for (const file of ['learn-data.js', 'learn-ui.js', 'astro-ui.js', 'app.js']) {
+  for (const file of ['learn-data.js', 'learn-ui.js', 'astro-curriculum.js', 'astro-learning-ui.js', 'astro-ui.js', 'app.js']) {
     assert.equal(
       fs.readFileSync(path.join(__dirname, '../../web', file), 'utf8'),
       fs.readFileSync(path.join(pub, file), 'utf8'),
