@@ -532,7 +532,7 @@
           if(data.spread||data.spreadName)$("#importReadingSpread").value=data.spread||data.spreadName;
           const notes=data.note||data.notes||data.overall||(data.reading&&data.reading.overall)||"";
           if(notes)$("#importReadingText").value=String(notes).slice(0,8000);
-          rows=raw.map(x=>({name:x.name||x.cardName||x.card||"",orientation:/rev/i.test(x.orientation||"")?"reversed":"upright",position:x.position||x.label||""})).filter(x=>x.name);
+          rows=raw.map(x=>typeof x==="string"?({name:x,orientation:"upright",position:""}):({name:x.name||x.cardName||x.card||"",orientation:/rev/i.test(x.orientation||"")?"reversed":"upright",position:x.position||x.label||""})).filter(x=>x.name);
         }else rows=cardLinesFromText(text);
         writeCardLines(rows);
         status.textContent=rows.length?("Detected "+rows.length+" card"+(rows.length===1?"":"s")+". Review names and orientations before saving."):"No card names were recognized. Add them in the Cards field using one card per line.";
@@ -1447,7 +1447,6 @@
     Object.assign(S, { entries, gaps, guests, outbox });
     renderRecap(); renderGaps(); renderJournal(); renderAstro(); renderGuestsTab(); renderSavedToday();
   }
-  document.addEventListener("tarot:reading-imported", () => { loadAll().catch(() => {}); });
 
   /* ---------- v16: account, intention/question, clarifiers, patterns, moon spreads, share, friends ---------- */
   async function loadMe() {
