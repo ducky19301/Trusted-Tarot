@@ -274,7 +274,7 @@
     el.dataset.date = localDate();
     if (window.AstroUI && window.HoroscopeStory) {
       // v20: story told by Astro from the day's computed facts; tips change daily and don't repeat for 14 days
-      return window.AstroUI.render(el, { name: (ME.name || "").split(" ")[0], date: localDate(), load: async () => { const h = await api("/api/astro/today"); S.astroToday = h; return h; } });
+      return window.AstroUI.render(el, { name: (ME.name || "").split(" ")[0], date: localDate(), birthDate: ME.birth, fullName: ME.name, entries: S.entries, load: async () => { const h = await api("/api/astro/today"); S.astroToday = h; return h; } });
     }
     try {
       const h = await api("/api/astro/today"); S.astroToday = h;
@@ -710,14 +710,14 @@
   const elemOf = (c) => String(c.element || "").split(" ")[0];
   const FRIEND = { Fire: ["Air"], Air: ["Fire"], Water: ["Earth"], Earth: ["Water"] }, OPPOSE = { Fire: "Water", Water: "Fire", Air: "Earth", Earth: "Air" };
   const majorsBy = (chain) => chain.map((n) => S.cards.find((c) => c.arcana === "major" && Number(c.number) === n)).filter(Boolean);
-  function personMe() {
+  function personMe(onDate = localDate()) {
     syncSign();
-    const nm = ME.birth ? numerology(ME.birth, null) : { rows: [], lp: null, py: null }, pd = nm.rows.find((r) => r.label === "Personal Day");
+    const nm = ME.birth ? numerology(ME.birth, null, onDate) : { rows: [], lp: null, py: null }, pd = nm.rows.find((r) => r.label === "Personal Day");
     const [by, bm, bd] = ME.birth ? ME.birth.split("-").map(Number) : [];
     const bc = ME.birth && window.TarotPractice && window.TarotPractice.birthCard ? window.TarotPractice.birthCard(by, bm, bd) : null;
     const past = S.entries.flatMap((e) => (e.cards || []).map((c) => ({ date: e.date, name: c.name, orientation: c.orientation, q: null })));
     return { isMe: true, name: ME.name, short: ME.short, lp: nm.lp, py: nm.py, pd: pd ? pd.n : null, sign: ME.sign, elem: ME.sign ? SIGN_ELEM[ME.sign] : null,
-      birthCards: bc ? majorsBy(bc.chain) : [], ruler: ME.sign ? S.byName.get((GD_SIGN[ME.sign] || "").toLowerCase()) || null : null, past, astro: S.astroToday || null };
+      birthCards: bc ? majorsBy(bc.chain) : [], ruler: ME.sign ? S.byName.get((GD_SIGN[ME.sign] || "").toLowerCase()) || null : null, past, astro: S.astroToday && S.astroToday.date === onDate ? S.astroToday : null };
   }
   function personFor(g) {
     const past = (g.readings || []).flatMap((r) => (r.cards || []).map((c) => ({ date: r.date, name: c.name, orientation: c.orientation, q: r.question })));
@@ -1083,6 +1083,7 @@
             ${(() => { const k = S.cards.find((x) => x.id === c.id) || S.byName.get(String(c.name || "").toLowerCase()); return k ? infoHTML(k, c.orientation, { open: [], skip: ["sit"] }) : ""; })()}
             <span class="label">Astro · chart weave</span>
             ${astroLine(day.date, c)}
+            ${(() => { const k = S.cards.find((x) => x.id === c.id) || S.byName.get(String(c.name || "").toLowerCase()); const ties = k ? cardTies(k, c.orientation, personMe(day.date)) : []; return ties.length ? `<div class="astro-card-ties"><b>Chart + numerology links</b>${ties.map((t) => `<p>${esc(t)}</p>`).join("")}</div>` : ""; })()}
           </div>
         </div>`).join("")}</div>
       ${cohJournalHTML(day)}
@@ -1323,7 +1324,8 @@
           ${missing === 0 ? `<span class="pill">Woven</span>` : pend ? `<span class="pill wait">${pend === day.cards.length ? "Astro pending" : `${pend} pending`}</span>` : `<span class="pill quiet">${missing === day.cards.length ? "No astro note" : "Partly woven"}</span>`}</header>
         ${day.cards.map((c) => `<div class="astro-card"><img src="${thumbImg(c.img)}" alt="" class="${isRev(c.orientation) ? "reversed-img" : ""}" loading="lazy" /><div>
           <div class="nm">${esc(c.name)}${isRev(c.orientation) ? " · reversed" : isUnknown(c.orientation) ? " · orientation not recorded" : ""}</div>
-          ${c.astro ? `<p>${esc(c.astro)}</p>` : astroPending(day.date, c.name) ? `<span class="pending">Astro tie-in pending</span>` : `<span class="no-astro">No astro note</span>`}</div></div>`).join("")}
+          ${c.astro ? `<p>${esc(c.astro)}</p>` : astroPending(day.date, c.name) ? `<span class="pending">Astro tie-in pending</span>` : `<span class="no-astro">No astro note</span>`}
+          ${(() => { const k = S.cards.find((x) => x.id === c.id) || S.byName.get(String(c.name || "").toLowerCase()); const ties = k ? cardTies(k, c.orientation, personMe(day.date)) : []; return ties.length ? `<div class="astro-card-ties"><b>Chart + numerology links</b>${ties.map((t) => `<p>${esc(t)}</p>`).join("")}</div>` : ""; })()}</div></div>`).join("")}
         ${weave ? `<div class="weave">${weave}</div>` : ""}
       </section>`;
     }).join("");
