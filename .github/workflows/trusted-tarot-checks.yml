@@ -19,5 +19,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Install astronomy test dependency
+        run: npm install --no-save astronomy-engine
       - name: Run unit tests
         run: node --test tests/unit/*.test.cjs
