@@ -23,5 +23,7 @@ jobs:
         run: npm install --no-save astronomy-engine
       - name: Check learning JavaScript syntax
         run: node --check web/learn-data.js && node --check web/learn-ui.js && node --check public/learn-data.js && node --check public/learn-ui.js
+      - name: Validate Cloudflare static assets configuration
+        run: npx --yes wrangler@4 deploy --dry-run --outdir=/tmp/trusted-tarot-wrangler-dry-run
       - name: Run unit tests
         run: node --test tests/unit/*.test.cjs
