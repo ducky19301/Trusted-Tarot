@@ -66,7 +66,7 @@ global.document = { addEventListener() {}, querySelector() { return null; }, que
 require(path.join(pub, 'learn-ui.js'));
 const UI = window.LearnUI;
 test('each astrology lesson starts its quiz with a practical scenario', () => {
-  for (const id of ['sky.anatomy', 'sky.bigthree', 'sky.planets', 'sky.signs', 'sky.houses', 'sky.aspects', 'sky.whole', 'sky.transits', 'sky.evidence', 'sky.planets.personal','sky.planets.social','sky.planets.outer','sky.signs.elements','sky.signs.modalities','sky.signs.individual','sky.houses.personal','sky.houses.relational','sky.aspects.major','sky.aspects.orbs','sky.whole.ruler','sky.whole.synthesis','sky.transits.cycles','sky.compatibility','sky.synastry','sky.growth','sky.numerology']) {
+  for (const id of ['sky.anatomy', 'sky.bigthree', 'sky.planets', 'sky.signs', 'sky.houses', 'sky.aspects', 'sky.whole', 'sky.transits', 'sky.evidence', 'sky.planets.personal','sky.planets.social','sky.planets.outer','sky.signs.elements','sky.signs.modalities','sky.signs.individual','sky.houses.personal','sky.houses.relational','sky.aspects.major','sky.aspects.orbs','sky.whole.ruler','sky.whole.synthesis','sky.transits.cycles','sky.compatibility','sky.synastry','sky.growth','sky.numerology','sky.house-systems','sky.retrogrades','sky.dignities','sky.nodes-points']) {
     const section = S.find(item => item.id === id);
     assert.ok(section, 'missing ' + id);
     const questions = UI.makeQuestions(section, 6);
