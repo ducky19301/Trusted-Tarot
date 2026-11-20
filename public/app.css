@@ -1241,3 +1241,19 @@ html[data-theme="light"] .tj-btn.pri{color:#fff;background:linear-gradient(180de
 .coh-pk{display:flex;gap:.4rem;align-items:flex-start}.coh-sec{margin:.9rem 0}.coh-sec h4{margin:.2rem 0}.coh-lab{display:block;opacity:.7;font-size:.75rem;margin-bottom:.3rem}
 .coh-sec p{line-height:1.55;margin:.4rem 0}.coh-q li{margin:.35rem 0;line-height:1.45}.coh-det{margin:.6rem 0;font-size:.88rem}.coh-det summary{cursor:pointer;font-weight:600}
 .coh-figs{display:flex;gap:.5rem;justify-content:center}.coh-fig{margin:0;text-align:center;width:31%;font-size:.75rem}.coh-fig img{width:100%;border-radius:8px}
+
+
+/* Expanded astrology learning and personal chart guide */
+.astro-study-block{margin:1.2rem 0;padding:1rem;border:1px solid var(--line,rgba(255,255,255,.12));border-radius:16px;background:rgba(255,255,255,.025)}
+.astro-study-block h2,.astro-study-block h3{margin:.15rem 0 .75rem}
+.astro-detail{margin:.55rem 0;padding:.8rem .9rem;border:1px solid var(--line,rgba(255,255,255,.12));border-radius:12px;background:rgba(255,255,255,.025)}
+.astro-detail summary{display:flex;justify-content:space-between;gap:.8rem;cursor:pointer;list-style:none}
+.astro-detail summary::-webkit-details-marker{display:none}
+.astro-detail summary span{color:var(--muted,#aaa);font-size:.88em;text-align:right}
+.astro-detail p{line-height:1.6;margin:.7rem 0 0}
+.astro-number-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:.55rem;margin:.8rem 0}
+.astro-number{display:flex;flex-direction:column;gap:.3rem;padding:.8rem;border-radius:12px;background:rgba(255,255,255,.06)}
+.astro-number span{font-size:.88rem;color:var(--muted,#aaa)}
+.astro-card-ties{margin:.65rem 0;padding:.7rem .8rem;border-left:3px solid var(--gold,#c8a76b);background:rgba(200,167,107,.07);border-radius:0 10px 10px 0}
+.astro-card-ties p{margin:.35rem 0;font-size:.9rem;line-height:1.5}
+@media(max-width:560px){.astro-study-block{padding:.75rem}.astro-detail{padding:.7rem}.astro-detail summary{display:block}.astro-detail summary span{display:block;text-align:left;margin-top:.2rem}}
