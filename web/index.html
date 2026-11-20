@@ -54,6 +54,22 @@
     <!-- TODAY -->
     <section class="panel" id="panel-today" role="tabpanel" aria-labelledby="tab-today" tabindex="-1" hidden>
       <p class="recap-line" id="todayRecap"></p>
+      <div class="reading-import">
+        <button type="button" class="btn btn-ghost btn-sm" id="importReadingToggle" aria-expanded="false">＋ Import a past reading</button>
+        <section class="reading-import-panel" id="importReadingPanel" hidden>
+          <h3>Bring an older reading into your journal</h3>
+          <p class="muted small">Import a JSON export, text, CSV or searchable PDF. Photos are saved to the identification queue so you can confirm the cards before they enter your journal.</p>
+          <label class="field"><span>Original reading date</span><input type="date" id="importReadingDate" /></label>
+          <label class="field"><span>Upload a file</span><input type="file" id="importReadingFile" accept=".json,.txt,.md,.csv,.pdf,image/*" /></label>
+          <label class="field"><span>Question or intention <em>(optional)</em></span><input id="importReadingQuestion" maxlength="300" placeholder="What was this reading about?" /></label>
+          <label class="field"><span>Spread name <em>(optional)</em></span><input id="importReadingSpread" maxlength="80" placeholder="Past · Present · Future" /></label>
+          <label class="field"><span>Reading text or notes</span><textarea id="importReadingText" rows="4" maxlength="8000" placeholder="Paste the reading text here, or select a text/PDF file above."></textarea></label>
+          <label class="field"><span>Cards detected (one per line)</span><textarea id="importReadingCards" rows="4" maxlength="2000" placeholder="The Fool | upright | Past&#10;The Moon | reversed | Present&#10;The Star | upright | Future"></textarea></label>
+          <div class="actions"><button type="button" class="btn btn-ghost btn-sm" id="importReadingDetect">Detect cards from file/text</button><button type="button" class="btn btn-gold btn-sm" id="importReadingSave">Save past reading</button></div>
+          <p class="status" id="importReadingStatus" role="status" aria-live="polite"></p>
+        </section>
+      </div>
+
       <!-- today's saved card (shown instead of a fresh deck when entries.json already has today) -->
       <div class="today-saved" id="todaySaved" hidden></div>
       <div id="todayDraw">
