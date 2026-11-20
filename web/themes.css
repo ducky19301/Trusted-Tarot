@@ -1,0 +1,199 @@
+/* Trusted Tarot complete visual worlds. These themes change atmosphere, art direction,
+   typography, surface language and navigation, not merely accent colors. */
+
+/* CELESTIAL LUXE — nocturnal observatory, gilded celestial engraving */
+html[data-design-theme="celestial"] {
+  --acc-rgb: 216, 183, 103; --acc2-rgb: 244, 221, 164; --surf-rgb: 25, 20, 43;
+  --deep-rgb: 8, 7, 19; --ind-rgb: 55, 42, 82; --ind2-rgb: 82, 61, 117;
+  --mut-rgb: 183, 171, 194; --ink-rgb: 255, 250, 240;
+  --text: #f5efe4; --text-muted: #b9adc5; --bg-deep: #090817;
+  --bg-elevated: #19142b; --panel: rgba(25,20,43,.78);
+  --gold: #d8b767; --gold-soft: #f4dda4; --radius: 18px;
+  --serif: "Cormorant Garamond", Georgia, serif;
+}
+html[data-design-theme="celestial"] body {
+  background:
+    radial-gradient(ellipse 70% 38% at 50% -8%, rgba(107,77,148,.35), transparent 72%),
+    radial-gradient(ellipse 40% 45% at 100% 48%, rgba(45,61,105,.22), transparent 72%),
+    #090817;
+}
+html[data-design-theme="celestial"] .header {
+  position: relative; padding: 1.2rem 0 1.7rem;
+  background: radial-gradient(ellipse at 50% 65%, rgba(216,183,103,.10), transparent 65%);
+}
+html[data-design-theme="celestial"] .header::after {
+  content: "☾"; display: block; margin: .15rem auto 0; color: #d8b767;
+  font: 2.3rem Georgia,serif; opacity: .78; text-shadow: 0 0 25px rgba(216,183,103,.55);
+}
+html[data-design-theme="celestial"] .eyebrow { letter-spacing: .38em; color: #e4c985; }
+html[data-design-theme="celestial"] .header h1 { letter-spacing: .075em; text-shadow: 0 0 34px rgba(216,183,103,.25); }
+html[data-design-theme="celestial"] .tabs {
+  border: 1px solid rgba(216,183,103,.38); background: rgba(11,9,25,.88);
+  box-shadow: 0 12px 38px rgba(0,0,0,.28), inset 0 0 20px rgba(216,183,103,.035);
+}
+html[data-design-theme="celestial"] .tab.active { background: linear-gradient(145deg,rgba(216,183,103,.24),rgba(92,65,126,.25)); }
+html[data-design-theme="celestial"] .panel, html[data-design-theme="celestial"] .pick,
+html[data-design-theme="celestial"] .card, html[data-design-theme="celestial"] .entry-card {
+  border-color: rgba(216,183,103,.22); box-shadow: 0 16px 42px rgba(0,0,0,.20);
+}
+html[data-design-theme="celestial"] .btn-gold { background: linear-gradient(145deg,#f0d99d,#b28b48); }
+html[data-design-theme="celestial"] .panel h2, html[data-design-theme="celestial"] .panel h3 {
+  font-family: var(--serif); letter-spacing: .035em;
+}
+
+/* MYSTIC EDITORIAL — archival field journal, parchment, ink and botanical engraving */
+html[data-design-theme="editorial"] {
+  --acc-rgb: 132, 57, 69; --acc2-rgb: 177, 111, 104; --surf-rgb: 250, 245, 233;
+  --deep-rgb: 239, 230, 211; --ind-rgb: 91, 47, 57; --ind2-rgb: 129, 76, 76;
+  --mut-rgb: 112, 94, 83; --ink-rgb: 45, 38, 34;
+  --text: #332b27; --text-muted: #76665b; --bg-deep: #eee5d4;
+  --bg-elevated: #fbf7ed; --panel: rgba(251,247,237,.92);
+  --gold: #843945; --gold-soft: #a95b60; --radius: 10px;
+  --serif: "Cormorant Garamond", Georgia, serif;
+}
+html[data-design-theme="editorial"] body {
+  color: #332b27;
+  background:
+    radial-gradient(ellipse at 12% 4%,rgba(178,139,104,.17),transparent 35%),
+    radial-gradient(ellipse at 88% 92%,rgba(132,57,69,.08),transparent 42%),
+    repeating-linear-gradient(0deg,rgba(83,65,47,.018) 0,rgba(83,65,47,.018) 1px,transparent 1px,transparent 5px),
+    #eee5d4;
+}
+html[data-design-theme="editorial"] .stars { opacity: .12; filter: sepia(1); }
+html[data-design-theme="editorial"] .header {
+  text-align: left; padding: 1.5rem 1.2rem 1.1rem; margin: 0 0 1.1rem;
+  border-top: 1px solid rgba(132,57,69,.38); border-bottom: 1px solid rgba(132,57,69,.28);
+  background: linear-gradient(90deg,rgba(255,252,243,.7),rgba(255,252,243,.15));
+}
+html[data-design-theme="editorial"] .header::after {
+  content: "✳  ✧  ❧"; display: block; color: #843945; font: 1.2rem Georgia,serif;
+  letter-spacing: .5em; margin-top: .5rem; opacity: .8;
+}
+html[data-design-theme="editorial"] .eyebrow { color: #843945; letter-spacing: .25em; font-weight: 600; }
+html[data-design-theme="editorial"] .header h1 { color: #392b2a; text-shadow: none; font-size: clamp(2.4rem,7vw,3.4rem); }
+html[data-design-theme="editorial"] .tagline { color: #76665b; font-family: Georgia,serif; font-style: italic; }
+html[data-design-theme="editorial"] .tabs {
+  width: 100%; justify-content: flex-start; flex-wrap: wrap; border-radius: 8px;
+  background: rgba(251,247,237,.92); border: 1px solid rgba(132,57,69,.25);
+  box-shadow: 0 5px 18px rgba(70,48,37,.08);
+}
+html[data-design-theme="editorial"] .tab { border-radius: 5px; color: #76665b; }
+html[data-design-theme="editorial"] .tab.active {
+  background: #843945; color: #fff8ed; box-shadow: none;
+}
+html[data-design-theme="editorial"] .panel, html[data-design-theme="editorial"] .pick,
+html[data-design-theme="editorial"] .card, html[data-design-theme="editorial"] .entry-card {
+  color: #332b27; background: rgba(251,247,237,.94);
+  border: 1px solid rgba(107,78,61,.22); border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(70,48,37,.07);
+}
+html[data-design-theme="editorial"] .panel h2, html[data-design-theme="editorial"] .panel h3 {
+  color: #843945; font-family: Georgia,serif; font-weight: 500;
+}
+html[data-design-theme="editorial"] .btn { border-radius: 6px; letter-spacing: .015em; }
+html[data-design-theme="editorial"] .btn-gold {
+  background: #843945; color: #fff8ed; border-color: #843945; box-shadow: none;
+}
+html[data-design-theme="editorial"] .btn-ghost {
+  background: transparent; border-color: rgba(132,57,69,.4); color: #843945;
+}
+html[data-design-theme="editorial"] .muted,
+html[data-design-theme="editorial"] .hint { color: #76665b; }
+html[data-design-theme="editorial"] input, html[data-design-theme="editorial"] textarea,
+html[data-design-theme="editorial"] select {
+  color: #332b27; background: #fffdf7; border-color: rgba(132,57,69,.3);
+}
+
+/* MODERN COSMIC — vibrant observatory, prismatic planetary geometry */
+html[data-design-theme="cosmic"] {
+  --acc-rgb: 75, 221, 205; --acc2-rgb: 255, 117, 177; --surf-rgb: 24, 22, 55;
+  --deep-rgb: 10, 8, 30; --ind-rgb: 51, 44, 112; --ind2-rgb: 88, 55, 145;
+  --mut-rgb: 174, 170, 212; --ink-rgb: 255, 255, 255;
+  --text: #f5f1ff; --text-muted: #b6b1d5; --bg-deep: #0a081e;
+  --bg-elevated: #181637; --panel: rgba(24,22,55,.84);
+  --gold: #4bddcd; --gold-soft: #a7fff2; --radius: 24px;
+  --serif: "Outfit", system-ui, sans-serif;
+}
+html[data-design-theme="cosmic"] body {
+  background:
+    radial-gradient(circle at 12% 15%,rgba(255,89,168,.22),transparent 25%),
+    radial-gradient(circle at 88% 30%,rgba(75,221,205,.2),transparent 26%),
+    radial-gradient(circle at 54% 100%,rgba(117,80,255,.24),transparent 38%),
+    #0a081e;
+}
+html[data-design-theme="cosmic"] .header {
+  padding: 1.2rem 1rem 1.5rem; border-radius: 26px;
+  background: linear-gradient(120deg,rgba(101,61,174,.28),rgba(26,136,151,.12),rgba(185,56,130,.2));
+  border: 1px solid rgba(130,119,255,.28); overflow: hidden;
+}
+html[data-design-theme="cosmic"] .header::after {
+  content: "☉  ◉  ✧"; display: block; font-size: 1.65rem; letter-spacing: .65em;
+  color: #ff8ec4; margin-top: .45rem; text-shadow: 0 0 24px rgba(75,221,205,.65);
+}
+html[data-design-theme="cosmic"] .eyebrow { color: #79f1e1; letter-spacing: .22em; }
+html[data-design-theme="cosmic"] .header h1 {
+  font-family: "Outfit",system-ui,sans-serif; font-weight: 600; letter-spacing: -.035em;
+  background: linear-gradient(90deg,#a8fff1,#ff9bc8 58%,#c0a7ff);
+  color: transparent; background-clip: text; -webkit-background-clip: text; text-shadow: none;
+}
+html[data-design-theme="cosmic"] .tabs {
+  width: 100%; justify-content: flex-start; overflow-x: auto; border-radius: 18px;
+  background: rgba(14,11,39,.88); border: 1px solid rgba(125,113,255,.38);
+  box-shadow: 0 10px 32px rgba(0,0,0,.25);
+}
+html[data-design-theme="cosmic"] .tab { border-radius: 14px; white-space: nowrap; }
+html[data-design-theme="cosmic"] .tab.active {
+  color: #071d2b; background: linear-gradient(130deg,#68efda,#9c8cff 60%,#ff93c5);
+  box-shadow: 0 5px 20px rgba(75,221,205,.2);
+}
+html[data-design-theme="cosmic"] .panel, html[data-design-theme="cosmic"] .pick,
+html[data-design-theme="cosmic"] .card, html[data-design-theme="cosmic"] .entry-card {
+  border: 1px solid rgba(139,125,255,.3);
+  background: linear-gradient(145deg,rgba(34,30,78,.94),rgba(18,17,48,.94));
+  border-radius: 22px; box-shadow: 0 16px 40px rgba(0,0,0,.22);
+}
+html[data-design-theme="cosmic"] .panel h2, html[data-design-theme="cosmic"] .panel h3 {
+  font-family: "Outfit",system-ui,sans-serif; letter-spacing: -.02em; color: #9cf4e9;
+}
+html[data-design-theme="cosmic"] .btn { border-radius: 15px; }
+html[data-design-theme="cosmic"] .btn-gold {
+  background: linear-gradient(120deg,#62e9d5,#9d8aff 58%,#f48cbe);
+  color: #10122d; border: 0; box-shadow: 0 7px 25px rgba(75,221,205,.2);
+}
+html[data-design-theme="cosmic"] .btn-ghost {
+  background: rgba(111,91,205,.17); border-color: rgba(139,125,255,.4); color: #b7fff4;
+}
+
+/* Settings theme selector: each tile is a miniature art direction preview. */
+.tj-design-picker { display: grid; gap: .7rem; margin: .9rem 0 1.2rem; }
+.tj-design-card {
+  display: grid; grid-template-columns: 74px minmax(0,1fr) 28px; align-items: center; gap: .85rem;
+  width: 100%; padding: .7rem; text-align: left; border-radius: 15px;
+  border: 1px solid var(--gold-dim,rgba(190,160,90,.3)); background: rgba(30,25,48,.72);
+  color: inherit; cursor: pointer; transition: transform .18s,border-color .18s,box-shadow .18s;
+}
+.tj-design-card:hover { transform: translateY(-1px); }
+.tj-design-card.on { border-color: var(--gold,#d8b767); box-shadow: 0 0 0 2px rgba(216,183,103,.18),0 8px 24px rgba(0,0,0,.16); }
+.tj-design-art {
+  height: 72px; width: 74px; display: grid; place-items: center; position: relative; overflow: hidden;
+  border-radius: 11px; font: 2rem Georgia,serif;
+}
+.tj-design-art i,.tj-design-art b { position:absolute; display:block; border-radius:50%; border:1px solid currentColor; width:40px;height:40px; opacity:.65; }
+.tj-design-art i { width:54px;height:54px; transform:rotate(35deg) scaleX(.5); }
+.tj-design-art b { width:17px;height:17px; border:0; background:currentColor; opacity:.45; }
+.tj-design-card.celestial .tj-design-art { color:#e7c77e; background:radial-gradient(circle at 50% 45%,#5a426e,#171329 72%); }
+.tj-design-card.editorial { color:#382d29; background:#f4ead7; border-color:rgba(132,57,69,.3); }
+.tj-design-card.editorial .tj-design-art { color:#8c414d; background:radial-gradient(circle,#f8edda,#d8c2a4); }
+.tj-design-card.cosmic .tj-design-art { color:#9dfff0; background:radial-gradient(circle at 25% 25%,#e86eaf,#34308b 48%,#10152d); }
+.tj-design-copy { display:flex; flex-direction:column; gap:.18rem; min-width:0; }
+.tj-design-copy strong { font:600 1rem var(--serif,Georgia,serif); }
+.tj-design-copy small { font-size:.76rem; line-height:1.35; opacity:.76; }
+.tj-design-check { text-align:center; font-size:1.1rem; color:var(--gold,#d8b767); }
+.tj-subsettings { border-top:1px solid rgba(128,128,128,.2); padding-top:.6rem; }
+.tj-subsettings > h3 { margin-top:.3rem; }
+.tj-modal { max-height:min(88dvh,900px); overflow:auto; }
+@media(max-width:520px) {
+  .tj-design-card { grid-template-columns:60px minmax(0,1fr) 22px; gap:.65rem; padding:.6rem; }
+  .tj-design-art { width:60px;height:64px; }
+  .tj-design-copy small { font-size:.72rem; }
+}
