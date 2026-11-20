@@ -43,7 +43,7 @@
     el.innerHTML = `<section class="p-panel ln-home"><h2>${esc(opts.title || AREA_NAME[area] || "Study")}</h2>
       <p class="muted">One idea per card. Each section ends with Put it together, a quiz, and its sources. Nothing here opens another site.</p>
       <div class="ln-secs">${list.map((s) => { const seen = Math.min((st.seen[s.id] || 0), s.cards.length); return `<button class="ln-sec ${st.done[s.id] ? "done" : ""}" data-sec="${s.id}">
-        <b>${esc(s.title)}</b><small>${s.cards.length} cards${st.done[s.id] ? " · done ✓" : seen ? ` · ${seen} seen` : ""}</small><span class="ln-bar"><i style="width:${Math.round(100 * seen / s.cards.length)}%"></i></span></button>`; }).join("")}</div>
+        <b>${esc(s.title)}</b><small>${s.cards.length} cards${st.mastered && st.mastered[s.id] ? " · mastered ✓" : st.reviewQueue && st.reviewQueue[s.id] ? " · review due" : seen ? ` · ${seen} seen` : ""}</small><span class="ln-bar"><i style="width:${Math.round(100 * seen / s.cards.length)}%"></i></span></button>`; }).join("")}</div>
       <div class="actions"><button class="btn btn-ghost btn-sm" id="lnNotes">My notes (${st.notes.length})</button></div></section>`;
     $$("[data-sec]", el).forEach((b) => b.addEventListener("click", () => deck(el, b.dataset.sec, 0, () => home(el, area, opts))));
     $("#lnNotes", el).addEventListener("click", () => notes(el, () => home(el, area, opts)));
@@ -166,17 +166,33 @@
     }
     return qs.slice(0, n);
   }
-  function quiz(el, id, back) {
-    const s = sec(id), qs = makeQuestions(s);
+  function quiz(el, id, back, reviewOnly = false) {
+    const s = sec(id), saved = store.get().reviewQueue && store.get().reviewQueue[id];
+    const qs = reviewOnly && saved && saved.length
+      ? saved.map((q) => ({ ...q, card: s.cards.find((c) => c.id === q.cardId) || s.cards[0] }))
+      : makeQuestions(s);
     let i = 0, score = 0, ans = null, hintN = 0;
+    const missed = [];
     const draw = () => {
       if (i >= qs.length) {
-        const st = store.get(); st.quizzes.push({ section: id, score, total: qs.length, date: today() }); st.done[id] = today(); store.set(st);
+        const st = store.get();
+        const passed = score >= Math.ceil(qs.length * 0.8);
+        st.quizzes.push({ section: id, score, total: qs.length, date: today(), passed, reviewOnly });
+        if (passed) { st.mastered = st.mastered || {}; st.mastered[id] = today(); if (st.reviewQueue) delete st.reviewQueue[id]; }
+        else {
+          st.mastered = st.mastered || {}; delete st.mastered[id];
+          st.reviewQueue = st.reviewQueue || {};
+          st.reviewQueue[id] = missed.map((q) => ({ prompt: q.prompt, options: q.options, answer: q.answer, cardId: q.card && q.card.id, hints: q.hints || [], why: q.why }));
+        }
+        store.set(st);
         el.innerHTML = `<section class="p-panel q-end"><h3>${esc(s.title)} quiz</h3><p class="q-score"><b>${score}</b> / ${qs.length}</p>
-          <p class="muted center">Every question came from a card in this section. No timer, nothing lost for a miss.</p>
-          <div class="ln-ctas"><button class="btn btn-gold" id="lnBackEnd">Done</button><button class="btn btn-ghost" id="lnPut2">✎ Put it together</button></div>${sourcesFooter(s)}
+          <p class="muted center">${passed ? "Mastery check passed. You applied at least 80% correctly." : "Not mastered yet. Review the missed concepts, then try again with a fresh set."} ${reviewOnly ? "This was a review attempt." : ""}</p>
+          <div class="ln-ctas"><button class="btn btn-gold" id="lnBackEnd">Done</button><button class="btn btn-ghost" id="lnPut2">✎ Put it together</button></div>
+          ${!passed && missed.length ? `<div class="actions"><button class="btn btn-gold" id="lnReview">Review missed questions (${missed.length})</button></div>` : ""}
+          ${sourcesFooter(s)}
           <div class="actions"><button class="btn btn-ghost btn-sm" id="lnMore">Learn more ›</button></div></section>`;
         $("#lnBackEnd", el).addEventListener("click", back);
+        const rv = $("#lnReview", el); if (rv) rv.addEventListener("click", () => quiz(el, id, back, true));
         $("#lnPut2", el).addEventListener("click", () => putTogether(el, id, back));
         $("#lnMore", el).addEventListener("click", () => learnMore(el, id, back));
         return;
@@ -189,7 +205,7 @@
         ${ans === null ? "" : `<div class="q-fb ${ans === q.answer ? "ok" : "no"}"><b>${ans === q.answer ? "Yes." : "Not this time."} Reasoning:</b> ${esc(q.why)} <button class="link-btn" id="lnSee">See card ${k} ›</button></div>
           <div class="actions"><button class="btn btn-gold" id="lnNext">${i + 1 < qs.length ? "Next ›" : "See results"}</button></div>`}</section>`;
       const h = $("#lnHint", el); if (h) h.addEventListener("click", () => { hintN++; draw(); });
-      $$(".q-opt", el).forEach((b) => b.addEventListener("click", () => { ans = +b.dataset.k; if (ans === q.answer) score++; draw(); }));
+      $(".q-opt", el).forEach((b) => b.addEventListener("click", () => { ans = +b.dataset.k; if (ans === q.answer) score++; else missed.push(q); draw(); }));
       const nx = $("#lnNext", el); if (nx) nx.addEventListener("click", () => { i++; ans = null; hintN = 0; draw(); });
       const see = $("#lnSee", el); if (see) see.addEventListener("click", () => sheet(`<span class="label">${esc(s.title)} · card ${k}</span><p>${esc(q.card.text)}</p>${srcChip(q.card.source)}`));
     };
