@@ -28,14 +28,14 @@
     for(const card of known){
       const re=new RegExp("(^|[^A-Za-z])"+card.name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"([^A-Za-z]|$)","i");
       if(re.test(source)){
-        const at=source.search(re),near=source.slice(Math.max(0,at-70),at+card.name.length+70);
-        const reversed=/reversed|rx|upside down/i.test(near),upright=/upright/i.test(near);
+        const line=source.split(/\r?\n/).find(x=>re.test(x))||"";
+        const reversed=/\breversed\b|\brx\b|upside down/i.test(line);
         found.push({name:card.name,orientation:reversed?"reversed":"upright",source:"physical deck"});
       }
     }
     return found.slice(0,12);
   }
-  function dateValue(v){return /^\d{4}-\d{2}-\d{2}$/.test(v||"")?v:new Date().toISOString().slice(0,10)}
+  function dateValue(v){const m=String(v||"").match(/^(\d{4}-\d{2}-\d{2})/);return m?m[1]:new Date().toISOString().slice(0,10)}
   function mount(){
     const root=$("#panel-today");if(!root||$("#readingImport"))return;
     const box=document.createElement("details");box.id="readingImport";box.className="p-panel reading-import";
@@ -72,7 +72,7 @@
       try{
         if(imageData){
           const out=await app.api("/api/photos",{date,photos:[{data:imageData}],cards,note:[notes,text].filter(Boolean).join("\n\n")});
-          status.textContent="Image uploaded to your reading review queue. Open the pending photo in Astro to identify or confirm its cards before it enters the journal.";
+          status.textContent="Image uploaded to your reading review queue. Open Journal and find “Waiting for TaroBot” to review the photo and identify or confirm its cards.";
         }else{
           if(!cards.length)throw new Error("No known tarot cards were found. Add the card names in the Card names field, then import again.");
           const note=[notes,text?("Imported reading ("+imageName+"):\n"+text):"", "Imported from a past reading."].filter(Boolean).join("\n\n").slice(0,3900);
