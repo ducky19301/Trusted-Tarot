@@ -818,7 +818,7 @@
     const nm = ME.birth ? numerology(ME.birth, null, onDate) : { rows: [], lp: null, py: null }, pd = nm.rows.find((r) => r.label === "Personal Day");
     const [by, bm, bd] = ME.birth ? ME.birth.split("-").map(Number) : [];
     const bc = ME.birth && window.TarotPractice && window.TarotPractice.birthCard ? window.TarotPractice.birthCard(by, bm, bd) : null;
-    const past = S.entries.flatMap((e) => (e.cards || []).map((c) => ({ date: e.date, name: c.name, orientation: c.orientation, q: null })));
+    const past = S.entries.filter((e) => e.date < onDate).flatMap((e) => (e.cards || []).map((c) => ({ date: e.date, name: c.name, orientation: c.orientation, q: null })));
     return { isMe: true, name: ME.name, short: ME.short, lp: nm.lp, py: nm.py, pd: pd ? pd.n : null, sign: ME.sign, elem: ME.sign ? SIGN_ELEM[ME.sign] : null,
       birthCards: bc ? majorsBy(bc.chain) : [], ruler: ME.sign ? S.byName.get((GD_SIGN[ME.sign] || "").toLowerCase()) || null : null, past, astro: S.astroToday && S.astroToday.date === onDate ? S.astroToday : null };
   }
@@ -1175,6 +1175,7 @@
     $("#jPage").innerHTML = `
       <h2 class="page-date">${esc(fmtDate(day.date))}</h2>
       <p class="page-sub">${n} card${n === 1 ? "" : "s"} · ${esc([...new Set(day.cards.map((c) => c.source || "draw"))].join(" · "))}</p>
+      ${(() => { const nm=ME.birth?numerology(ME.birth,null,day.date):null, pd=nm&&nm.rows.find(r=>r.label==="Personal Day"), current=S.astroToday&&S.astroToday.date===day.date?S.astroToday:null; return pd?`<div class="astro-journal-summary"><b>Astro + numerology · Personal Day ${pd.n}</b><p>Life Path ${nm.lp}: ${esc(NUM_MEAN[nm.lp]||"")}. Personal Day: ${esc(pd.meaning)}.</p>${current&&current.moon?`<p>Moon in ${esc(current.moon.sign)} · ${esc(current.moon.phase)}.</p>`:""}<p class="muted">Reflection: where did these themes appear in your choices, relationships or daily routines?</p></div>`:""; })()}
       <div class="day-cards">${day.cards.map((c) => `
         <div class="day-card">
           <img src="${thumbImg(c.img)}" alt="${esc(c.name)}" class="${isRev(c.orientation) ? "reversed-img" : ""}" loading="lazy" />
