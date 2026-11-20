@@ -70,6 +70,16 @@
     el.innerHTML=`<section class="p-panel"><h2>Compatibility · all twelve signs</h2><p class="muted">Your calculated Sun sign is ${esc(sun)}. These are nuanced Sun-sign starting points, not a relationship verdict or full synastry. A complete comparison needs both birth charts and should consider Moon, Venus, Mars, Ascendant, houses and inter-chart aspects.</p>${Object.entries(COMPAT_GUIDE).map(([sign,txt])=>`<details class="astro-detail"><summary><b>${esc(sign)}</b></summary><p>${esc(txt)}</p><p><b>Important:</b> consent, safety, shared values, communication and observed behavior matter more than a chart pairing.</p></details>`).join("")}</section>`;
   }
 
+
+  function reduceNumber(n) { n=Math.abs(Math.trunc(n)); while(n>9&&n!==11&&n!==22&&n!==33)n=String(n).split("").reduce((a,b)=>a+Number(b),0); return n; }
+  function personalCycleHTML(birthDate,date) {
+    if(!birthDate||!/^\\d{4}-\\d{2}-\\d{2}$/.test(birthDate)) return '<section class="astro-study-block"><h3>Numerology connection</h3><p>Add your birth date to calculate your Life Path and daily number themes.</p></section>';
+    const [y,m,d]=birthDate.split("-").map(Number),[ty,tm,td]=date.split("-").map(Number),sum=n=>String(n).split("").reduce((a,b)=>a+Number(b),0);
+    const life=reduceNumber(reduceNumber(m)+reduceNumber(d)+reduceNumber(sum(y))),year=reduceNumber(reduceNumber(m)+reduceNumber(d)+reduceNumber(sum(ty))),month=reduceNumber(year+reduceNumber(tm)),day=reduceNumber(month+reduceNumber(td));
+    const meaning={1:"initiative and self-direction",2:"cooperation and patience",3:"expression and creativity",4:"structure and steady effort",5:"change and flexibility",6:"care and responsibility",7:"study and reflection",8:"stewardship and achievement",9:"compassion and completion",11:"inspiration and sensitivity",22:"building a practical vision",33:"service and teaching"};
+    return '<section class="astro-study-block"><h3>Astrology + numerology reflection cards</h3><p>Planet positions are calculated astronomical data; number meanings are a separate numerology tradition. Use both as reflection prompts, not predictions.</p><div class="astro-number-grid">'+[['Life Path',life],['Personal Year',year],['Personal Month',month],['Personal Day',day]].map(x=>'<div class="astro-number"><b>'+x[0]+' · '+x[1]+'</b><span>'+meaning[x[1]]+'</span></div>').join("")+'</div><p><b>Journal prompt:</b> Where did today’s themes show up in an actual choice, conversation or routine? What else could explain what happened?</p></section>';
+  }
+
   function nav(el) {
     let n = $("#astroNav");
     if (!n) { n = document.createElement("div"); n.id = "astroNav"; n.className = "p-subnav seg"; n.setAttribute("role", "group"); n.setAttribute("aria-label", "Horoscope sections"); el.parentElement.insertBefore(n, el); }
@@ -89,6 +99,7 @@
       ${s.paragraphs.map((p, i) => `<p class="hs-p">${esc(p.text)} ${p.facts.length && p.facts[0] !== "date" ? `<button class="ln-i" data-hp="${i}" aria-label="Where this comes from">i</button>` : ""}</p>`).join("")}
       <div class="hs-tips"><div><b>Do</b><ul>${s.dos.map((t) => `<li>${esc(t.text)}${t.general ? ` <small class="muted">(general tip)</small>` : ""}</li>`).join("")}</ul></div>
       <div><b>Don't</b><ul>${s.donts.map((t) => `<li>${esc(t.text)}${t.general ? ` <small class="muted">(general tip)</small>` : ""}</li>`).join("")}</ul></div></div>
+      ${personalCycleHTML(V.birthDate,h.date)}
       <details class="hs-details"><summary>Details and sources</summary>
         <p class="muted small">Moon in ${esc(h.moon.sign)} · ${esc(h.moon.phase)} (${h.moon.elongation}° from the Sun) · transits for 8:00 AM local time</p>
         <ul>${s.details.map((d) => `<li>${esc(d.text)}</li>`).join("") || "<li>No close transits today.</li>"}</ul>
