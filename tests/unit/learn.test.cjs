@@ -44,3 +44,10 @@ test('every Waite line quoted in the guide comes from the card data', () => {
   const list = Array.isArray(cards) ? cards : cards.cards; assert.equal(list.length, 78);
   for (const c of list) assert.ok(c.waite && c.waite.upright && c.waite.reversed, c.name);
 });
+
+test('mastery requires at least 80 percent and never awards an empty quiz', () => {
+  assert.equal(L.masteryPass(4, 5), true);
+  assert.equal(L.masteryPass(3, 5), false);
+  assert.equal(L.masteryPass(0, 0), false);
+  assert.equal(L.masteryPass(8, 10), true);
+});
