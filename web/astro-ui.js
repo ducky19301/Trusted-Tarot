@@ -5,13 +5,75 @@
   const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const HS = () => window.HoroscopeStory, LU = () => window.LearnUI, LD = () => window.LEARN_DATA;
   const JORDAN = { y: 1992, m: 7, d: 14, hour: 15, minute: 20, tz: "America/Los_Angeles", lat: 45.5152, lon: -122.6784 }; // made-up sample person, real computation
-  const V = { view: "today", h: null, sample: false, name: "" };
+  const V = { view: "today", h: null, sample: false, name: "", birthDate: null, fullName: "", entries: [] };
   const ordn = (n) => n + ((n % 100 >= 10 && n % 100 <= 20) ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[n % 10] || "th"));
+
+
+  const PLANET_GUIDE = {
+    Sun:["identity, vitality, conscious purpose and creative direction","build confidence through chosen values and meaningful work","needing approval or treating one role as your entire identity","What do I want to stand for when nobody is watching?"],
+    Moon:["emotional needs, memory, habits, instinct and nourishment","name needs clearly and build routines that restore you","reacting automatically or expecting others to guess what you need","What helps me feel safe, and what is a habit rather than a true need?"],
+    Mercury:["thinking, language, learning, listening and exchange","ask clear questions and communicate with curiosity","overthinking, rushing to conclusions or talking past people","How do I learn best, and how do I check that I have understood?"],
+    Venus:["affection, attraction, values, pleasure, beauty and reciprocity","show care while keeping self-respect and clear values","people-pleasing, spending to soothe feelings or avoiding honest disagreement","What do I value, and how do I give and receive affection?"],
+    Mars:["action, desire, initiative, anger, courage and boundaries","act directly while respecting consent and other people's limits","reactivity, conflict for its own sake or suppressing anger until it erupts","How can I assert a need without overriding someone else?"],
+    Jupiter:["growth, faith, teaching, meaning, opportunity and generosity","stay open while checking facts and making sustainable plans","overpromising, excess or confusing confidence with certainty","Where can I grow without losing discernment?"],
+    Saturn:["time, responsibility, boundaries, discipline, craft and maturity","build competence through patient effort and fair standards","fear, rigidity, shame or believing rest must be earned","Where can structure support me without becoming punishment?"],
+    Uranus:["independence, disruption, invention, liberation and experimentation","make room for originality and change with thoughtful timing","impulsive rupture or rejecting support to prove independence","Where do I need freedom, and what responsibilities remain?"],
+    Neptune:["imagination, ideals, empathy, spirituality, art and blurred boundaries","use imagination compassionately while keeping clear agreements","idealizing people, avoidance or treating intuition as proof","What inspires me, and what facts or boundaries should I check?"],
+    Pluto:["power, control, compulsion, endings, renewal and deep change","face difficult truths and use influence responsibly","all-or-nothing thinking, control struggles or refusing to release what harms you","Where can I choose honesty over control?"]
+  };
+  const SIGN_GUIDE = {
+    Aries:["direct, initiating, courageous and fast-moving","impatience or acting before listening"],Taurus:["steady, sensory, loyal and resource-conscious","stubbornness or staying with comfort after it stops helping"],
+    Gemini:["curious, verbal, adaptable and connective","scattered attention or avoiding depth through distraction"],Cancer:["protective, receptive, nurturing and memory-rich","defensiveness or indirect communication of needs"],
+    Leo:["expressive, warm, creative and generous","pride or needing constant recognition"],Virgo:["observant, practical, discerning and service-oriented","perfectionism, worry or excessive criticism"],
+    Libra:["relational, diplomatic, aesthetic and fairness-seeking","indecision or people-pleasing to avoid disagreement"],Scorpio:["intense, investigative, loyal and perceptive","suspicion, control or all-or-nothing reactions"],
+    Sagittarius:["exploratory, candid, philosophical and hopeful","restlessness, overstatement or weak follow-through"],Capricorn:["strategic, patient, responsible and ambitious","rigidity or measuring worth only through achievement"],
+    Aquarius:["independent, inventive, systemic and community-minded","detachment or contrarianism that overlooks feelings"],Pisces:["imaginative, compassionate, receptive and intuitive","porous boundaries, avoidance or idealizing situations"]
+  };
+  const HOUSE_GUIDE = {1:"self-presentation, body, approach and beginnings",2:"resources, income, possessions, skills and self-worth",3:"communication, siblings, local movement and everyday learning",4:"home, family, roots and private foundations",5:"creativity, play, romance and self-expression",6:"work routines, service, maintenance and health habits",7:"partnership, agreements and one-to-one encounters",8:"shared resources, debt, intimacy, trust and transitions",9:"higher learning, ethics, beliefs and long-distance travel",10:"vocation, public role, responsibility and reputation",11:"friends, networks, groups and collective aims",12:"rest, retreat, solitude, institutions and hidden processes"};
+  const CHART_RULER = {Aries:"Mars",Taurus:"Venus",Gemini:"Mercury",Cancer:"Moon",Leo:"Sun",Virgo:"Mercury",Libra:"Venus",Scorpio:"Mars",Sagittarius:"Jupiter",Capricorn:"Saturn",Aquarius:"Saturn",Pisces:"Jupiter"};
+  function natalAspects(natal) {
+    const names=Object.keys(natal||{}).filter(k=>natal[k]&&Number.isFinite(Number(natal[k].lon))),out=[],angles=[[0,"conjunction"],[60,"sextile"],[90,"square"],[120,"trine"],[180,"opposition"]];
+    for(let i=0;i<names.length;i++)for(let j=i+1;j<names.length;j++){const a=natal[names[i]],b=natal[names[j]],sep=Math.abs((((Number(a.lon)-Number(b.lon))+540)%360)-180);for(const [angle,label] of angles){const orb=Math.abs(sep-angle);if(orb<=6)out.push({a:names[i],b:names[j],label,orb:+orb.toFixed(2)});}}
+    return out.sort((a,b)=>a.orb-b.orb);
+  }
+  function chartGuideHTML(h) {
+    const n=h.natal||{},placements=Object.entries(n).filter(([k])=>PLANET_GUIDE[k]);
+    const cards=placements.map(([k,x])=>{const p=PLANET_GUIDE[k],sg=SIGN_GUIDE[x.sign]||["a distinct symbolic style","a possible stress expression"],house=x.house?HOUSE_GUIDE[x.house]:"house unavailable because birth time is not recorded",ord=x.house?x.house+(x.house===1?"st":x.house===2?"nd":x.house===3?"rd":"th"):"";
+      return `<details class="astro-detail"><summary><b>${esc(k)} in ${esc(x.sign)}</b><span>${esc(x.pos||"")}${ord?" · "+ord+" house":""}</span></summary>
+        <p><b>What this planet means:</b> ${esc(p[0])}.</p><p><b>Your sign's style:</b> ${esc(sg[0])}. A possible stress expression is ${esc(sg[1])}.</p>
+        <p><b>Your house:</b> ${esc(house)}. This is the life area where this planet's symbolism is emphasized.</p><p><b>Mature expression:</b> ${esc(p[1])}.</p>
+        <p><b>Watch for:</b> ${esc(p[2])}.</p><p><b>Reflection:</b> ${esc(p[3])}</p></details>`;}).join("");
+    const angles=Object.entries(n).filter(([k])=>["ASC","MC"].includes(k)).map(([k,x])=>`<details class="astro-detail"><summary><b>${k==="ASC"?"Ascendant":"Midheaven"} · ${esc(x.sign)}</b><span>${esc(x.pos||"")}</span></summary><p>${k==="ASC"?"The Ascendant marks the eastern horizon. In astrology it describes approach, presentation and first response; its traditional ruler is the chart ruler.":"The Midheaven marks the upper meridian. In astrology it is used for public direction, vocation, responsibility and visibility."}</p></details>`).join("");
+    const ruler=n.ASC&&CHART_RULER[n.ASC.sign],asp=natalAspects(n),aspectHTML=asp.length?asp.slice(0,24).map(a=>`<li><b>${esc(a.a)} ${esc(a.label)} ${esc(a.b)}</b> · ${a.orb}° orb. ${a.orb<=2?"Very close in this guide's 6° major-aspect rule.":"Within the guide's 6° major-aspect rule."}</li>`).join(""):"<li>No major natal aspects fell within this guide's 6° orb.</li>";
+    const life=[["Personality and identity","Start with Sun, Moon, Ascendant and chart ruler. Combine conscious direction, emotional needs and outward approach; no single placement is the whole personality."],["Everyday life","Read Mercury, Mars, Moon and the sixth house for communication, energy, emotional rhythms and routines. Translate the symbolism into habits you can actually observe."],["What others may see","Read the Ascendant, first-house planets and planets close to the ASC or MC. This describes an astrological presentation theme, not what every person thinks of you."],["Private self and home","Read the Moon, fourth house, IC and their rulers. Explore privacy, roots and emotional replenishment without assuming a particular family history."],["Love and intimacy","Read Venus, Mars, Moon, fifth and seventh houses, Descendant and their rulers. Consider affection, desire, emotional safety, boundaries and repair."],["Work, purpose and money","Read the MC and tenth house for public direction, sixth for routines, second for personal resources and eighth for shared resources. Include Saturn, Jupiter and the relevant rulers."],["Maturity, downfalls and watch-fors","For each placement, distinguish a strength from its possible overuse. A chart does not prove trauma, illness, a past event or an unavoidable flaw."],["Happiness and fulfillment","Use the fifth, ninth and eleventh houses, Venus, Jupiter and the Sun to explore joy, creativity, meaning and community. Test every idea against your values and lived experience."]];
+    const lifeHTML=life.map(([t,b])=>`<details class="astro-detail"><summary><b>${esc(t)}</b></summary><p>${esc(b)}</p></details>`).join("");
+    return `<section class="astro-study-block"><h3>Every placement in your chart</h3><p class="muted">Each interpretation combines the planet's function, the sign's style and the house's life area. These are astrological traditions and reflection prompts, not scientifically established personality facts.</p><p><b>Traditional chart ruler:</b> ${esc(ruler||"Unavailable without a timed Ascendant")}. It is the traditional ruler of your Ascendant sign.</p>${angles}${cards}</section>
+      <section class="astro-study-block"><h3>Major aspects in your birth chart</h3><p>Calculated from the natal longitudes above. This guide shows major aspects within a 6° orb and lists the closest first; different schools use different orbs.</p><ul>${aspectHTML}</ul></section>
+      <section class="astro-study-block"><h3>What this can mean across your life</h3>${lifeHTML}</section>`;
+  }
+  const COMPAT_GUIDE = {
+    Aries:"Good potential: directness, momentum and shared adventure. Friction: impatience or turning disagreement into a contest. Best style: honest, active and independent, with clear repair after conflict. Hardest style: controlling or chronically reactive. Love them through direct appreciation, respect for autonomy and reliable follow-through.",
+    Taurus:"Good potential: loyalty, steadiness, sensuality and practical care. Friction: stubbornness or different appetites for change. Best style: secure, affectionate and consistent. Hardest style: possessive or emotionally avoidant. Love them through dependable actions, shared comfort and honest conversations about money and values.",
+    Gemini:"Good potential: humor, conversation, curiosity and mental stimulation. Friction: inconsistency or using wit to dodge vulnerable topics. Best style: playful but emotionally accountable. Hardest style: dismissive or chronically ambiguous. Love them through interesting conversation, flexibility and clear agreements.",
+    Cancer:"Good potential: tenderness, care, home-building and emotional attunement. Friction: defensiveness, indirect hints or retreating instead of speaking. Best style: emotionally safe and nurturing without smothering. Hardest style: guilt, control or silent treatment. Love them through reassurance, patience and direct kindness.",
+    Leo:"Good potential: warmth, creativity, generosity and shared celebration. Friction: pride or competition for attention. Best style: affectionate, expressive and mutually encouraging. Hardest style: humiliating or withholding affection as punishment. Love them through sincere appreciation and room to shine together.",
+    Virgo:"Good potential: practical support, thoughtful attention and shared improvement. Friction: criticism, worry or trying to fix feelings too quickly. Best style: steady, considerate and clear about expectations. Hardest style: nitpicking or treating love like a performance review. Love them through reliability, specific appreciation and useful help that is actually wanted.",
+    Libra:"Good potential: cooperation, fairness, social ease and aesthetic connection. Friction: indecision or avoiding conflict to keep the peace. Best style: balanced, communicative and respectful. Hardest style: passive-aggressive or one-sided. Love them through fairness, shared decisions and honest disagreement without cruelty.",
+    Scorpio:"Good potential: loyalty, depth, emotional courage and strong trust. Friction: suspicion, secrecy or power struggles. Best style: intimate, transparent and boundaried. Hardest style: surveillance, manipulation or testing loyalty. Love them through consistency, honesty and respect for privacy.",
+    Sagittarius:"Good potential: optimism, learning, travel and shared discovery. Friction: bluntness, restlessness or avoiding commitments. Best style: adventurous but dependable. Hardest style: restricting freedom or making promises without follow-through. Love them through curiosity, humor and room to explore while keeping agreements.",
+    Capricorn:"Good potential: ambition, stability, long-term planning and practical devotion. Friction: emotional reserve or letting work outrank connection. Best style: committed, respectful and future-minded. Hardest style: transactional or chronically unavailable. Love them through trust, dependable action and space for vulnerability.",
+    Aquarius:"Good potential: friendship, originality, shared causes and intellectual freedom. Friction: detachment or treating emotional needs as illogical. Best style: equal, open-minded and independent with deliberate affection. Hardest style: dismissive or controlling. Love them through respect for individuality and honest emotional presence.",
+    Pisces:"Good potential: empathy, imagination, tenderness and creative connection. Friction: blurred boundaries, idealization or avoiding difficult facts. Best style: compassionate but grounded, with clear expectations. Hardest style: rescuing, guilt or chronic ambiguity. Love them through gentleness, consistency, direct communication and boundaries that protect both people."
+  };
+  function compatibility(el) {
+    const sun=V.h&&V.h.natal&&V.h.natal.Sun?V.h.natal.Sun.sign:"your Sun sign";
+    el.innerHTML=`<section class="p-panel"><h2>Compatibility · all twelve signs</h2><p class="muted">Your calculated Sun sign is ${esc(sun)}. These are nuanced Sun-sign starting points, not a relationship verdict or full synastry. A complete comparison needs both birth charts and should consider Moon, Venus, Mars, Ascendant, houses and inter-chart aspects.</p>${Object.entries(COMPAT_GUIDE).map(([sign,txt])=>`<details class="astro-detail"><summary><b>${esc(sign)}</b></summary><p>${esc(txt)}</p><p><b>Important:</b> consent, safety, shared values, communication and observed behavior matter more than a chart pairing.</p></details>`).join("")}</section>`;
+  }
 
   function nav(el) {
     let n = $("#astroNav");
     if (!n) { n = document.createElement("div"); n.id = "astroNav"; n.className = "p-subnav seg"; n.setAttribute("role", "group"); n.setAttribute("aria-label", "Horoscope sections"); el.parentElement.insertBefore(n, el); }
-    n.innerHTML = [["today", "Today"], ["learn", "Learn to read charts"], ["chart", "My chart"]].map(([k, l]) => `<button class="seg-btn ${V.view === k ? "active" : ""}" data-av="${k}">${l}</button>`).join("");
+    n.innerHTML = [["today", "Today"], ["chart", "My birth chart"], ["learn", "Learning library"], ["compat", "Compatibility"]].map(([k, l]) => `<button class="seg-btn ${V.view === k ? "active" : ""}" data-av="${k}">${l}</button>`).join("");
     $$("[data-av]", n).forEach((b) => b.addEventListener("click", () => { V.view = b.dataset.av; draw(el); }));
     const others = ["#astroPending", "#astroList"].map((s) => $(s)).filter(Boolean); others.forEach((o) => { o.hidden = V.view !== "today"; });
   }
@@ -48,6 +110,7 @@
     el.innerHTML = `<section class="p-panel">${V.sample ? `<p class="banner-sample">Sample person · Jordan (made up), real computed chart.</p>` : ""}
       <h3>${V.sample ? "Jordan's" : "Your"} chart</h3><p class="muted small">Big three: Sun in ${esc(h.big_three.Sun)}, Moon in ${esc(h.big_three.Moon)}${h.big_three.Ascendant ? `, ${esc(h.big_three.Ascendant)} rising` : ""}. Placidus houses.</p>
       <table class="hs-table"><thead><tr><th>Point</th><th>Position</th><th>House</th></tr></thead><tbody>${rows}</tbody></table>
+      ${chartGuideHTML(h)}
       <h3>Practise on this chart</h3><div id="chartGuide"></div></section>`;
     const pts = Object.entries(n).filter(([k]) => L.APP_PLANETS[k]);
     let i = 0;
@@ -69,13 +132,14 @@
   }
   function draw(el) {
     nav(el);
-    if (V.view === "learn") return LU().home(el, "sky", { title: "Learn to read charts" });
+    if (V.view === "learn") return LU().home(el, "sky", { title: "Astrology Learning Library" });
+    if (V.view === "compat") return compatibility(el);
     if (!V.h) { el.innerHTML = `<p class="muted">Working out the chart…</p>`; return; }
     if (V.view === "chart") return chart(el);
     today(el);
   }
-  async function render(el, { load, name = "", date }) {
-    V.name = name;
+  async function render(el, { load, name = "", date, birthDate = null, fullName = "", entries = [] }) {
+    V.name = name; V.birthDate = birthDate; V.fullName = fullName; V.entries = entries;
     try { V.h = await load(); V.sample = false; }
     catch (e) { V.h = sampleH(date); V.sample = !!V.h; if (!V.h) { el.innerHTML = `<p class="muted">Today's horoscope isn't available right now (${esc(e.message)}).</p>`; return; } }
     draw(el);
