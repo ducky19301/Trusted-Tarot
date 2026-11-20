@@ -14,6 +14,7 @@
       note: "Read: chapter IV, the twelve houses and what each signifies." },
     carlson: { author: "Shawn Carlson", work: "A double-blind test of astrology, Nature 318:419–425", year: "1985", read: "partly", where: "Nature (paywalled); a scan is shared by factchecker.gr", url: "https://www.nature.com/articles/318419a0",
       note: "Read: the summary, the design of both tests (p. 419) and the conclusions (p. 425)." },
+    openstax: { author: "OpenStax", work: "Astronomy 2e, section 2.3: Astrology and Astronomy", year: "2022", read: "partly", where: "OpenStax textbook", url: "https://openstax.org/books/astronomy-2e/pages/2-3-astrology-and-astronomy", note: "Used for the distinction between tropical zodiac signs, astronomical constellations and scientific astronomy." },
     engine: { author: "Astronomy Engine (Don Cross), checked against the Swiss Ephemeris", work: "Planet positions and Placidus houses in astro.js", read: "read", where: "This app's code", url: "https://github.com/cosinekitty/astronomy" },
     greer: { author: "Mary K. Greer", work: "Birth card method (as described in this app)", read: "listed", where: "Greer's books; not read by us", url: null, note: "We describe the arithmetic only. We have not read Greer's own text." },
   };
@@ -90,7 +91,7 @@
   const CHART = [
     { id: "sky.anatomy", title: "Chart anatomy", cards: [
       C("A birth chart is a map of where the Sun, Moon and planets were, seen from the place and moment you were born.", "engine"),
-      C("The wheel is split into 12 signs of 30 degrees each, starting at 0° Aries.", "engine"),
+      C("The tropical zodiac divides the ecliptic into twelve equal 30-degree signs anchored to the equinoxes; these are not identical to the unequal astronomical constellations.", "openstax"),
       C("The chart is also split into 12 houses. This app uses Placidus houses, which need the birth time and place.", "engine"),
       C("The Ascendant is the degree rising in the east at birth. It starts the 1st house.", "lilly"),
       C("Lilly divides the sky into four quarters by the meridian and horizon, and each quarter into three houses.", "lilly"),
