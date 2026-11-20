@@ -546,7 +546,8 @@
         const note=["Imported past reading",$("#importReadingQuestion").value.trim()?("Question — "+$("#importReadingQuestion").value.trim()):"",$("#importReadingText").value.trim(),file?("Original file — "+file.name):""].filter(Boolean).join("\n\n");
         if(file&&file.type.startsWith("image/")){
           const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("Could not read the image."));reader.readAsDataURL(file);});
-          await api("/api/photos",{date,photos:[{data}],note});
+          const tags=$("#importReadingCards").value.trim()?parseCardLines():[];
+          await api("/api/photos",{date,photos:[{data}],note,cards:tags});
           status.textContent="Photo uploaded to the identification queue for "+date+". Confirm the cards there and the reading will be added to Journal and Astro.";
           await loadAll(); return;
         }
