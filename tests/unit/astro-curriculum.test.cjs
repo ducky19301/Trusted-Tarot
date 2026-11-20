@@ -25,6 +25,12 @@ test("curriculum includes all ten planetary functions, twelve signs and twelve h
   assert.ok(curriculum.numerology.length >= 6);
 });
 
+test("curriculum cites historical, astronomical and scientific evidence sources", () => {
+  assert.ok(curriculum.sources.length >= 5);
+  for (const source of curriculum.sources) {
+    assert.ok(source.title && source.note && /^https:\/\//.test(source.url));
+  }
+});
 test("every lesson has fully authored quiz questions with answer explanations", () => {
   const lessons = curriculum.topics.flatMap(t => t.lessons);
   assert.ok(lessons.length >= 36);
