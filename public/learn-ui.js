@@ -185,6 +185,14 @@
       "sky.numerology": { prompt:"A user has entered a birth date but not their full birth name. Which results can the app calculate?", options:["Life Path and date-based cycles, but not name-based Expression or Soul Urge","Every name-based number by guessing","Only a Sun sign"], answer:0, card:cards[2], hints:["Expression and Soul Urge depend on the full birth name."], why:"The app should calculate only values supported by the supplied data and never invent missing name-based numbers." }
     });
 
+
+    Object.assign(applications, {
+      "sky.house-systems": { prompt:"A birth time is uncertain and a planet sits close to a house cusp. What should the app do?", options:["Mark the house placement as uncertain and state the house system","Present one house as exact","Change the birth time until the chart looks right"], answer:0, card:cards[0], hints:["House cusps depend on time, place and house system."], why:"The app uses Placidus and should not present uncertain cusps as exact." },
+      "sky.retrogrades": { prompt:"A planet is retrograde in a natal chart. Which statement is astronomically accurate?", options:["It physically reverses its orbit","It appears to move backward from Earth's viewpoint due to relative orbital motion","It stops moving"], answer:1, card:cards[0], hints:["Think about the observer's viewpoint."], why:"Retrograde motion is an apparent reversal caused by relative orbital motion; the planet does not reverse its orbit." },
+      "sky.dignities": { prompt:"A planet is in detriment. What does that mean in traditional astrology?", options:["The person is bad at that planet's life themes","The planet is in the sign opposite its traditional domicile","The planet is physically farther from Earth"], answer:1, card:cards[2], hints:["Dignities are sign-based technical classifications."], why:"Detriment is the sign opposite a planet's domicile; it is not a judgment of the person's worth." },
+      "sky.nodes-points": { prompt:"A learner calls the North Node a planet. What correction is accurate?", options:["It is one of the lunar orbital nodes, a calculated point rather than a physical planet","It is a dwarf planet","It is the same as the Moon"], answer:0, card:cards[0], hints:["The nodes are intersections of two orbital planes."], why:"The lunar nodes are points where the Moon's orbital path crosses the ecliptic; they are not physical planets." }
+    });
+
     if (applications[s.id]) qs.unshift(applications[s.id]);
     if (s.id === "learn.cohesive") {
       const c0 = cards[0], c4 = cards[4] || cards[0], c5 = cards[5] || cards[0];
