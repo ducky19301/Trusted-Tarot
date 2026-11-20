@@ -164,6 +164,27 @@ html[data-design-theme="cosmic"] .btn-ghost {
   background: rgba(111,91,205,.17); border-color: rgba(139,125,255,.4); color: #b7fff4;
 }
 
+
+/* Original ornamental SVG line art, embedded so the themes work offline. */
+html[data-design-theme="celestial"] .header::before,
+html[data-design-theme="editorial"] .header::before,
+html[data-design-theme="cosmic"] .header::before {
+  content:""; position:absolute; z-index:0; pointer-events:none; width:150px; height:150px;
+  right:2%; top:0; opacity:.24; background-repeat:no-repeat; background-position:center; background-size:contain;
+}
+html[data-design-theme="celestial"] .header::before {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160' fill='none' stroke='%23d8b767' stroke-width='1.2'%3E%3Ccircle cx='80' cy='80' r='55'/%3E%3Ccircle cx='80' cy='80' r='42' stroke-dasharray='2 5'/%3E%3Cpath d='M88 31a48 48 0 1 0 41 75A42 42 0 0 1 88 31Z'/%3E%3Cpath d='M80 12v16m0 104v16M12 80h16m104 0h16M32 32l11 11m74 74 11 11m0-96-11 11m-74 74-11 11'/%3E%3C/svg%3E");
+}
+html[data-design-theme="editorial"] .header::before {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160' fill='none' stroke='%23843945' stroke-width='1.5'%3E%3Cpath d='M22 140C70 112 55 54 130 18M46 116c-22-2-34-18-34-34 21 1 35 13 34 34Zm20-31c-2-23 12-39 32-44 1 22-10 39-32 44Zm18-26c-1-18 11-30 26-34 0 17-9 29-26 34Zm-42 53c-1-18-14-29-30-30 0 16 11 28 30 30Z'/%3E%3Ccircle cx='130' cy='18' r='5'/%3E%3C/svg%3E");
+}
+html[data-design-theme="cosmic"] .header::before {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160' fill='none' stroke='%2379f1e1' stroke-width='1.5'%3E%3Cellipse cx='80' cy='80' rx='69' ry='27' transform='rotate(-32 80 80)'/%3E%3Cellipse cx='80' cy='80' rx='52' ry='18' transform='rotate(45 80 80)'/%3E%3Ccircle cx='80' cy='80' r='19' fill='%23ff8ec4' fill-opacity='.25'/%3E%3Ccircle cx='80' cy='80' r='7' fill='%23a8fff1'/%3E%3Ccircle cx='139' cy='43' r='5' fill='%23ff8ec4'/%3E%3C/svg%3E");
+}
+html[data-design-theme="celestial"] .header > *,
+html[data-design-theme="editorial"] .header > *,
+html[data-design-theme="cosmic"] .header > * { position:relative; z-index:1; }
+
 /* Settings theme selector: each tile is a miniature art direction preview. */
 .tj-design-picker { display: grid; gap: .7rem; margin: .9rem 0 1.2rem; }
 .tj-design-card {
