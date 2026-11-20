@@ -51,3 +51,28 @@ test('mastery requires at least 80 percent and never awards an empty quiz', () =
   assert.equal(L.masteryPass(0, 0), false);
   assert.equal(L.masteryPass(8, 10), true);
 });
+
+test('web learning overlays stay identical to the deployable public bundle', () => {
+  for (const file of ['learn-data.js', 'learn-ui.js']) {
+    assert.equal(
+      fs.readFileSync(path.join(__dirname, '../../web', file), 'utf8'),
+      fs.readFileSync(path.join(pub, file), 'utf8'),
+      file + ' source overlay must match public output'
+    );
+  }
+});
+
+global.document = { addEventListener() {}, querySelector() { return null; }, querySelectorAll() { return []; } };
+require(path.join(pub, 'learn-ui.js'));
+const UI = window.LearnUI;
+test('each astrology lesson starts its quiz with a practical scenario', () => {
+  for (const id of ['sky.anatomy', 'sky.bigthree', 'sky.planets', 'sky.signs', 'sky.houses', 'sky.aspects', 'sky.whole', 'sky.transits', 'sky.evidence']) {
+    const section = S.find(item => item.id === id);
+    assert.ok(section, 'missing ' + id);
+    const questions = UI.makeQuestions(section, 6);
+    assert.ok(questions.length >= 1, id + ' has a question');
+    assert.ok(/\\?/.test(questions[0].prompt), id + ' begins with a real-world question');
+    assert.equal(questions[0].options.length, 3, id + ' has three answer choices');
+    assert.ok(questions[0].why.length > 20, id + ' includes reasoning');
+  }
+});
