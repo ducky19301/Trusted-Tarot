@@ -120,7 +120,16 @@
       {title:"Agency, consent and safe reflection",body:["Never use astrology or numerology to diagnose someone, predict violence, determine whether a person is trustworthy, or pressure someone into a relationship. These systems cannot replace direct communication, professional care or evidence.","Compatibility should never be used to excuse coercion, jealousy, disrespect, manipulation or abuse. A supposedly difficult chart does not make harmful behavior inevitable, and a supposedly harmonious chart does not make a relationship safe.","The user remains the authority on their own experience. The app should offer options, context and reflection prompts, preserve privacy and make it easy to correct birth data or disagree with a reading."],example:"If a chart suggests a boundary theme, translate it into a concrete question: 'What agreement would help me feel respected?' rather than 'This person is controlling because of their Mars.'",quiz:[["Can a chart determine whether someone is safe?",["Yes","No"],1,"Safety is assessed from behavior, consent and evidence."],["What is the user's role in interpreting a chart?",["Accept every statement","Remain the authority on their lived experience","Let the chart decide"],1,"Interpretations should support agency, not replace it."]]}
     ]}
   ];
-  const api = {version:"1.0.0",planets,signs,houses,aspects,numerology,topics};
+
+  const sources = [
+    {title:"OpenStax Astronomy 2e · Astrology and Astronomy",url:"https://openstax.org/books/astronomy-2e/pages/2-3-astrology-and-astronomy",note:"Astronomical background and the distinction between astrology, astronomy, tropical signs and constellations."},
+    {title:"Claudius Ptolemy · Tetrabiblos",url:"https://sacred-texts.com/astro/ptb/",note:"Historical primary source for Hellenistic planetary, sign, aspect and triplicity doctrine. It documents a tradition; it is not modern scientific evidence."},
+    {title:"William Lilly · Christian Astrology (1647)",url:"https://www.astro.com/astrology/in_lilly_e.htm",note:"Historical source for traditional house significations and horary practice."},
+    {title:"Shawn Carlson · A double-blind test of astrology, Nature (1985)",url:"https://www.nature.com/articles/318419a0",note:"An influential controlled test in which astrologers' chart-to-personality matching did not outperform chance under the study conditions. One study is evidence to consider, not a complete review of every astrological practice."},
+    {title:"Astronomy Engine · calculation documentation",url:"https://github.com/cosinekitty/astronomy",note:"Open-source astronomical calculation library used by this project for planetary positions. It supports the calculations, not the symbolic interpretations."}
+  ];
+
+  const api = {version:"1.0.0",planets,signs,houses,aspects,numerology,topics,sources};
   if (typeof window !== "undefined") window.ASTRO_CURRICULUM = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })();
