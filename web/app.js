@@ -1447,6 +1447,7 @@
     Object.assign(S, { entries, gaps, guests, outbox });
     renderRecap(); renderGaps(); renderJournal(); renderAstro(); renderGuestsTab(); renderSavedToday();
   }
+  document.addEventListener("tarot:reading-imported", () => { loadAll().catch(() => {}); });
 
   /* ---------- v16: account, intention/question, clarifiers, patterns, moon spreads, share, friends ---------- */
   async function loadMe() {
