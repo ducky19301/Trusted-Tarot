@@ -1271,3 +1271,13 @@ html[data-theme="light"] .tj-btn.pri{color:#fff;background:linear-gradient(180de
 
 .astro-journal-summary{margin:.8rem 0 1rem;padding:.85rem 1rem;border-radius:12px;border:1px solid var(--line,rgba(255,255,255,.14));background:rgba(255,255,255,.035)}
 .astro-journal-summary p{margin:.45rem 0;line-height:1.55}
+
+
+/* Full authored astrology curriculum */
+.astro-curriculum{line-height:1.6}
+.astro-curriculum>h2,.astro-curriculum>h3{margin-top:.4rem}
+.astro-curriculum .ac-options{display:grid;grid-template-columns:1fr;gap:.55rem;margin:.8rem 0}
+.astro-curriculum .ac-choice{width:100%;white-space:normal;text-align:left;justify-content:flex-start;line-height:1.45;padding:.8rem 1rem}
+.astro-curriculum .notes{margin:1rem 0;padding:.9rem 1rem;border-radius:12px;background:rgba(255,255,255,.045)}
+.astro-curriculum .ln-sec{min-height:68px}
+.astro-curriculum .ln-sec small{line-height:1.45;white-space:normal}
