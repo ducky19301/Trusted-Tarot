@@ -1433,8 +1433,8 @@
       const sky = historical ? `<div class="astro-day-context"><b>Personal sky · ${esc(day.date)}</b><p>Moon in ${esc(historical.moon.sign)} · ${esc(historical.moon.phase)}.</p><p>${historical.aspects.slice(0,3).map(x => `${esc(x.transit)} ${esc(x.aspect)} natal ${esc(x.natal)} · ${x.orb}°`).join(" · ") || "No close natal transits in this guide's orb."}</p>${personalDay ? `<p>Personal Day ${personalDay.n}: ${esc(personalDay.meaning)} · Life Path ${num.lp}</p>` : ""}</div>` : personalDay ? `<div class="astro-day-context"><b>Numerology · Personal Day ${personalDay.n}</b><p>Life Path ${num.lp} · ${esc(personalDay.meaning)}</p></div>` : "";
       return `<section class="astro-day">
         <header><h3>${esc(fmtDate(day.date, { weekday: "short", month: "long", day: "numeric" }))}</h3>
-        ${sky}
           ${missing === 0 ? `<span class="pill">Woven</span>` : pend ? `<span class="pill wait">${pend === day.cards.length ? "Astro pending" : `${pend} pending`}</span>` : `<span class="pill quiet">${missing === day.cards.length ? "No astro note" : "Partly woven"}</span>`}</header>
+        ${sky}
         ${day.cards.map((c) => `<div class="astro-card"><img src="${thumbImg(c.img)}" alt="" class="${isRev(c.orientation) ? "reversed-img" : ""}" loading="lazy" /><div>
           <div class="nm">${esc(c.name)}${isRev(c.orientation) ? " · reversed" : isUnknown(c.orientation) ? " · orientation not recorded" : ""}</div>
           ${c.astro ? `<p>${esc(c.astro)}</p>` : astroPending(day.date, c.name) ? `<span class="pending">Astro tie-in pending</span>` : `<span class="no-astro">No astro note</span>`}
