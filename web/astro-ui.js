@@ -143,7 +143,7 @@
   }
   function draw(el) {
     nav(el);
-    if (V.view === "learn") return LU().home(el, "sky", { title: "Astrology Learning Library" });
+    if (window.AstroLearningUI && ["learn","chart","compat"].includes(V.view)) return window.AstroLearningUI.render(el, V.view, V.h);\n    if (V.view === "learn") return LU().home(el, "sky", { title: "Astrology Learning Library" });
     if (V.view === "compat") return compatibility(el);
     if (!V.h) { el.innerHTML = `<p class="muted">Working out the chart…</p>`; return; }
     if (V.view === "chart") return chart(el);
