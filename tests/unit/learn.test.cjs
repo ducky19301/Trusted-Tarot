@@ -71,7 +71,7 @@ test('each astrology lesson starts its quiz with a practical scenario', () => {
     assert.ok(section, 'missing ' + id);
     const questions = UI.makeQuestions(section, 6);
     assert.ok(questions.length >= 1, id + ' has a question');
-    assert.ok(/\\?/.test(questions[0].prompt), id + ' begins with a real-world question');
+    assert.ok(questions[0].prompt.includes('?'), id + ' begins with a real-world question');
     assert.equal(questions[0].options.length, 3, id + ' has three answer choices');
     assert.ok(questions[0].why.length > 20, id + ' includes reasoning');
   }
