@@ -1267,3 +1267,7 @@ html[data-theme="light"] .tj-btn.pri{color:#fff;background:linear-gradient(180de
 .reading-import-panel .field>span{display:block;margin-bottom:.3rem}
 .reading-import-panel input,.reading-import-panel textarea{width:100%;box-sizing:border-box}
 .reading-import-panel textarea{resize:vertical}
+
+
+.astro-journal-summary{margin:.8rem 0 1rem;padding:.85rem 1rem;border-radius:12px;border:1px solid var(--line,rgba(255,255,255,.14));background:rgba(255,255,255,.035)}
+.astro-journal-summary p{margin:.45rem 0;line-height:1.55}
