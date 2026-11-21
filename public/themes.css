@@ -218,3 +218,119 @@ html[data-design-theme="cosmic"] .header > * { position:relative; z-index:1; }
   .tj-design-art { width:60px;height:64px; }
   .tj-design-copy small { font-size:.72rem; }
 }
+
+
+/* Distinct screen composition layer. Bottom navigation is shared and intentionally untouched. */
+html[data-screen-layout] .panel[data-screen-composition]{isolation:isolate}
+html[data-screen-layout] .panel[data-screen-composition][hidden]{display:none!important}
+html[data-screen-layout] [data-layout-part]{min-width:0}
+html[data-screen-layout] #todayDraw{display:grid;gap:1rem}
+html[data-screen-layout] #todayDraw>[hidden]{display:none!important}
+
+/* CELESTIAL LUXE: observatory dashboard, ritual stage, framed archive */
+html[data-screen-layout="celestial"] #panel-today{display:grid;gap:1rem}
+html[data-screen-layout="celestial"] #panel-today>[data-layout-part="daily-context"]{order:0}
+html[data-screen-layout="celestial"] #panel-today>[data-layout-part="import-tools"]{order:1}
+html[data-screen-layout="celestial"] #panel-today>[data-layout-part="saved-reading"]{order:2}
+html[data-screen-layout="celestial"] #panel-today>[data-layout-part="reading-workspace"]{order:3}
+html[data-screen-layout="celestial"] #todayDraw{grid-template-columns:minmax(0,1fr);grid-template-areas:"return" "lunar" "options" "actions" "physical" "photo" "prompt" "stage" "meaning" "save" "interpretation"}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="return-link"]{grid-area:return}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="lunar-context"]{grid-area:lunar}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="draw-options"]{grid-area:options}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="draw-actions"]{grid-area:actions}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="physical-entry"]{grid-area:physical}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="photo-entry"]{grid-area:photo}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="reading-prompt"]{grid-area:prompt}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="card-stage"]{grid-area:stage}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="quick-meaning"]{grid-area:meaning}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="save-actions"]{grid-area:save}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="expanded-interpretation"]{grid-area:interpretation}
+html[data-screen-layout="celestial"] #panel-journal{display:flex;flex-direction:column;gap:1rem}
+html[data-screen-layout="celestial"] #panel-journal [data-layout-part="journal-summary"]{order:0}
+html[data-screen-layout="celestial"] #panel-journal [data-layout-part="journal-date-nav"]{order:1}
+html[data-screen-layout="celestial"] #panel-journal [data-layout-part="journal-pages"]{order:2}
+html[data-screen-layout="celestial"] #panel-journal [data-layout-part="journal-insight"]{order:3}
+html[data-screen-layout="celestial"] #panel-cards,html[data-screen-layout="celestial"] #panel-practice,html[data-screen-layout="celestial"] #panel-astro{display:flex;flex-direction:column;gap:1rem}
+html[data-screen-layout="celestial"] #panel-cards [data-layout-part="library-tools"],html[data-screen-layout="celestial"] #panel-practice [data-layout-part="learning-nav"]{position:sticky;top:.4rem;z-index:2;padding:.8rem;border:1px solid var(--gold-dim);border-radius:20px;background:var(--bg-elevated)}
+html[data-screen-layout="celestial"] #panel-astro [data-layout-part="astro-feature"]{padding:1.2rem;border:1px solid var(--gold);border-radius:24px;background:radial-gradient(ellipse at 50% 0%,rgba(216,183,103,.15),transparent 70%),var(--panel)}
+html[data-screen-layout="celestial"] #panel-meditate [data-layout-part="meditation-stage"]{border:1px solid var(--gold-dim);border-radius:24px;overflow:hidden;box-shadow:0 18px 44px rgba(0,0,0,.25)}
+
+/* MYSTIC EDITORIAL: chapter order, reading-first pages, book/archive surfaces */
+html[data-screen-layout="editorial"] .panel[data-layout-theme="editorial"]{border-radius:8px}
+html[data-screen-layout="editorial"] #panel-today{display:flex;flex-direction:column;gap:1rem}
+html[data-screen-layout="editorial"] #panel-today>[data-layout-part="daily-context"]{order:0;padding-bottom:.8rem;border-bottom:2px solid rgba(132,57,69,.35)}
+html[data-screen-layout="editorial"] #panel-today>[data-layout-part="saved-reading"]{order:1}
+html[data-screen-layout="editorial"] #panel-today>[data-layout-part="reading-workspace"]{order:2}
+html[data-screen-layout="editorial"] #panel-today>[data-layout-part="import-tools"]{order:3}
+html[data-screen-layout="editorial"] #todayDraw{grid-template-columns:minmax(0,1fr);grid-template-areas:"return" "prompt" "lunar" "stage" "meaning" "options" "actions" "physical" "photo" "save" "interpretation"}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="return-link"]{grid-area:return}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="reading-prompt"]{grid-area:prompt;text-align:left;font:italic 1.1rem Georgia,serif;padding:.5rem 0}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="lunar-context"]{grid-area:lunar}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="card-stage"]{grid-area:stage;padding:1rem;border:1px solid rgba(132,57,69,.28);border-radius:8px;background:linear-gradient(135deg,#fffdf7,#efe4cf)}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="quick-meaning"]{grid-area:meaning;padding:.8rem 0;border-block:1px solid rgba(132,57,69,.3)}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="draw-options"]{grid-area:options}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="draw-actions"]{grid-area:actions;justify-content:flex-start}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="physical-entry"]{grid-area:physical}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="photo-entry"]{grid-area:photo}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="save-actions"]{grid-area:save}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="expanded-interpretation"]{grid-area:interpretation}
+html[data-screen-layout="editorial"] #panel-journal{display:flex;flex-direction:column;gap:.8rem}
+html[data-screen-layout="editorial"] #panel-journal [data-layout-part="journal-summary"]{order:0}
+html[data-screen-layout="editorial"] #panel-journal [data-layout-part="journal-insight"]{order:1}
+html[data-screen-layout="editorial"] #panel-journal [data-layout-part="journal-date-nav"]{order:2;border-block:1px solid rgba(132,57,69,.25);padding:.5rem 0}
+html[data-screen-layout="editorial"] #panel-journal [data-layout-part="journal-pages"]{order:3}
+html[data-screen-layout="editorial"] #panel-journal .book{background:#f5eddd;border:1px solid #d5c3a8;box-shadow:inset 0 0 0 5px rgba(132,57,69,.045),0 12px 30px rgba(64,45,35,.08)}
+html[data-screen-layout="editorial"] #panel-cards,html[data-screen-layout="editorial"] #panel-practice,html[data-screen-layout="editorial"] #panel-astro{display:flex;flex-direction:column;gap:.8rem}
+html[data-screen-layout="editorial"] #panel-cards [data-layout-part="library-tools"]{order:0;display:grid;gap:.7rem;padding-bottom:.8rem;border-bottom:2px solid rgba(132,57,69,.3)}
+html[data-screen-layout="editorial"] #panel-practice [data-layout-part="learning-content"]{order:0}
+html[data-screen-layout="editorial"] #panel-practice [data-layout-part="learning-nav"]{order:1;border-top:1px solid rgba(132,57,69,.25);padding-top:.7rem}
+html[data-screen-layout="editorial"] #panel-astro [data-layout-part="screen-intro"]{order:0;font:italic 1.05rem Georgia,serif;padding-bottom:.7rem;border-bottom:1px solid rgba(132,57,69,.3)}
+html[data-screen-layout="editorial"] #panel-astro [data-layout-part="astro-feature"]{order:1;padding:1rem;background:#f5eddd;border:1px solid #d5c3a8}
+html[data-screen-layout="editorial"] #panel-astro [data-layout-part="astro-pending"]{order:2}
+html[data-screen-layout="editorial"] #panel-astro [data-layout-part="astro-library"]{order:3}
+html[data-screen-layout="editorial"] #panel-meditate [data-layout-part="meditation-stage"]{border:1px solid #d5c3a8;box-shadow:0 10px 24px rgba(64,45,35,.1)}
+
+/* MODERN COSMIC: modular studio dashboard, card-first and compact visual blocks */
+html[data-screen-layout="cosmic"] #panel-today{display:flex;flex-direction:column;gap:.85rem}
+html[data-screen-layout="cosmic"] #panel-today>[data-layout-part="daily-context"]{order:0;padding:1rem;border-radius:22px;background:linear-gradient(125deg,rgba(78,226,205,.12),rgba(160,126,255,.14),rgba(255,125,184,.1))}
+html[data-screen-layout="cosmic"] #panel-today>[data-layout-part="saved-reading"]{order:1}
+html[data-screen-layout="cosmic"] #panel-today>[data-layout-part="reading-workspace"]{order:2}
+html[data-screen-layout="cosmic"] #panel-today>[data-layout-part="import-tools"]{order:3}
+html[data-screen-layout="cosmic"] #todayDraw{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"return return" "lunar lunar" "prompt prompt" "stage stage" "meaning meaning" "options options" "actions actions" "physical physical" "photo photo" "save save" "interpretation interpretation"}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="return-link"]{grid-area:return}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="lunar-context"]{grid-area:lunar}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="reading-prompt"]{grid-area:prompt;text-align:left;font-weight:600}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="card-stage"]{grid-area:stage;padding:1rem;border:1px solid rgba(139,125,255,.38);border-radius:24px;background:radial-gradient(ellipse at 50% 15%,rgba(75,221,205,.12),transparent 70%),linear-gradient(145deg,#221e4e,#121130)}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="quick-meaning"]{grid-area:meaning;padding:1rem;border-radius:18px;background:linear-gradient(110deg,rgba(75,221,205,.1),rgba(255,117,177,.1))}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="draw-options"]{grid-area:options}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="draw-actions"]{grid-area:actions}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="physical-entry"]{grid-area:physical}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="photo-entry"]{grid-area:photo}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="save-actions"]{grid-area:save}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="expanded-interpretation"]{grid-area:interpretation}
+html[data-screen-layout="cosmic"] #panel-journal,html[data-screen-layout="cosmic"] #panel-cards,html[data-screen-layout="cosmic"] #panel-practice,html[data-screen-layout="cosmic"] #panel-astro{display:flex;flex-direction:column;gap:.85rem}
+html[data-screen-layout="cosmic"] #panel-journal [data-layout-part="journal-summary"]{order:0}
+html[data-screen-layout="cosmic"] #panel-journal [data-layout-part="journal-date-nav"]{order:1}
+html[data-screen-layout="cosmic"] #panel-journal [data-layout-part="journal-pages"]{order:2}
+html[data-screen-layout="cosmic"] #panel-journal [data-layout-part="journal-insight"]{order:3}
+html[data-screen-layout="cosmic"] #panel-journal .book{border-radius:22px;overflow:hidden}
+html[data-screen-layout="cosmic"] #panel-cards [data-layout-part="library-tools"]{order:0;display:grid;gap:.7rem;padding:1rem;border:1px solid rgba(139,125,255,.3);border-radius:22px;background:linear-gradient(135deg,#221e4e,#121130)}
+html[data-screen-layout="cosmic"] #panel-practice [data-layout-part="learning-nav"]{order:0}
+html[data-screen-layout="cosmic"] #panel-practice [data-layout-part="learning-content"]{order:1}
+html[data-screen-layout="cosmic"] #panel-astro [data-layout-part="screen-intro"]{order:0}
+html[data-screen-layout="cosmic"] #panel-astro [data-layout-part="astro-feature"]{order:1;padding:1rem;border:1px solid rgba(75,221,205,.35);border-radius:22px;background:linear-gradient(135deg,#221e4e,#121130)}
+html[data-screen-layout="cosmic"] #panel-astro [data-layout-part="astro-pending"]{order:2}
+html[data-screen-layout="cosmic"] #panel-astro [data-layout-part="astro-library"]{order:3}
+html[data-screen-layout="cosmic"] #panel-meditate [data-layout-part="meditation-stage"]{border:1px solid rgba(139,125,255,.35);border-radius:22px;overflow:hidden}
+
+/* Responsive composition rules */
+html[data-screen-layout] #panel-guests .guests-layout{grid-template-columns:minmax(0,1fr)}
+html[data-screen-layout] #panel-guests .people,html[data-screen-layout] #panel-guests .profile{min-width:0}
+@media(min-width:760px){
+ html[data-screen-layout] #panel-guests .guests-layout{grid-template-columns:minmax(220px,.72fr) minmax(0,1.8fr);align-items:start}
+}
+@media(max-width:640px){
+ html[data-screen-layout] #panel-cards [data-layout-part="library-tools"]{position:relative;top:auto}
+ html[data-screen-layout] #todayDraw{gap:.8rem}
+ html[data-screen-layout] #panel-meditate .med-frame iframe{width:100%}
+}
