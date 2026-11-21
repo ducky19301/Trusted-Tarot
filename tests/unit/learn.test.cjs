@@ -23,7 +23,7 @@ test('the Fool’s Journey is a complete ordered 22-chapter course with connecte
   assert.equal(journey.length, 22);
   assert.deepEqual(journey.map((x) => x.number), Array.from({length:22}, (_, i) => i));
   for (const chapter of journey) {
-    assert.ok(chapter.title && chapter.cardId && chapter.story.length >= 3, chapter.number);
+    assert.ok(chapter.title && chapter.cardId && chapter.story.length >= 3 && chapter.astrology && chapter.numberTheme, chapter.number);
     assert.ok(chapter.reflection && chapter.practice && chapter.previous !== undefined && chapter.next !== undefined, chapter.title);
     const section = S.find((x) => x.id === 'journey.' + String(chapter.number).padStart(2, '0'));
     assert.ok(section, 'missing journey section ' + chapter.number);
