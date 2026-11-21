@@ -7,16 +7,16 @@ const backend = fs.readFileSync(path.join(root, "public/backend.js"), "utf8");
 const app = fs.readFileSync(path.join(root, "public/app.js"), "utf8");
 
 test("owner can delete a saved personal journal reading or one exact card", () => {
-  assert.match(backend, /\/api\/entries\/\(\d\{4\}-\d\{2\}-\d\{2\}\)\/delete/);
-  assert.match(backend, /\/api\/entries\/\(\d\{4\}-\d\{2\}-\d\{2\}\)\/cards\/delete/);
+  assert.ok(backend.includes('path.match(/^\\/api\\/entries\\/(\\d{4}-\\d{2}-\\d{2})\\/delete$/)'));
+  assert.ok(backend.includes('path.match(/^\\/api\\/entries\\/(\\d{4}-\\d{2}-\\d{2})\\/cards\\/delete$/)'));
   assert.match(app, /data-delete-personal-reading/);
   assert.match(app, /data-delete-personal-card/);
-  assert.match(app, /confirm\(/);
+  assert.match(app, /confirm\\(/);
 });
 
 test("owner can delete a guest-profile reading or one exact guest card", () => {
-  assert.match(backend, /\/api\/guests\/\(\[\\w-\]\+\)\/readings\/\(\[\\w-\]\+\)\/delete/);
-  assert.match(backend, /\/api\/guests\/\(\[\\w-\]\+\)\/readings\/\(\[\\w-\]\+\)\/cards\/delete/);
+  assert.ok(backend.includes('path.match(/^\\/api\\/guests\\/([\\w-]+)\\/readings\\/([\\w-]+)\\/delete$/)'));
+  assert.ok(backend.includes('path.match(/^\\/api\\/guests\\/([\\w-]+)\\/readings\\/([\\w-]+)\\/cards\\/delete$/)'));
   assert.match(app, /data-delete-guest-reading/);
   assert.match(app, /data-delete-guest-card/);
 });
