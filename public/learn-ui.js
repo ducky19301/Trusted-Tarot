@@ -16,7 +16,7 @@
   let SECS = null;
   const secs = () => SECS || (SECS = L.build(window.PRACTICE_DATA));
   const sec = (id) => secs().find((s) => s.id === id);
-  const AREA_NAME = { learn: "Learn", numbers: "Numbers", spreads: "Spreads", sky: "Astrology Learning", tarot: "Learn" };
+  const AREA_NAME = { learn: "Learn", numbers: "Numbers", spreads: "Spreads", sky: "Astrology Learning", tarot: "Learn", journey: "Fool’s Journey" };
   const srcChip = (k) => { const s = L.SOURCES[k] || L.SOURCES.app; return `<button type="button" class="ln-chip" data-src="${k}">${esc(s.author.split(",")[0])} · ${esc(L.READ_LABEL[s.read])}</button>`; };
   const KIND = { traditional: "Tradition", study: "What studies show", "how-to": "How to", method: "Method", ourmethod: "Our method" };
 
@@ -39,14 +39,51 @@
   /* ---------- home ---------- */
   function home(el, area, opts = {}) {
     const st = store.get();
-    const list = secs().filter((s) => area === "all" || s.area === area || (area === "tarot" && s.area !== "sky"));
+    const list = secs().filter((s) => (area === "all" || s.area === area || (area === "tarot" && s.area !== "sky" && s.system !== "fools-journey")) && s.system !== "fools-journey");
+    const journey = window.FOOLS_JOURNEY || [];
+    const completed = journey.filter((c) => st.mastered && st.mastered["journey." + String(c.number).padStart(2, "0")]).length;
+    const current = journey.find((c) => !(st.mastered && st.mastered["journey." + String(c.number).padStart(2, "0")])) || journey[journey.length - 1];
     el.innerHTML = `<section class="p-panel ln-home"><h2>${esc(opts.title || AREA_NAME[area] || "Study")}</h2>
-      <p class="muted">One idea per card. Each section ends with Put it together, a quiz, and its sources. Nothing here opens another site.</p>
+      <p class="muted">Build your reading skills one idea at a time. Learn the cards, test your understanding, and practise making interpretations in your own words.</p>
+      ${journey.length ? `<article class="ln-card ln-journey-feature">
+        <span class="ln-kind k-ourmethod">A 22-CHAPTER COURSE</span><h3>The Fool’s Journey</h3>
+        <p>Follow the Major Arcana as one connected story: beginnings, choices, trials, transformation and integration. Each chapter includes symbolism, upright and reversed meanings, history, astrology, reflection and practice.</p>
+        <p class="muted small">${completed} of 22 chapters mastered · ${current ? "Continue with " + esc(current.title) : "Course complete"}</p>
+        <div class="ln-bar"><i style="width:${Math.round(100 * completed / 22)}%"></i></div>
+        <div class="actions"><button class="btn btn-gold" id="lnJourney">${completed === 22 ? "Review the journey" : "Open the journey map"} ›</button></div>
+      </article>` : ""}
       <div class="ln-secs">${list.map((s) => { const seen = Math.min((st.seen[s.id] || 0), s.cards.length); return `<button class="ln-sec ${st.mastered && st.mastered[s.id] ? "done" : ""}" data-sec="${s.id}">
         <b>${esc(s.title)}</b><small>${s.cards.length} cards${st.mastered && st.mastered[s.id] ? " · mastered ✓" : st.reviewQueue && st.reviewQueue[s.id] ? " · review due" : seen ? ` · ${seen} seen` : ""}</small><span class="ln-bar"><i style="width:${Math.round(100 * seen / s.cards.length)}%"></i></span></button>`; }).join("")}</div>
       <div class="actions"><button class="btn btn-ghost btn-sm" id="lnNotes">My notes (${st.notes.length})</button></div></section>`;
-    $$("[data-sec]", el).forEach((b) => b.addEventListener("click", () => deck(el, b.dataset.sec, 0, () => home(el, area, opts))));
+    $("[data-sec]", el).forEach((b) => b.addEventListener("click", () => deck(el, b.dataset.sec, 0, () => home(el, area, opts))));
+    const journeyButton = $("#lnJourney", el);
+    if (journeyButton) journeyButton.addEventListener("click", () => journeyHome(el, () => home(el, area, opts)));
     $("#lnNotes", el).addEventListener("click", () => notes(el, () => home(el, area, opts)));
+  }
+
+  function journeyHome(el, back = () => home(el, "tarot", { title: "Learn" })) {
+    const journey = window.FOOLS_JOURNEY || [], st = store.get();
+    const completed = journey.filter((c) => st.mastered && st.mastered["journey." + String(c.number).padStart(2, "0")]).length;
+    const allCards = (window.TarotApp && window.TarotApp.S && window.TarotApp.S.cards) || [];
+    const acts = [...new Set(journey.map((c) => c.act))];
+    const groups = acts.map((act) => {
+      const rows = journey.filter((c) => c.act === act);
+      return `<section class="ln-journey-act"><h3>${esc(act)}</h3><div class="ln-secs">${rows.map((c) => {
+        const id = "journey." + String(c.number).padStart(2, "0"), section = sec(id);
+        const seen = Math.min((st.seen[id] || 0), section ? section.cards.length : 0);
+        const mastered = !!(st.mastered && st.mastered[id]);
+        const art = allCards.find((x) => x.id === c.cardId);
+        const img = art && art.img ? `<img src="/deck-thumb/${esc(String(art.img).split("/").pop())}" alt="" loading="lazy" style="width:48px;height:72px;object-fit:contain;float:left;margin-right:12px;border-radius:5px"/>` : "";
+        return `<button class="ln-sec ln-journey-node ${mastered ? "done" : ""}" data-jchapter="${id}">${img}<b>${String(c.number).padStart(2, "0")} · ${esc(c.title)}</b><small>${esc(c.archetype)} · ${mastered ? "mastered ✓" : seen ? seen + " lesson cards seen" : "not started"}</small><span class="ln-bar"><i style="width:${Math.round(100 * seen / (section ? section.cards.length : 1))}%"></i></span></button>`;
+      }).join("")}</div></section>`;
+    }).join("");
+    el.innerHTML = `<section class="p-panel ln-journey"><div class="ln-top"><button class="link-btn" id="journeyBack">‹ Learn</button><span class="muted">22 chapters · Major Arcana</span></div>
+      <h2>The Fool’s Journey</h2><p>The journey is a modern interpretive framework, not the original historical purpose of tarot. Read each card as a stage in a story, then test how that stage changes in an actual reading.</p>
+      <div class="ln-card"><b>${completed} / 22 chapters mastered</b><div class="ln-bar"><i style="width:${Math.round(100 * completed / 22)}%"></i></div><small class="muted">Complete a chapter, put the ideas together, and pass its quiz with at least 80% to mark it mastered.</small></div>
+      ${groups}<div class="actions"><button class="btn btn-ghost" id="journeyNotes">My learning notes (${st.notes.length})</button></div></section>`;
+    $("#journeyBack", el).addEventListener("click", back);
+    $("[data-jchapter]", el).forEach((b) => b.addEventListener("click", () => deck(el, b.dataset.jchapter, 0, () => journeyHome(el, back))));
+    $("#journeyNotes", el).addEventListener("click", () => notes(el, () => journeyHome(el, back)));
   }
 
   /* ---------- deck ---------- */
@@ -55,8 +92,12 @@
     st.seen[id] = Math.max(st.seen[id] || 0, i + 1); store.set(st);
     if (i >= s.cards.length) return end(el, id, back);
     const c = s.cards[i];
+    const artCards = (window.TarotApp && window.TarotApp.S && window.TarotApp.S.cards) || [];
+    const art = s.deckCardId && artCards.find((x) => x.id === s.deckCardId);
+    const deckArt = art && art.img ? `<figure class="ln-journey-art"><img src="/deck-thumb/${esc(String(art.img).split("/").pop())}" alt="${esc(art.name)}" style="display:block;width:112px;max-height:168px;object-fit:contain;margin:0 auto 8px;border-radius:8px"/><figcaption class="muted small center">Major Arcana · ${esc(art.name)} · ${esc(s.chapter && s.chapter.archetype || "")}</figcaption></figure>` : "";
     el.innerHTML = `<section class="p-panel ln-deck"><div class="ln-top"><button class="link-btn" id="lnBack">‹ ${esc(AREA_NAME[s.area] || "Back")}</button><span class="muted">${esc(s.title)} · ${i + 1} / ${s.cards.length}</span></div>
       <div class="ln-dots">${s.cards.map((_, k) => `<i class="${k <= i ? "on" : ""}"></i>`).join("")}</div>
+      ${deckArt}
       <article class="ln-card" data-card="${c.id}"><span class="ln-kind k-${c.kind}">${esc(KIND[c.kind] || "")}</span><p>${esc(c.text)}</p>${srcChip(c.source)}</article>
       <div class="actions ln-nav"><button class="btn btn-ghost" id="lnPrev" ${i ? "" : "disabled"}>‹ Back</button><button class="btn btn-gold" id="lnNext">${i + 1 < s.cards.length ? "Next ›" : "Finish ›"}</button></div></section>`;
     $("#lnBack", el).addEventListener("click", back);
@@ -371,5 +412,5 @@
       onNext: () => practiceGloss(el, items, i + 1, back) });
   }
 
-  window.LearnUI = { glossary, home, deck, quiz, learnMore, putTogether, notes, guided, hintsBlock, cardGuide, makeQuestions, sections: secs, store, sheet };
+  window.LearnUI = { glossary, home, journeyHome, deck, quiz, learnMore, putTogether, notes, guided, hintsBlock, cardGuide, makeQuestions, sections: secs, store, sheet };
 })();
