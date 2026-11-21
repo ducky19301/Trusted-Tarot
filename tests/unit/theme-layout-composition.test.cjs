@@ -50,9 +50,9 @@ test("shared bottom navigation remains outside the screen composition system", (
 });
 
 test("theme composition supports dynamic content, mobile layouts and accessible controls", () => {
-  assert.match(controller, /childList:\\s*true/);
-  assert.match(controller, /subtree:\\s*true/);
-  assert.match(css, /@media\\s*\\(max-width:\\s*640px\\)/);
+  assert.match(controller, /childList:\s*true/);
+  assert.match(controller, /subtree:\s*true/);
+  assert.match(css, /@media\s*\(max-width:\s*640px\)/);
   assert.match(css, /:focus-visible/);
   assert.match(html, /role="tablist"/);
   assert.match(html, /id="moreMenu"/);
