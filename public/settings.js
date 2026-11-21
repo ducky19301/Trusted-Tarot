@@ -22,7 +22,7 @@
         <span class="tj-design-copy"><strong>${name}</strong><small>${desc}</small></span>
         <span class="tj-design-check" aria-hidden="true">${p.designTheme === v ? "✓" : ""}</span>
       </button>`).join("")}</div>`;
-    return `<div class="tj-sec" id="st-look"><h3>Design style</h3><p class="tj-why">Choose a complete visual world. Artwork, typography, surfaces, navigation and colors all change together.</p>
+    return `<div class="tj-sec" id="st-look"><h3>Design style</h3><p class="tj-why">Choose a complete visual world. Screen layouts, artwork, typography, surfaces and colors all change together.</p>
       ${designPicker}
       <div class="tj-subsettings"><h3>Fine-tune</h3>
       ${seg("theme", "Light or dark mode")} ${seg("accent", "Accent color")}${seg("cardback", "Card back")}${seg("size", "Text size")}${seg("typeface", "Typeface")}${seg("density", "Spacing")}
