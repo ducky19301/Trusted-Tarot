@@ -2,7 +2,7 @@
 const test = require('node:test'), assert = require('node:assert'), fs = require('fs'), path = require('path');
 const pub = path.join(__dirname, '../../public');
 global.window = {}; require(path.join(pub, 'practice-data.js'));
-const D = window.PRACTICE_DATA; require(path.join(pub, 'learn-data.js')); const L = window.LEARN_DATA;
+const D = window.PRACTICE_DATA; require(path.join(pub, 'fools-journey.js')); require(path.join(pub, 'learn-data.js')); const L = window.LEARN_DATA;
 const S = L.build(D);
 const norm = (t) => String(t).replace(/\s+/g, ' ').trim();
 test('every section has cards, a Put it together prompt and a known source', () => {
@@ -17,6 +17,34 @@ test('lesson cards rejoin into the original lesson text', () => {
   for (const l of D.LESSONS) { const s = S.find((x) => x.id === 'learn.' + l.id); assert.ok(s, l.id);
     const joined = norm(s.cards.map((c) => c.text).join(' '));
     assert.equal(joined, norm(l.body.join(' ')), l.id); }
+});
+test('the Fool’s Journey is a complete ordered 22-chapter course with connected card lessons', () => {
+  const journey = D.FOOLS_JOURNEY;
+  assert.equal(journey.length, 22);
+  assert.deepEqual(journey.map((x) => x.number), Array.from({length:22}, (_, i) => i));
+  for (const chapter of journey) {
+    assert.ok(chapter.title && chapter.cardId && chapter.story.length >= 3, chapter.number);
+    assert.ok(chapter.reflection && chapter.practice && chapter.previous !== undefined && chapter.next !== undefined, chapter.title);
+    const section = S.find((x) => x.id === 'journey.' + String(chapter.number).padStart(2, '0'));
+    assert.ok(section, 'missing journey section ' + chapter.number);
+    assert.ok(section.cards.length >= 5, chapter.title + ' has a full lesson');
+    assert.ok(section.put && section.put.prompt.length > 20, chapter.title + ' has an applied exercise');
+    assert.equal(section.deckCardId, chapter.cardId);
+    const qs = UI.makeQuestions(section, 6);
+    assert.ok(qs.length >= 3, chapter.title + ' has a quiz');
+    for (const q of qs) assert.ok(q.options.length === 4 && q.why.length > 20, chapter.title + ' quiz explanations');
+  }
+});
+test('Fool’s Journey chapters retain their previous and next story connections', () => {
+  for (const chapter of D.FOOLS_JOURNEY) {
+    const expectedPrevious = chapter.number === 0 ? null : D.FOOLS_JOURNEY[chapter.number - 1].title;
+    const expectedNext = chapter.number === 21 ? null : D.FOOLS_JOURNEY[chapter.number + 1].title;
+    assert.equal(chapter.previous, expectedPrevious, chapter.title + ' previous');
+    assert.equal(chapter.next, expectedNext, chapter.title + ' next');
+  }
+});
+test('learning UI exposes a dedicated Fool’s Journey map', () => {
+  assert.equal(typeof UI.journeyHome, 'function');
 });
 test('sources are honest: nothing is marked read that was not', () => {
   assert.equal(L.SOURCES.greer.read, 'listed');
