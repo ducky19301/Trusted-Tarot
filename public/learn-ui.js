@@ -92,8 +92,12 @@
     st.seen[id] = Math.max(st.seen[id] || 0, i + 1); store.set(st);
     if (i >= s.cards.length) return end(el, id, back);
     const c = s.cards[i];
+    const artCards = (window.TarotApp && window.TarotApp.S && window.TarotApp.S.cards) || [];
+    const art = s.deckCardId && artCards.find((x) => x.id === s.deckCardId);
+    const deckArt = art && art.img ? `<figure class="ln-journey-art"><img src="/deck-thumb/${esc(String(art.img).split("/").pop())}" alt="${esc(art.name)}" style="display:block;width:112px;max-height:168px;object-fit:contain;margin:0 auto 8px;border-radius:8px"/><figcaption class="muted small center">Major Arcana · ${esc(art.name)} · ${esc(s.chapter && s.chapter.archetype || "")}</figcaption></figure>` : "";
     el.innerHTML = `<section class="p-panel ln-deck"><div class="ln-top"><button class="link-btn" id="lnBack">‹ ${esc(AREA_NAME[s.area] || "Back")}</button><span class="muted">${esc(s.title)} · ${i + 1} / ${s.cards.length}</span></div>
       <div class="ln-dots">${s.cards.map((_, k) => `<i class="${k <= i ? "on" : ""}"></i>`).join("")}</div>
+      ${deckArt}
       <article class="ln-card" data-card="${c.id}"><span class="ln-kind k-${c.kind}">${esc(KIND[c.kind] || "")}</span><p>${esc(c.text)}</p>${srcChip(c.source)}</article>
       <div class="actions ln-nav"><button class="btn btn-ghost" id="lnPrev" ${i ? "" : "disabled"}>‹ Back</button><button class="btn btn-gold" id="lnNext">${i + 1 < s.cards.length ? "Next ›" : "Finish ›"}</button></div></section>`;
     $("#lnBack", el).addEventListener("click", back);
