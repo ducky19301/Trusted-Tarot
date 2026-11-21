@@ -1326,9 +1326,10 @@
         <p class="status" id="nrStatus" style="text-align:left"></p>
       </details>
       <div class="timeline">${readingsSorted.length ? readingsSorted.map((r) => `
-        <article class="g-reading">
+        <article class="g-reading" data-reading-id="${r.id}">
           <header><h3>${esc(fmtDate(r.date, { weekday: "short", month: "long", day: "numeric", year: "numeric" }))}</h3>
             ${r.reading ? `<span class="pill">Read</span>` : `<span class="pill wait">Awaiting TaroBot</span>`}</header>
+          <div class="actions" style="justify-content:flex-start"><button type="button" class="btn btn-ghost btn-sm" data-delete-guest-reading="${r.id}" data-gid="${g.id}">Delete reading</button></div>
           ${r.question ? `<p class="q">“${esc(r.question)}”</p>` : ""}
           ${r.spread ? `<span class="tag">${esc(r.spread)}</span>` : ""}
           ${r.cards && r.cards.length ? `<div class="g-cards">${r.cards.map((c) => { const k = S.byName.get(c.name.toLowerCase()); return `<div class="g-card"><img src="${thumbImg(c.img || (k && k.img))}" alt="" loading="lazy" class="${isRev(c.orientation) ? "reversed-img" : ""}" /><div>${esc(c.name)}<small>${c.position ? esc(c.position) + " · " : ""}${isRev(c.orientation) ? "reversed" : "upright"}</small><button type="button" class="btn btn-ghost btn-sm" data-delete-guest-card="${r.id}" data-gid="${g.id}" data-index="${r.cards.indexOf(c)}">Delete card</button></div></div>`; }).join("")}</div>` : ""}
@@ -1337,7 +1338,7 @@
           ${r.generated_reading ? `<details class="gen-wrap" open><summary>Card-by-card reading</summary>${genReadingHTML(r.generated_reading)}</details>` : ""}
           ${r.reading ? `<p class="g-text">${esc(r.reading)}</p>` : `<span class="pending" style="margin-top:.5rem">TaroBot’s reading will appear here</span>`}
           ${r.note ? `<p class="g-text muted" style="font-size:.85rem">Note: ${esc(r.note)}</p>` : ""}
-          ${r.cards && r.cards.length ? `<div class="actions g-share" style="justify-content:flex-start"><button type="button" class="btn btn-ghost btn-sm" data-delete-guest-reading="${r.id}" data-gid="${g.id}">Delete reading</button><button class="btn btn-ghost btn-sm" data-share-fmt="png" data-gid="${g.id}" data-rid="${r.id}">⇪ Image</button><button class="btn btn-ghost btn-sm" data-share-fmt="pdf" data-gid="${g.id}" data-rid="${r.id}">⇪ PDF</button>${shareToggle("guest_reading", r.id)}</div>` : ""}
+          ${r.cards && r.cards.length ? `<div class="actions g-share" style="justify-content:flex-start"><button class="btn btn-ghost btn-sm" data-share-fmt="png" data-gid="${g.id}" data-rid="${r.id}">⇪ Image</button><button class="btn btn-ghost btn-sm" data-share-fmt="pdf" data-gid="${g.id}" data-rid="${r.id}">⇪ PDF</button>${shareToggle("guest_reading", r.id)}</div>` : ""}
         </article>`).join("") : `<p class="muted center">No readings yet.</p>`}</div>`;
     wireGuestBirth(g);
     const liveUpdate = () => { const b = $("#nrLiveBody"); if (b) b.innerHTML = genReadingHTML(buildReading(tags.rows(), guestTies(g)), { live: true });
