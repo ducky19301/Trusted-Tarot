@@ -14,12 +14,14 @@ test("three complete design themes are valid, persisted appearance preferences",
     assert.match(themes, new RegExp('data-design-theme="' + theme + '"'));
   }
   assert.match(appearance, /designTheme/);
-  assert.match(appearance, /data-design-theme/);
+  assert.match(appearance, /designTheme: p\.designTheme/);
+  assert.match(appearance, /localStorage\.setItem\(KEY, JSON\.stringify\(cur\)\)/);
 });
 
 test("Settings exposes three visual theme previews and allows switching", () => {
   for (const theme of ["celestial", "editorial", "cosmic"]) {
-    assert.match(settings, new RegExp('data-design-theme="' + theme + '"'));
+    assert.match(settings, new RegExp('\\["' + theme + '"'));
+    assert.match(settings, /data-design-theme="\$\{v\}"/);
   }
   assert.match(settings, /designTheme/);
   assert.match(settings, /Design style/);
