@@ -321,8 +321,8 @@
         ...chapter.symbolism.map((text) => ({ text, kind: "how-to", source: "app" })),
         { text: "Upright: " + chapter.upright, kind: "traditional", source: "app" },
         { text: "Reversed: " + chapter.reversed, kind: "traditional", source: "app" },
-        { text: "Astrology: " + chapter.astrology + " " + chapter.number + " " + chapter.number + ".", kind: "ourmethod", source: "app" },
-        { text: "Numerology: " + chapter.number + ". " + chapter.number, kind: "ourmethod", source: "app" },
+        { text: "Astrology correspondence: " + chapter.astrology, kind: "ourmethod", source: "app" },
+        { text: "Number and sequence: Major Arcana " + chapter.number + " is the card’s place in the 22-stage teaching sequence. Treat number symbolism as an interpretive layer, not a fixed historical fact.", kind: "ourmethod", source: "app" },
         { text: "In a reading: " + chapter.reading, kind: "how-to", source: "app" },
         { text: "History and image context: " + chapter.history, kind: "traditional", source: "app" },
         { text: "Journey connection: " + (chapter.previous ? "Before this stage comes " + chapter.previous + ". " : "This is the opening card. ") + (chapter.next ? "The next stage is " + chapter.next + "." : "This completes the numbered journey and opens the possibility of a new cycle."), kind: "ourmethod", source: "app" }
