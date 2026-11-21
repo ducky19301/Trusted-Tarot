@@ -526,7 +526,7 @@
         photos = entries[i].photos || [];
         entries.splice(i, 1);
       });
-      await mutate("outbox", (ob) => { for (let i = ob.length - 1; i >= 0; i--) if (ob[i].date === date && ["self_draw", "self_photo"].includes(ob[i].kind)) { photos.push(...(ob[i].photos || [])); ob.splice(i, 1); } });
+      await mutate("outbox", (ob) => { for (let i = ob.length - 1; i >= 0; i--) if (ob[i].date === date && (ob[i].kind === "self_draw" || ob[i].kind === "self_photo")) { photos.push(...(ob[i].photos || [])); ob.splice(i, 1); } });
       await removePrivatePhotos(photos);
       return { ok: true, date };
     }
