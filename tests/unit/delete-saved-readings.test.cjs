@@ -11,7 +11,7 @@ test("owner can delete a saved personal journal reading or one exact card", () =
   assert.ok(backend.includes('path.match(/^\\/api\\/entries\\/(\\d{4}-\\d{2}-\\d{2})\\/cards\\/delete$/)'));
   assert.match(app, /data-delete-personal-reading/);
   assert.match(app, /data-delete-personal-card/);
-  assert.match(app, /confirm\\(/);
+  assert.ok(app.includes("confirm("));
 });
 
 test("owner can delete a guest-profile reading or one exact guest card", () => {
