@@ -364,3 +364,6 @@ html[data-screen-layout="editorial"] #panel-practice #practiceRoot>*{border-radi
  html[data-screen-layout="cosmic"] #panel-guests .guests-layout{grid-template-areas:"profile profile" "people people"}
  html[data-screen-layout="cosmic"] #panel-guests .people{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.5rem}
 }
+
+/* Keep the journal export action at the end of each theme's reading flow. */
+html[data-screen-layout] #panel-journal [data-layout-part="journal-export"]{order:4}
