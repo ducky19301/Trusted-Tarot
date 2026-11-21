@@ -22,7 +22,7 @@ jobs:
       - name: Install astronomy test dependency
         run: npm install --no-save astronomy-engine
       - name: Check learning JavaScript syntax
-        run: node --check web/learn-data.js && node --check web/learn-ui.js && node --check web/astro-curriculum.js && node --check web/astro-learning-ui.js && node --check web/reading-import.js && node --check web/astro-ui.js && node --check web/app.js && node --check public/learn-data.js && node --check public/learn-ui.js && node --check public/astro-curriculum.js && node --check public/astro-learning-ui.js && node --check public/reading-import.js && node --check public/astro-ui.js && node --check public/app.js
+        run: node --check web/theme-layouts.js && node --check public/theme-layouts.js && node --check web/learn-data.js && node --check web/learn-ui.js && node --check web/astro-curriculum.js && node --check web/astro-learning-ui.js && node --check web/reading-import.js && node --check web/astro-ui.js && node --check web/app.js && node --check web/backend.js && node --check public/backend.js && node --check public/learn-data.js && node --check public/learn-ui.js && node --check public/astro-curriculum.js && node --check public/astro-learning-ui.js && node --check public/reading-import.js && node --check public/astro-ui.js && node --check public/app.js
       - name: Validate Cloudflare static assets configuration
         run: npx --yes wrangler@4 deploy --dry-run --outdir=/tmp/trusted-tarot-wrangler-dry-run
       - name: Run unit tests

@@ -1,0 +1,538 @@
+/* Trusted Tarot complete visual worlds. These themes change atmosphere, art direction,
+   typography, surface language and navigation, not merely accent colors. */
+
+/* CELESTIAL LUXE — nocturnal observatory, gilded celestial engraving */
+html[data-design-theme="celestial"] {
+  --acc-rgb: 216, 183, 103; --acc2-rgb: 244, 221, 164; --surf-rgb: 25, 20, 43;
+  --deep-rgb: 8, 7, 19; --ind-rgb: 55, 42, 82; --ind2-rgb: 82, 61, 117;
+  --mut-rgb: 183, 171, 194; --ink-rgb: 255, 250, 240;
+  --text: #f5efe4; --text-muted: #b9adc5; --bg-deep: #090817;
+  --bg-elevated: #19142b; --panel: rgba(25,20,43,.78);
+  --gold: #d8b767; --gold-soft: #f4dda4; --radius: 18px;
+  --serif: "Cormorant Garamond", Georgia, serif;
+}
+html[data-design-theme="celestial"] body {
+  background:
+    radial-gradient(ellipse 70% 38% at 50% -8%, rgba(107,77,148,.35), transparent 72%),
+    radial-gradient(ellipse 40% 45% at 100% 48%, rgba(45,61,105,.22), transparent 72%),
+    #090817;
+}
+html[data-design-theme="celestial"] .header {
+  position: relative; padding: 1.2rem 0 1.7rem;
+  background: radial-gradient(ellipse at 50% 65%, rgba(216,183,103,.10), transparent 65%);
+}
+html[data-design-theme="celestial"] .header::after {
+  content: "☾"; display: block; margin: .15rem auto 0; color: #d8b767;
+  font: 2.3rem Georgia,serif; opacity: .78; text-shadow: 0 0 25px rgba(216,183,103,.55);
+}
+html[data-design-theme="celestial"] .eyebrow { letter-spacing: .38em; color: #e4c985; }
+html[data-design-theme="celestial"] .header h1 { letter-spacing: .075em; text-shadow: 0 0 34px rgba(216,183,103,.25); }
+html[data-design-theme="celestial"] .tabs {
+  border: 1px solid rgba(216,183,103,.38); background: rgba(11,9,25,.88);
+  box-shadow: 0 12px 38px rgba(0,0,0,.28), inset 0 0 20px rgba(216,183,103,.035);
+}
+html[data-design-theme="celestial"] .tab.active { background: linear-gradient(145deg,rgba(216,183,103,.24),rgba(92,65,126,.25)); }
+html[data-design-theme="celestial"] .panel, html[data-design-theme="celestial"] .pick,
+html[data-design-theme="celestial"] .card, html[data-design-theme="celestial"] .entry-card {
+  border-color: rgba(216,183,103,.22); box-shadow: 0 16px 42px rgba(0,0,0,.20);
+}
+html[data-design-theme="celestial"] .btn-gold { background: linear-gradient(145deg,#f0d99d,#b28b48); }
+html[data-design-theme="celestial"] .panel h2, html[data-design-theme="celestial"] .panel h3 {
+  font-family: var(--serif); letter-spacing: .035em;
+}
+
+/* MYSTIC EDITORIAL — archival field journal, parchment, ink and botanical engraving */
+html[data-design-theme="editorial"] {
+  --acc-rgb: 132, 57, 69; --acc2-rgb: 177, 111, 104; --surf-rgb: 250, 245, 233;
+  --deep-rgb: 239, 230, 211; --ind-rgb: 91, 47, 57; --ind2-rgb: 129, 76, 76;
+  --mut-rgb: 112, 94, 83; --ink-rgb: 45, 38, 34;
+  --text: #332b27; --text-muted: #76665b; --bg-deep: #eee5d4;
+  --bg-elevated: #fbf7ed; --panel: rgba(251,247,237,.92);
+  --gold: #843945; --gold-soft: #a95b60; --radius: 10px;
+  --serif: "Cormorant Garamond", Georgia, serif;
+}
+html[data-design-theme="editorial"] body {
+  color: #332b27;
+  background:
+    radial-gradient(ellipse at 12% 4%,rgba(178,139,104,.17),transparent 35%),
+    radial-gradient(ellipse at 88% 92%,rgba(132,57,69,.08),transparent 42%),
+    repeating-linear-gradient(0deg,rgba(83,65,47,.018) 0,rgba(83,65,47,.018) 1px,transparent 1px,transparent 5px),
+    #eee5d4;
+}
+html[data-design-theme="editorial"] .stars { opacity: .12; filter: sepia(1); }
+html[data-design-theme="editorial"] .header {
+  text-align: left; padding: 1.5rem 1.2rem 1.1rem; margin: 0 0 1.1rem;
+  border-top: 1px solid rgba(132,57,69,.38); border-bottom: 1px solid rgba(132,57,69,.28);
+  background: linear-gradient(90deg,rgba(255,252,243,.7),rgba(255,252,243,.15));
+}
+html[data-design-theme="editorial"] .header::after {
+  content: "✳  ✧  ❧"; display: block; color: #843945; font: 1.2rem Georgia,serif;
+  letter-spacing: .5em; margin-top: .5rem; opacity: .8;
+}
+html[data-design-theme="editorial"] .eyebrow { color: #843945; letter-spacing: .25em; font-weight: 600; }
+html[data-design-theme="editorial"] .header h1 { color: #392b2a; text-shadow: none; font-size: clamp(2.4rem,7vw,3.4rem); }
+html[data-design-theme="editorial"] .tagline { color: #76665b; font-family: Georgia,serif; font-style: italic; }
+html[data-design-theme="editorial"] .tabs {
+  width: 100%; justify-content: flex-start; flex-wrap: wrap; border-radius: 8px;
+  background: rgba(251,247,237,.92); border: 1px solid rgba(132,57,69,.25);
+  box-shadow: 0 5px 18px rgba(70,48,37,.08);
+}
+html[data-design-theme="editorial"] .tab { border-radius: 5px; color: #76665b; }
+html[data-design-theme="editorial"] .tab.active {
+  background: #843945; color: #fff8ed; box-shadow: none;
+}
+html[data-design-theme="editorial"] .panel, html[data-design-theme="editorial"] .pick,
+html[data-design-theme="editorial"] .card, html[data-design-theme="editorial"] .entry-card {
+  color: #332b27; background: rgba(251,247,237,.94);
+  border: 1px solid rgba(107,78,61,.22); border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(70,48,37,.07);
+}
+html[data-design-theme="editorial"] .panel h2, html[data-design-theme="editorial"] .panel h3 {
+  color: #843945; font-family: Georgia,serif; font-weight: 500;
+}
+html[data-design-theme="editorial"] .btn { border-radius: 6px; letter-spacing: .015em; }
+html[data-design-theme="editorial"] .btn-gold {
+  background: #843945; color: #fff8ed; border-color: #843945; box-shadow: none;
+}
+html[data-design-theme="editorial"] .btn-ghost {
+  background: transparent; border-color: rgba(132,57,69,.4); color: #843945;
+}
+html[data-design-theme="editorial"] .muted,
+html[data-design-theme="editorial"] .hint { color: #76665b; }
+html[data-design-theme="editorial"] input, html[data-design-theme="editorial"] textarea,
+html[data-design-theme="editorial"] select {
+  color: #332b27; background: #fffdf7; border-color: rgba(132,57,69,.3);
+}
+
+/* MODERN COSMIC — vibrant observatory, prismatic planetary geometry */
+html[data-design-theme="cosmic"] {
+  --acc-rgb: 75, 221, 205; --acc2-rgb: 255, 117, 177; --surf-rgb: 24, 22, 55;
+  --deep-rgb: 10, 8, 30; --ind-rgb: 51, 44, 112; --ind2-rgb: 88, 55, 145;
+  --mut-rgb: 174, 170, 212; --ink-rgb: 255, 255, 255;
+  --text: #f5f1ff; --text-muted: #b6b1d5; --bg-deep: #0a081e;
+  --bg-elevated: #181637; --panel: rgba(24,22,55,.84);
+  --gold: #4bddcd; --gold-soft: #a7fff2; --radius: 24px;
+  --serif: "Outfit", system-ui, sans-serif;
+}
+html[data-design-theme="cosmic"] body {
+  background:
+    radial-gradient(circle at 12% 15%,rgba(255,89,168,.22),transparent 25%),
+    radial-gradient(circle at 88% 30%,rgba(75,221,205,.2),transparent 26%),
+    radial-gradient(circle at 54% 100%,rgba(117,80,255,.24),transparent 38%),
+    #0a081e;
+}
+html[data-design-theme="cosmic"] .header {
+  padding: 1.2rem 1rem 1.5rem; border-radius: 26px;
+  background: linear-gradient(120deg,rgba(101,61,174,.28),rgba(26,136,151,.12),rgba(185,56,130,.2));
+  border: 1px solid rgba(130,119,255,.28); overflow: hidden;
+}
+html[data-design-theme="cosmic"] .header::after {
+  content: "☉  ◉  ✧"; display: block; font-size: 1.65rem; letter-spacing: .65em;
+  color: #ff8ec4; margin-top: .45rem; text-shadow: 0 0 24px rgba(75,221,205,.65);
+}
+html[data-design-theme="cosmic"] .eyebrow { color: #79f1e1; letter-spacing: .22em; }
+html[data-design-theme="cosmic"] .header h1 {
+  font-family: "Outfit",system-ui,sans-serif; font-weight: 600; letter-spacing: -.035em;
+  background: linear-gradient(90deg,#a8fff1,#ff9bc8 58%,#c0a7ff);
+  color: transparent; background-clip: text; -webkit-background-clip: text; text-shadow: none;
+}
+html[data-design-theme="cosmic"] .tabs {
+  width: 100%; justify-content: flex-start; overflow-x: auto; border-radius: 18px;
+  background: rgba(14,11,39,.88); border: 1px solid rgba(125,113,255,.38);
+  box-shadow: 0 10px 32px rgba(0,0,0,.25);
+}
+html[data-design-theme="cosmic"] .tab { border-radius: 14px; white-space: nowrap; }
+html[data-design-theme="cosmic"] .tab.active {
+  color: #071d2b; background: linear-gradient(130deg,#68efda,#9c8cff 60%,#ff93c5);
+  box-shadow: 0 5px 20px rgba(75,221,205,.2);
+}
+html[data-design-theme="cosmic"] .panel, html[data-design-theme="cosmic"] .pick,
+html[data-design-theme="cosmic"] .card, html[data-design-theme="cosmic"] .entry-card {
+  border: 1px solid rgba(139,125,255,.3);
+  background: linear-gradient(145deg,rgba(34,30,78,.94),rgba(18,17,48,.94));
+  border-radius: 22px; box-shadow: 0 16px 40px rgba(0,0,0,.22);
+}
+html[data-design-theme="cosmic"] .panel h2, html[data-design-theme="cosmic"] .panel h3 {
+  font-family: "Outfit",system-ui,sans-serif; letter-spacing: -.02em; color: #9cf4e9;
+}
+html[data-design-theme="cosmic"] .btn { border-radius: 15px; }
+html[data-design-theme="cosmic"] .btn-gold {
+  background: linear-gradient(120deg,#62e9d5,#9d8aff 58%,#f48cbe);
+  color: #10122d; border: 0; box-shadow: 0 7px 25px rgba(75,221,205,.2);
+}
+html[data-design-theme="cosmic"] .btn-ghost {
+  background: rgba(111,91,205,.17); border-color: rgba(139,125,255,.4); color: #b7fff4;
+}
+
+
+/* Original ornamental SVG line art, embedded so the themes work offline. */
+html[data-design-theme="celestial"] .header::before,
+html[data-design-theme="editorial"] .header::before,
+html[data-design-theme="cosmic"] .header::before {
+  content:""; position:absolute; z-index:0; pointer-events:none; width:150px; height:150px;
+  right:2%; top:0; opacity:.24; background-repeat:no-repeat; background-position:center; background-size:contain;
+}
+html[data-design-theme="celestial"] .header::before {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160' fill='none' stroke='%23d8b767' stroke-width='1.2'%3E%3Ccircle cx='80' cy='80' r='55'/%3E%3Ccircle cx='80' cy='80' r='42' stroke-dasharray='2 5'/%3E%3Cpath d='M88 31a48 48 0 1 0 41 75A42 42 0 0 1 88 31Z'/%3E%3Cpath d='M80 12v16m0 104v16M12 80h16m104 0h16M32 32l11 11m74 74 11 11m0-96-11 11m-74 74-11 11'/%3E%3C/svg%3E");
+}
+html[data-design-theme="editorial"] .header::before {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160' fill='none' stroke='%23843945' stroke-width='1.5'%3E%3Cpath d='M22 140C70 112 55 54 130 18M46 116c-22-2-34-18-34-34 21 1 35 13 34 34Zm20-31c-2-23 12-39 32-44 1 22-10 39-32 44Zm18-26c-1-18 11-30 26-34 0 17-9 29-26 34Zm-42 53c-1-18-14-29-30-30 0 16 11 28 30 30Z'/%3E%3Ccircle cx='130' cy='18' r='5'/%3E%3C/svg%3E");
+}
+html[data-design-theme="cosmic"] .header::before {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160' fill='none' stroke='%2379f1e1' stroke-width='1.5'%3E%3Cellipse cx='80' cy='80' rx='69' ry='27' transform='rotate(-32 80 80)'/%3E%3Cellipse cx='80' cy='80' rx='52' ry='18' transform='rotate(45 80 80)'/%3E%3Ccircle cx='80' cy='80' r='19' fill='%23ff8ec4' fill-opacity='.25'/%3E%3Ccircle cx='80' cy='80' r='7' fill='%23a8fff1'/%3E%3Ccircle cx='139' cy='43' r='5' fill='%23ff8ec4'/%3E%3C/svg%3E");
+}
+html[data-design-theme="celestial"] .header > *,
+html[data-design-theme="editorial"] .header > *,
+html[data-design-theme="cosmic"] .header > * { position:relative; z-index:1; }
+
+/* Settings theme selector: each tile is a miniature art direction preview. */
+.tj-design-picker { display: grid; gap: .7rem; margin: .9rem 0 1.2rem; }
+.tj-design-card {
+  display: grid; grid-template-columns: 74px minmax(0,1fr) 28px; align-items: center; gap: .85rem;
+  width: 100%; padding: .7rem; text-align: left; border-radius: 15px;
+  border: 1px solid var(--gold-dim,rgba(190,160,90,.3)); background: rgba(30,25,48,.72);
+  color: inherit; cursor: pointer; transition: transform .18s,border-color .18s,box-shadow .18s;
+}
+.tj-design-card:hover { transform: translateY(-1px); }
+.tj-design-card.on { border-color: var(--gold,#d8b767); box-shadow: 0 0 0 2px rgba(216,183,103,.18),0 8px 24px rgba(0,0,0,.16); }
+.tj-design-art {
+  height: 72px; width: 74px; display: grid; place-items: center; position: relative; overflow: hidden;
+  border-radius: 11px; font: 2rem Georgia,serif;
+}
+.tj-design-art i,.tj-design-art b { position:absolute; display:block; border-radius:50%; border:1px solid currentColor; width:40px;height:40px; opacity:.65; }
+.tj-design-art i { width:54px;height:54px; transform:rotate(35deg) scaleX(.5); }
+.tj-design-art b { width:17px;height:17px; border:0; background:currentColor; opacity:.45; }
+.tj-design-card.celestial .tj-design-art { color:#e7c77e; background:radial-gradient(circle at 50% 45%,#5a426e,#171329 72%); }
+.tj-design-card.editorial { color:#382d29; background:#f4ead7; border-color:rgba(132,57,69,.3); }
+.tj-design-card.editorial .tj-design-art { color:#8c414d; background:radial-gradient(circle,#f8edda,#d8c2a4); }
+.tj-design-card.cosmic .tj-design-art { color:#9dfff0; background:radial-gradient(circle at 25% 25%,#e86eaf,#34308b 48%,#10152d); }
+.tj-design-copy { display:flex; flex-direction:column; gap:.18rem; min-width:0; }
+.tj-design-copy strong { font:600 1rem var(--serif,Georgia,serif); }
+.tj-design-copy small { font-size:.76rem; line-height:1.35; opacity:.76; }
+.tj-design-check { text-align:center; font-size:1.1rem; color:var(--gold,#d8b767); }
+.tj-subsettings { border-top:1px solid rgba(128,128,128,.2); padding-top:.6rem; }
+.tj-subsettings > h3 { margin-top:.3rem; }
+.tj-modal { max-height:min(88dvh,900px); overflow:auto; }
+@media(max-width:520px) {
+  .tj-design-card { grid-template-columns:60px minmax(0,1fr) 22px; gap:.65rem; padding:.6rem; }
+  .tj-design-art { width:60px;height:64px; }
+  .tj-design-copy small { font-size:.72rem; }
+}
+
+
+/* Distinct screen composition layer. Bottom navigation is shared and intentionally untouched. */
+html[data-screen-layout] .panel[data-screen-composition]{isolation:isolate}
+html[data-screen-layout] .panel[data-screen-composition][hidden]{display:none!important}
+html[data-screen-layout] [data-layout-part]{min-width:0}
+html[data-screen-layout] #todayDraw{display:grid;gap:1rem}
+html[data-screen-layout] #todayDraw>[hidden]{display:none!important}
+
+/* CELESTIAL LUXE: observatory dashboard, ritual stage, framed archive */
+html[data-screen-layout="celestial"] #panel-today{display:grid;gap:1rem}
+html[data-screen-layout="celestial"] #panel-today>[data-layout-part="daily-context"]{order:0}
+html[data-screen-layout="celestial"] #panel-today>[data-layout-part="import-tools"]{order:1}
+html[data-screen-layout="celestial"] #panel-today>[data-layout-part="saved-reading"]{order:2}
+html[data-screen-layout="celestial"] #panel-today>[data-layout-part="reading-workspace"]{order:3}
+html[data-screen-layout="celestial"] #todayDraw{grid-template-columns:minmax(0,1fr);grid-template-areas:"return" "lunar" "options" "actions" "physical" "photo" "prompt" "stage" "meaning" "save" "interpretation"}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="return-link"]{grid-area:return}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="lunar-context"]{grid-area:lunar}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="draw-options"]{grid-area:options}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="draw-actions"]{grid-area:actions}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="physical-entry"]{grid-area:physical}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="photo-entry"]{grid-area:photo}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="reading-prompt"]{grid-area:prompt}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="card-stage"]{grid-area:stage}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="quick-meaning"]{grid-area:meaning}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="save-actions"]{grid-area:save}
+html[data-screen-layout="celestial"] #todayDraw [data-layout-part="expanded-interpretation"]{grid-area:interpretation}
+html[data-screen-layout="celestial"] #panel-journal{display:flex;flex-direction:column;gap:1rem}
+html[data-screen-layout="celestial"] #panel-journal [data-layout-part="journal-summary"]{order:0}
+html[data-screen-layout="celestial"] #panel-journal [data-layout-part="journal-date-nav"]{order:1}
+html[data-screen-layout="celestial"] #panel-journal [data-layout-part="journal-pages"]{order:2}
+html[data-screen-layout="celestial"] #panel-journal [data-layout-part="journal-insight"]{order:3}
+html[data-screen-layout="celestial"] #panel-cards,html[data-screen-layout="celestial"] #panel-practice,html[data-screen-layout="celestial"] #panel-astro{display:flex;flex-direction:column;gap:1rem}
+html[data-screen-layout="celestial"] #panel-cards [data-layout-part="library-tools"],html[data-screen-layout="celestial"] #panel-practice [data-layout-part="learning-nav"]{position:sticky;top:.4rem;z-index:2;padding:.8rem;border:1px solid var(--gold-dim);border-radius:20px;background:var(--bg-elevated)}
+html[data-screen-layout="celestial"] #panel-astro [data-layout-part="astro-feature"]{padding:1.2rem;border:1px solid var(--gold);border-radius:24px;background:radial-gradient(ellipse at 50% 0%,rgba(216,183,103,.15),transparent 70%),var(--panel)}
+html[data-screen-layout="celestial"] #panel-meditate [data-layout-part="meditation-stage"]{border:1px solid var(--gold-dim);border-radius:24px;overflow:hidden;box-shadow:0 18px 44px rgba(0,0,0,.25)}
+
+/* MYSTIC EDITORIAL: chapter order, reading-first pages, book/archive surfaces */
+html[data-screen-layout="editorial"] .panel[data-layout-theme="editorial"]{border-radius:8px}
+html[data-screen-layout="editorial"] #panel-today{display:flex;flex-direction:column;gap:1rem}
+html[data-screen-layout="editorial"] #panel-today>[data-layout-part="daily-context"]{order:0;padding-bottom:.8rem;border-bottom:2px solid rgba(132,57,69,.35)}
+html[data-screen-layout="editorial"] #panel-today>[data-layout-part="saved-reading"]{order:1}
+html[data-screen-layout="editorial"] #panel-today>[data-layout-part="reading-workspace"]{order:2}
+html[data-screen-layout="editorial"] #panel-today>[data-layout-part="import-tools"]{order:3}
+html[data-screen-layout="editorial"] #todayDraw{grid-template-columns:minmax(0,1fr);grid-template-areas:"return" "prompt" "lunar" "stage" "meaning" "options" "actions" "physical" "photo" "save" "interpretation"}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="return-link"]{grid-area:return}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="reading-prompt"]{grid-area:prompt;text-align:left;font:italic 1.1rem Georgia,serif;padding:.5rem 0}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="lunar-context"]{grid-area:lunar}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="card-stage"]{grid-area:stage;padding:1rem;border:1px solid rgba(132,57,69,.28);border-radius:8px;background:linear-gradient(135deg,#fffdf7,#efe4cf)}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="quick-meaning"]{grid-area:meaning;padding:.8rem 0;border-block:1px solid rgba(132,57,69,.3)}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="draw-options"]{grid-area:options}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="draw-actions"]{grid-area:actions;justify-content:flex-start}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="physical-entry"]{grid-area:physical}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="photo-entry"]{grid-area:photo}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="save-actions"]{grid-area:save}
+html[data-screen-layout="editorial"] #todayDraw [data-layout-part="expanded-interpretation"]{grid-area:interpretation}
+html[data-screen-layout="editorial"] #panel-journal{display:flex;flex-direction:column;gap:.8rem}
+html[data-screen-layout="editorial"] #panel-journal [data-layout-part="journal-summary"]{order:0}
+html[data-screen-layout="editorial"] #panel-journal [data-layout-part="journal-insight"]{order:1}
+html[data-screen-layout="editorial"] #panel-journal [data-layout-part="journal-date-nav"]{order:2;border-block:1px solid rgba(132,57,69,.25);padding:.5rem 0}
+html[data-screen-layout="editorial"] #panel-journal [data-layout-part="journal-pages"]{order:3}
+html[data-screen-layout="editorial"] #panel-journal .book{background:#f5eddd;border:1px solid #d5c3a8;box-shadow:inset 0 0 0 5px rgba(132,57,69,.045),0 12px 30px rgba(64,45,35,.08)}
+html[data-screen-layout="editorial"] #panel-cards,html[data-screen-layout="editorial"] #panel-practice,html[data-screen-layout="editorial"] #panel-astro{display:flex;flex-direction:column;gap:.8rem}
+html[data-screen-layout="editorial"] #panel-cards [data-layout-part="library-tools"]{order:0;display:grid;gap:.7rem;padding-bottom:.8rem;border-bottom:2px solid rgba(132,57,69,.3)}
+html[data-screen-layout="editorial"] #panel-practice [data-layout-part="learning-content"]{order:0}
+html[data-screen-layout="editorial"] #panel-practice [data-layout-part="learning-nav"]{order:1;border-top:1px solid rgba(132,57,69,.25);padding-top:.7rem}
+html[data-screen-layout="editorial"] #panel-astro [data-layout-part="screen-intro"]{order:0;font:italic 1.05rem Georgia,serif;padding-bottom:.7rem;border-bottom:1px solid rgba(132,57,69,.3)}
+html[data-screen-layout="editorial"] #panel-astro [data-layout-part="astro-feature"]{order:1;padding:1rem;background:#f5eddd;border:1px solid #d5c3a8}
+html[data-screen-layout="editorial"] #panel-astro [data-layout-part="astro-pending"]{order:2}
+html[data-screen-layout="editorial"] #panel-astro [data-layout-part="astro-library"]{order:3}
+html[data-screen-layout="editorial"] #panel-meditate [data-layout-part="meditation-stage"]{border:1px solid #d5c3a8;box-shadow:0 10px 24px rgba(64,45,35,.1)}
+
+/* MODERN COSMIC: modular studio dashboard, card-first and compact visual blocks */
+html[data-screen-layout="cosmic"] #panel-today{display:flex;flex-direction:column;gap:.85rem}
+html[data-screen-layout="cosmic"] #panel-today>[data-layout-part="daily-context"]{order:0;padding:1rem;border-radius:22px;background:linear-gradient(125deg,rgba(78,226,205,.12),rgba(160,126,255,.14),rgba(255,125,184,.1))}
+html[data-screen-layout="cosmic"] #panel-today>[data-layout-part="saved-reading"]{order:1}
+html[data-screen-layout="cosmic"] #panel-today>[data-layout-part="reading-workspace"]{order:2}
+html[data-screen-layout="cosmic"] #panel-today>[data-layout-part="import-tools"]{order:3}
+html[data-screen-layout="cosmic"] #todayDraw{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"return return" "lunar lunar" "prompt prompt" "stage stage" "meaning meaning" "options options" "actions actions" "physical physical" "photo photo" "save save" "interpretation interpretation"}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="return-link"]{grid-area:return}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="lunar-context"]{grid-area:lunar}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="reading-prompt"]{grid-area:prompt;text-align:left;font-weight:600}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="card-stage"]{grid-area:stage;padding:1rem;border:1px solid rgba(139,125,255,.38);border-radius:24px;background:radial-gradient(ellipse at 50% 15%,rgba(75,221,205,.12),transparent 70%),linear-gradient(145deg,#221e4e,#121130)}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="quick-meaning"]{grid-area:meaning;padding:1rem;border-radius:18px;background:linear-gradient(110deg,rgba(75,221,205,.1),rgba(255,117,177,.1))}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="draw-options"]{grid-area:options}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="draw-actions"]{grid-area:actions}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="physical-entry"]{grid-area:physical}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="photo-entry"]{grid-area:photo}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="save-actions"]{grid-area:save}
+html[data-screen-layout="cosmic"] #todayDraw [data-layout-part="expanded-interpretation"]{grid-area:interpretation}
+html[data-screen-layout="cosmic"] #panel-journal,html[data-screen-layout="cosmic"] #panel-cards,html[data-screen-layout="cosmic"] #panel-practice,html[data-screen-layout="cosmic"] #panel-astro{display:flex;flex-direction:column;gap:.85rem}
+html[data-screen-layout="cosmic"] #panel-journal [data-layout-part="journal-summary"]{order:0}
+html[data-screen-layout="cosmic"] #panel-journal [data-layout-part="journal-date-nav"]{order:1}
+html[data-screen-layout="cosmic"] #panel-journal [data-layout-part="journal-pages"]{order:2}
+html[data-screen-layout="cosmic"] #panel-journal [data-layout-part="journal-insight"]{order:3}
+html[data-screen-layout="cosmic"] #panel-journal .book{border-radius:22px;overflow:hidden}
+html[data-screen-layout="cosmic"] #panel-cards [data-layout-part="library-tools"]{order:0;display:grid;gap:.7rem;padding:1rem;border:1px solid rgba(139,125,255,.3);border-radius:22px;background:linear-gradient(135deg,#221e4e,#121130)}
+html[data-screen-layout="cosmic"] #panel-practice [data-layout-part="learning-nav"]{order:0}
+html[data-screen-layout="cosmic"] #panel-practice [data-layout-part="learning-content"]{order:1}
+html[data-screen-layout="cosmic"] #panel-astro [data-layout-part="screen-intro"]{order:0}
+html[data-screen-layout="cosmic"] #panel-astro [data-layout-part="astro-feature"]{order:1;padding:1rem;border:1px solid rgba(75,221,205,.35);border-radius:22px;background:linear-gradient(135deg,#221e4e,#121130)}
+html[data-screen-layout="cosmic"] #panel-astro [data-layout-part="astro-pending"]{order:2}
+html[data-screen-layout="cosmic"] #panel-astro [data-layout-part="astro-library"]{order:3}
+html[data-screen-layout="cosmic"] #panel-meditate [data-layout-part="meditation-stage"]{border:1px solid rgba(139,125,255,.35);border-radius:22px;overflow:hidden}
+
+/* Responsive composition rules */
+html[data-screen-layout] #panel-guests .guests-layout{grid-template-columns:minmax(0,1fr)}
+html[data-screen-layout] #panel-guests .people,html[data-screen-layout] #panel-guests .profile{min-width:0}
+@media(min-width:760px){
+ html[data-screen-layout] #panel-guests .guests-layout{grid-template-columns:minmax(220px,.72fr) minmax(0,1.8fr);align-items:start}
+}
+@media(max-width:640px){
+ html[data-screen-layout] #panel-cards [data-layout-part="library-tools"]{position:relative;top:auto}
+ html[data-screen-layout] #todayDraw{gap:.8rem}
+ html[data-screen-layout] #panel-meditate .med-frame iframe{width:100%}
+}
+
+
+/* Guest, compatibility and community screens receive theme-specific information hierarchy too. */
+html[data-screen-layout="celestial"] #panel-guests .guests-layout{display:grid;grid-template-areas:"people profile";gap:1rem}
+html[data-screen-layout="celestial"] #panel-guests .people{grid-area:people;padding:1rem;border:1px solid var(--gold-dim);border-radius:20px;background:rgba(var(--surf-rgb),.62)}
+html[data-screen-layout="celestial"] #panel-guests .profile{grid-area:profile;padding:1.1rem;border:1px solid var(--gold-dim);border-radius:22px;background:radial-gradient(ellipse at 50% 0%,rgba(216,183,103,.1),transparent 70%),var(--panel)}
+html[data-screen-layout="celestial"] #compatBody,html[data-screen-layout="celestial"] #friendsBody{padding:.4rem}
+html[data-screen-layout="celestial"] #panel-compat .cx-hero,html[data-screen-layout="celestial"] #panel-friends .friends{border:1px solid var(--gold-dim);border-radius:22px}
+html[data-screen-layout="editorial"] #panel-guests .guests-layout{display:flex;flex-direction:column;gap:.8rem}
+html[data-screen-layout="editorial"] #panel-guests .people{order:0;padding:.8rem 0;border-block:1px solid rgba(132,57,69,.3);background:transparent}
+html[data-screen-layout="editorial"] #panel-guests .profile{order:1;padding:1rem;background:#f5eddd;border:1px solid #d5c3a8;box-shadow:0 8px 22px rgba(70,48,37,.07)}
+html[data-screen-layout="editorial"] #panel-compat .cx,html[data-screen-layout="editorial"] #panel-friends .friends{padding:1rem;background:#f5eddd;border:1px solid #d5c3a8;color:#332b27}
+html[data-screen-layout="editorial"] #panel-compat .cx-item{border-radius:5px;background:#fffaf0;border-color:rgba(132,57,69,.25);color:#843945}
+html[data-screen-layout="cosmic"] #panel-guests .guests-layout{display:grid;grid-template-areas:"profile" "people";gap:.85rem}
+html[data-screen-layout="cosmic"] #panel-guests .profile{grid-area:profile;order:0;padding:1rem;border:1px solid rgba(75,221,205,.3);border-radius:22px;background:linear-gradient(135deg,rgba(34,30,78,.96),rgba(18,17,48,.96))}
+html[data-screen-layout="cosmic"] #panel-guests .people{grid-area:people;order:1;padding:.85rem;border:1px solid rgba(139,125,255,.3);border-radius:18px;background:rgba(24,22,55,.72)}
+html[data-screen-layout="cosmic"] #panel-compat .cx,html[data-screen-layout="cosmic"] #panel-friends .friends{padding:.8rem;border:1px solid rgba(139,125,255,.28);border-radius:22px;background:linear-gradient(145deg,rgba(34,30,78,.5),rgba(18,17,48,.5))}
+html[data-screen-layout="cosmic"] #panel-compat .cx-item{border-radius:16px;background:linear-gradient(120deg,rgba(75,221,205,.1),rgba(255,117,177,.1));border-color:rgba(139,125,255,.35)}
+html[data-screen-layout="cosmic"] #panel-cards #cardGrid{grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:.9rem}
+html[data-screen-layout="celestial"] #panel-cards #cardGrid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:1rem}
+html[data-screen-layout="editorial"] #panel-cards #cardGrid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.7rem}
+html[data-screen-layout="editorial"] #panel-cards #cardGrid .card{box-shadow:0 5px 15px rgba(70,48,37,.08);border-radius:7px}
+html[data-screen-layout="cosmic"] #panel-practice #practiceRoot>*{border-radius:20px}
+html[data-screen-layout="celestial"] #panel-practice #practiceRoot>*{border:1px solid var(--gold-dim)}
+html[data-screen-layout="editorial"] #panel-practice #practiceRoot>*{border-radius:7px;border-color:rgba(132,57,69,.25);box-shadow:0 6px 18px rgba(70,48,37,.06)}
+@media(min-width:760px){
+ html[data-screen-layout="celestial"] #panel-guests .guests-layout{grid-template-areas:"people profile"}
+ html[data-screen-layout="cosmic"] #panel-guests .guests-layout{grid-template-areas:"profile profile" "people people"}
+ html[data-screen-layout="cosmic"] #panel-guests .people{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.5rem}
+}
+
+/* Keep the journal export action at the end of each theme's reading flow. */
+html[data-screen-layout] #panel-journal [data-layout-part="journal-export"]{order:4}
+
+
+/* COMPLETE SCREEN SYSTEMS — secondary destinations and live-rendered content.
+   These rules deliberately change hierarchy, grouping and page rhythm per theme. */
+html[data-screen-layout] .panel[data-screen-composition] > [data-layout-part],
+html[data-screen-layout] [data-layout-part] { min-width:0; }
+html[data-screen-layout] #panel-guests .guests-layout { display:grid; gap:1rem; }
+html[data-screen-layout] #panel-friends #friendsBody { display:grid; gap:.85rem; }
+html[data-screen-layout] #panel-compat #compatBody { min-width:0; }
+html[data-screen-layout] .cx-sheet,
+html[data-screen-layout] .modal-card,
+html[data-screen-layout] .tj-modal { max-width:min(100%,760px); }
+html[data-screen-layout] .cx-sheet,
+html[data-screen-layout] .modal-card,
+html[data-screen-layout] .tj-modal { max-height:88dvh; overflow:auto; }
+html[data-screen-layout] .feed-item,
+html[data-screen-layout] .fr-row,
+html[data-screen-layout] .cx-item { min-width:0; overflow-wrap:anywhere; }
+
+/* Celestial: the guest book becomes a left-hand index, with readings as framed dossiers.
+   Compatibility is a chart room; friends are a constellation feed. */
+html[data-screen-layout="celestial"] #panel-guests .guests-layout {
+  grid-template-columns:minmax(190px,.72fr) minmax(0,1.65fr);
+  align-items:start; gap:1.15rem;
+}
+html[data-screen-layout="celestial"] #panel-guests [data-layout-part="guest-list"] {
+  position:sticky; top:1rem; padding:.9rem; border:1px solid rgba(216,183,103,.32);
+  border-radius:18px; background:linear-gradient(160deg,rgba(48,37,68,.92),rgba(17,14,34,.96));
+}
+html[data-screen-layout="celestial"] #panel-guests [data-layout-part="guest-profile"] {
+  padding:1.2rem; border:1px solid rgba(216,183,103,.3); border-radius:20px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(216,183,103,.12),transparent 55%),var(--panel);
+}
+html[data-screen-layout="celestial"] #panel-guests [data-layout-part="guest-reading"],
+html[data-screen-layout="celestial"] #panel-friends [data-layout-part="friend-feed"] {
+  padding:1rem; border:1px solid rgba(216,183,103,.25); border-radius:16px;
+  background:linear-gradient(145deg,rgba(37,29,56,.92),rgba(15,13,29,.94));
+}
+html[data-screen-layout="celestial"] #panel-compat [data-layout-part="compatibility-content"] {
+  display:grid; gap:1rem; grid-template-columns:minmax(0,1.2fr) minmax(220px,.8fr);
+}
+html[data-screen-layout="celestial"] #panel-compat [data-layout-part="compatibility-hero"] {
+  grid-column:1/-1; padding:1.3rem; border:1px solid rgba(216,183,103,.35); border-radius:22px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(216,183,103,.18),transparent 65%),var(--panel);
+}
+html[data-screen-layout="celestial"] #panel-compat [data-layout-part="compatibility-wheel"] {
+  grid-row:span 2; align-self:start; padding:1rem; border:1px solid rgba(216,183,103,.28); border-radius:50%;
+}
+html[data-screen-layout="celestial"] #panel-friends [data-layout-part="friend-identity"] {
+  padding:1rem 1.2rem; border:1px solid rgba(216,183,103,.32); border-radius:18px;
+  background:linear-gradient(135deg,rgba(71,52,91,.7),rgba(20,16,36,.9));
+}
+html[data-screen-layout="celestial"] #panel-friends [data-layout-part="friend-actions"] {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem;
+}
+html[data-screen-layout="celestial"] #panel-friends [data-layout-part="friend-feed"] { margin-top:.25rem; }
+
+/* Editorial: a two-column archive with a contents rail, printed case notes and a research folio. */
+html[data-screen-layout="editorial"] #panel-guests .guests-layout {
+  grid-template-columns:minmax(170px,.65fr) minmax(0,1.8fr);
+  align-items:start; gap:1.25rem;
+}
+html[data-screen-layout="editorial"] #panel-guests [data-layout-part="guest-list"] {
+  padding:.65rem; border-inline-start:3px solid #843945; background:rgba(229,216,194,.55);
+}
+html[data-screen-layout="editorial"] #panel-guests [data-layout-part="guest-profile"] {
+  padding:1.2rem; border:1px solid #d4c1a5; background:#fffaf0;
+  box-shadow:inset 0 0 0 5px rgba(132,57,69,.035),0 8px 20px rgba(64,45,35,.06);
+}
+html[data-screen-layout="editorial"] #panel-guests [data-layout-part="guest-reading"],
+html[data-screen-layout="editorial"] #panel-friends [data-layout-part="friend-feed"] {
+  padding:1rem 0; border-top:1px solid rgba(132,57,69,.3); border-radius:0; background:transparent;
+}
+html[data-screen-layout="editorial"] #panel-compat [data-layout-part="compatibility-content"] {
+  display:flex; flex-direction:column; gap:1rem;
+}
+html[data-screen-layout="editorial"] #panel-compat [data-layout-part="compatibility-hero"] {
+  padding:1.2rem; border-block:2px solid rgba(132,57,69,.35);
+  background:linear-gradient(90deg,rgba(132,57,69,.055),transparent);
+}
+html[data-screen-layout="editorial"] #panel-compat [data-layout-part="compatibility-wheel"] {
+  max-width:420px; margin-inline:auto; padding:1rem; border:1px solid #d4c1a5;
+  background:#fffaf0; box-shadow:inset 0 0 0 5px rgba(132,57,69,.035);
+}
+html[data-screen-layout="editorial"] #panel-friends [data-layout-part="friend-identity"] {
+  padding:.8rem 0; border-block:2px solid rgba(132,57,69,.3); font:1.1rem Georgia,serif;
+}
+html[data-screen-layout="editorial"] #panel-friends [data-layout-part="friend-actions"] {
+  display:flex; flex-direction:column; align-items:stretch; gap:.5rem; padding:.8rem 0;
+}
+html[data-screen-layout="editorial"] #panel-friends [data-layout-part="friend-list"] {
+  padding:.55rem .2rem; border-bottom:1px solid rgba(132,57,69,.16);
+}
+html[data-screen-layout="editorial"] #panel-friends [data-layout-part="friend-feed"] {
+  border-bottom:1px solid rgba(132,57,69,.2);
+}
+
+/* Cosmic: modular dashboard cards, split panes and a compact social/learning studio. */
+html[data-screen-layout="cosmic"] #panel-guests .guests-layout {
+  grid-template-columns:minmax(0,1fr); gap:.9rem;
+}
+html[data-screen-layout="cosmic"] #panel-guests [data-layout-part="guest-list"] {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:.65rem;
+  padding:1rem; border:1px solid rgba(139,125,255,.32); border-radius:22px;
+  background:linear-gradient(130deg,rgba(65,49,130,.35),rgba(15,18,48,.85));
+}
+html[data-screen-layout="cosmic"] #panel-guests [data-layout-part="guest-profile"] {
+  padding:1rem; border:1px solid rgba(75,221,205,.32); border-radius:22px;
+  background:linear-gradient(135deg,rgba(34,30,78,.95),rgba(18,17,48,.95));
+}
+html[data-screen-layout="cosmic"] #panel-guests [data-layout-part="guest-reading"],
+html[data-screen-layout="cosmic"] #panel-friends [data-layout-part="friend-feed"] {
+  padding:1rem; border:1px solid rgba(139,125,255,.3); border-radius:20px;
+  background:linear-gradient(145deg,rgba(34,30,78,.95),rgba(18,17,48,.95));
+}
+html[data-screen-layout="cosmic"] #panel-compat [data-layout-part="compatibility-content"] {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.8rem;
+}
+html[data-screen-layout="cosmic"] #panel-compat [data-layout-part="compatibility-hero"] {
+  grid-column:1/-1; padding:1rem; border:1px solid rgba(75,221,205,.35); border-radius:22px;
+  background:linear-gradient(125deg,rgba(75,221,205,.12),rgba(160,126,255,.14),rgba(255,125,184,.12));
+}
+html[data-screen-layout="cosmic"] #panel-compat [data-layout-part="compatibility-wheel"] {
+  grid-column:1/-1; max-width:440px; justify-self:center; padding:1rem;
+  border:1px solid rgba(139,125,255,.35); border-radius:24px;
+  background:radial-gradient(circle at 50% 45%,rgba(75,221,205,.12),transparent 70%),rgba(18,17,48,.8);
+}
+html[data-screen-layout="cosmic"] #panel-friends [data-layout-part="friend-identity"] {
+  padding:1rem; border:1px solid rgba(75,221,205,.35); border-radius:20px;
+  background:linear-gradient(125deg,rgba(75,221,205,.12),rgba(160,126,255,.14),rgba(255,125,184,.1));
+}
+html[data-screen-layout="cosmic"] #panel-friends [data-layout-part="friend-actions"] {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.7rem;
+}
+html[data-screen-layout="cosmic"] #panel-friends [data-layout-part="friend-list"] {
+  padding:.8rem; border:1px solid rgba(139,125,255,.24); border-radius:16px;
+  background:rgba(34,30,78,.58);
+}
+html[data-screen-layout="cosmic"] #panel-friends [data-layout-part="friend-feed"] { margin-top:.2rem; }
+
+html[data-screen-layout] #panel-friends .feed-item,
+html[data-screen-layout] #panel-guests .g-reading { margin-block:.45rem; }
+html[data-screen-layout] #panel-friends .g-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(105px,1fr)); gap:.6rem; }
+html[data-screen-layout] #panel-cards [data-layout-part="card-collection"] { min-width:0; }
+html[data-screen-layout] #panel-practice [data-layout-part="learning-content"] { min-width:0; }
+html[data-screen-layout] #panel-astro [data-layout-part="astro-library"] { display:grid; gap:.8rem; }
+html[data-screen-layout] #panel-meditate [data-layout-part="meditation-stage"] { width:100%; }
+html[data-screen-layout] .cx-sheet,
+html[data-screen-layout] .modal-card,
+html[data-screen-layout] .tj-modal { box-shadow:0 20px 70px rgba(0,0,0,.28); }
+
+@media(max-width:640px) {
+  html[data-screen-layout] #panel-guests .guests-layout { grid-template-columns:minmax(0,1fr); }
+  html[data-screen-layout] #panel-guests [data-layout-part="guest-list"] { position:relative; top:auto; }
+  html[data-screen-layout] #panel-compat [data-layout-part="compatibility-content"] { display:flex; flex-direction:column; }
+  html[data-screen-layout] #panel-compat [data-layout-part="compatibility-wheel"] { width:min(100%,360px); }
+  html[data-screen-layout] #panel-friends [data-layout-part="friend-actions"] { grid-template-columns:minmax(0,1fr); }
+  html[data-screen-layout] #panel-friends .fr-row { display:flex; flex-wrap:wrap; gap:.5rem; justify-content:space-between; }
+  html[data-screen-layout] .cx-sheet,
+  html[data-screen-layout] .modal-card,
+  html[data-screen-layout] .tj-modal { width:calc(100vw - 1.25rem); max-height:88dvh; }
+}
+
+
+/* Visible keyboard focus is preserved in every visual world. */
+html[data-screen-layout] :is(button,a,input,select,textarea,iframe,[tabindex]):focus-visible {
+  outline:2px solid var(--gold,#d8b767);
+  outline-offset:3px;
+}

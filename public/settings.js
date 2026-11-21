@@ -11,13 +11,33 @@
     const seg = (k, label) => `<label>${label}</label><div class="tj-seg" role="radiogroup" aria-label="${label}">${O[k].map(([v, t]) =>
       `<button type="button" role="radio" aria-checked="${p[k] === v}" class="tj-opt${p[k] === v ? " on" : ""}" data-ap="${k}" data-v="${v}">${k === "accent" ? `<i class="tj-sw sw-${v}" aria-hidden="true"></i>` : ""}${t}</button>`).join("")}</div>`;
     const tog = (k, label) => `<label class="tj-check"><input type="checkbox" data-apc="${k}" ${p[k] ? "checked" : ""}> ${label}</label>`;
-    return `<div class="tj-sec" id="st-look"><h3>Appearance</h3><p class="tj-why">Changes show right away and are saved in this browser.</p>
-      ${seg("theme", "Theme")}${seg("accent", "Accent color")}${seg("cardback", "Card back")}${seg("size", "Text size")}${seg("typeface", "Typeface")}${seg("density", "Spacing")}
+    const designThemes = [
+      ["celestial", "Celestial Luxe", "Midnight velvet · gilded tarot · lunar ornament", "✦", "celestial"],
+      ["editorial", "Mystic Editorial", "Warm parchment · ink · antique botanical motifs", "☾", "editorial"],
+      ["cosmic", "Modern Cosmic", "Jewel tones · vivid planets · zodiac geometry", "☼", "cosmic"]
+    ];
+    const designPicker = `<div class="tj-design-picker" role="radiogroup" aria-label="Design style">${designThemes.map(([v, name, desc, glyph, cls]) =>
+      `<button type="button" role="radio" aria-checked="${p.designTheme === v}" class="tj-design-card ${cls}${p.designTheme === v ? " on" : ""}" data-design-theme="${v}">
+        <span class="tj-design-art" aria-hidden="true">${glyph}<i></i><b></b></span>
+        <span class="tj-design-copy"><strong>${name}</strong><small>${desc}</small></span>
+        <span class="tj-design-check" aria-hidden="true">${p.designTheme === v ? "✓" : ""}</span>
+      </button>`).join("")}</div>`;
+    return `<div class="tj-sec" id="st-look"><h3>Design style</h3><p class="tj-why">Choose a complete visual world. Screen layouts, artwork, typography, surfaces and colors all change together.</p>
+      ${designPicker}
+      <div class="tj-subsettings"><h3>Fine-tune</h3>
+      ${seg("theme", "Light or dark mode")} ${seg("accent", "Accent color")}${seg("cardback", "Card back")}${seg("size", "Text size")}${seg("typeface", "Typeface")}${seg("density", "Spacing")}
       ${tog("stars", "Starfield background")}${tog("motion", "Reduce motion")}
-      <div class="tj-btns"><button class="tj-btn" id="st-lookreset" type="button">Reset to default</button></div></div>`;
+      <div class="tj-btns"><button class="tj-btn" id="st-lookreset" type="button">Reset appearance</button></div></div></div>`;
   }
   function wire(box) {
     const AP = window.TAROT_APPEARANCE; if (!AP) return;
+    box.querySelectorAll("[data-design-theme]").forEach((b) => b.onclick = () => {
+      AP.set({ designTheme: b.dataset.designTheme });
+      box.querySelectorAll("[data-design-theme]").forEach((x) => {
+        const on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-checked", String(on));
+        const check = x.querySelector(".tj-design-check"); if (check) check.textContent = on ? "✓" : "";
+      });
+    });
     box.querySelectorAll("[data-ap]").forEach((b) => b.onclick = () => {
       AP.set({ [b.dataset.ap]: b.dataset.v });
       box.querySelectorAll(`[data-ap="${b.dataset.ap}"]`).forEach((x) => { const on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-checked", String(on)); });

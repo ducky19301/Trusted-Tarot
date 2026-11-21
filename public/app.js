@@ -146,9 +146,9 @@
       } catch (_) {}
     }, 0);
   }
-  async function rawApi(path, body) {
+  async function rawApi(path, body, method = "POST") {
     let res;
-    try { res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : { cache: path === "/api/cards" ? "default" : "no-store" }); }
+    try { res = await fetch(path, body ? { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : { cache: path === "/api/cards" ? "default" : "no-store" }); }
     catch (_) { throw new NetDrop("offline"); }
     if (res.status === 401) { location.href = "/login?next=" + encodeURIComponent(location.pathname + location.search + location.hash); throw new Error("Please log in again"); }
     const ct = res.headers.get("content-type") || "";
@@ -199,6 +199,38 @@
       catch (e2) { if (e2 instanceof NetDrop) throw new Error("Not saved yet: the connection dropped again. Please tap save again."); throw e2; }
     }
   }
+  async function apiDelete(path, body = {}) {
+    const r = await rawApi(path, body, "DELETE");
+    return r.data;
+  }
+  async function confirmDelete(path, message) {
+    if (!confirm(message)) return;
+    try {
+      await apiDelete(path);
+      await loadAll();
+      renderJournal();
+      if (S.guestSel) renderGuestsTab();
+    } catch (e) { alert("Could not delete: " + e.message); }
+  }
+  document.addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-delete-personal-reading], [data-delete-personal-card], [data-delete-guest-reading], [data-delete-guest-card]");
+    if (!b) return;
+    e.preventDefault();
+    const kind = b.dataset.deletePersonalReading || b.dataset.deletePersonalCard || b.dataset.deleteGuestReading || b.dataset.deleteGuestCard;
+    const personal = b.hasAttribute("data-delete-personal-reading") || b.hasAttribute("data-delete-personal-card");
+    const card = b.hasAttribute("data-delete-personal-card") || b.hasAttribute("data-delete-guest-card");
+    const path = personal
+      ? card ? `/api/entries/${kind}/cards/delete` : `/api/entries/${kind}/delete`
+      : card ? `/api/guests/${b.dataset.gid}/readings/${kind}/cards/delete` : `/api/guests/${b.dataset.gid}/readings/${kind}/delete`;
+    const message = card ? "Delete this card from the saved reading?" : "Delete this entire saved reading? This also removes its attached private photos.";
+    if (!confirm(message)) return;
+    try {
+      await apiDelete(path, card ? { index: Number(b.dataset.index) } : {});
+      await loadAll();
+      renderJournal();
+      renderGuestsTab();
+    } catch (err) { alert("Could not delete: " + err.message); }
+  });
   function segSelect(group, btn) { $$(".seg-btn", group).forEach((b) => b.classList.toggle("active", b === btn)); }
 
   /* ---------- reusable: card tag list (search + orientation [+ position]) ---------- */
@@ -651,7 +683,7 @@
   function quickHTML(d, i) {
     const c = d.card, label = posLabel(i);
     return `<div class="quick-row">
-      <h3>${esc(c.name)}</h3>
+      <h3>${esc(c.name)}</h3><button type="button" class="btn btn-ghost btn-sm" data-delete-personal-card="${day.date}" data-index="${day.cards.indexOf(c)}">Delete card</button>
       <div class="meta">${label ? `<span class="badge pos">${esc(label)}</span>` : ""}${badge(d.orientation)}<span class="tag">${esc(drawSource())}</span></div>
       <p class="one-line">${esc(oneLine(isRev(d.orientation) ? c.reversed : c.upright))}</p>
     </div>`;
@@ -1197,7 +1229,7 @@
       ${cohJournalHTML(day)}
       ${day.photos && day.photos.length ? `<div class="notes"><span class="label">Photo of the spread</span>${photosHTML(day.photos)}</div>` : ""}
       ${day.notes ? `<div class="notes"><span class="label">Day notes</span>${notesHTML(day.notes)}</div>` : ""}
-      <div class="j-share">${shareToggle("reading", day.date)}</div>`;
+      <div class="j-share">${shareToggle("reading", day.date)}<button type="button" class="btn btn-ghost btn-sm" data-delete-personal-reading="${day.date}">Delete reading</button></div>`;
     wireCohPicker($("#jPage"), day.date, renderJournal);
     const chip = $(".date-chip.active"); if (chip && !$("#panel-journal").hidden) chip.scrollIntoView({ block: "nearest", inline: "center" });
   }
@@ -1294,12 +1326,13 @@
         <p class="status" id="nrStatus" style="text-align:left"></p>
       </details>
       <div class="timeline">${readingsSorted.length ? readingsSorted.map((r) => `
-        <article class="g-reading">
+        <article class="g-reading" data-reading-id="${r.id}">
           <header><h3>${esc(fmtDate(r.date, { weekday: "short", month: "long", day: "numeric", year: "numeric" }))}</h3>
             ${r.reading ? `<span class="pill">Read</span>` : `<span class="pill wait">Awaiting TaroBot</span>`}</header>
+          <div class="actions" style="justify-content:flex-start"><button type="button" class="btn btn-ghost btn-sm" data-delete-guest-reading="${r.id}" data-gid="${g.id}">Delete reading</button></div>
           ${r.question ? `<p class="q">“${esc(r.question)}”</p>` : ""}
           ${r.spread ? `<span class="tag">${esc(r.spread)}</span>` : ""}
-          ${r.cards && r.cards.length ? `<div class="g-cards">${r.cards.map((c) => { const k = S.byName.get(c.name.toLowerCase()); return `<div class="g-card"><img src="${thumbImg(c.img || (k && k.img))}" alt="" loading="lazy" class="${isRev(c.orientation) ? "reversed-img" : ""}" /><div>${esc(c.name)}<small>${c.position ? esc(c.position) + " · " : ""}${isRev(c.orientation) ? "reversed" : "upright"}</small></div></div>`; }).join("")}</div>` : ""}
+          ${r.cards && r.cards.length ? `<div class="g-cards">${r.cards.map((c) => { const k = S.byName.get(c.name.toLowerCase()); return `<div class="g-card"><img src="${thumbImg(c.img || (k && k.img))}" alt="" loading="lazy" class="${isRev(c.orientation) ? "reversed-img" : ""}" /><div>${esc(c.name)}<small>${c.position ? esc(c.position) + " · " : ""}${isRev(c.orientation) ? "reversed" : "upright"}</small><button type="button" class="btn btn-ghost btn-sm" data-delete-guest-card="${r.id}" data-gid="${g.id}" data-index="${r.cards.indexOf(c)}">Delete card</button></div></div>`; }).join("")}</div>` : ""}
           ${photosHTML(r.photos)}
           ${cohGuestHTML(g, r)}
           ${r.generated_reading ? `<details class="gen-wrap" open><summary>Card-by-card reading</summary>${genReadingHTML(r.generated_reading)}</details>` : ""}

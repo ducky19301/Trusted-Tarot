@@ -508,6 +508,72 @@
     throw missing("not found");
   }
 
+  async function removePrivatePhotos(paths) {
+    const unique = [...new Set((paths || []).filter((p) => typeof p === "string" && /^uploads\/[\w/-]+\.(?:jpg|png|webp|gif|heic)$/i.test(p)))];
+    if (!unique.length) return;
+    const id = await uid();
+    const { error } = await sb.storage.from("uploads").remove(unique.map((p) => `${id}/${p}`));
+    if (error) throw new Error("Photo cleanup failed: " + error.message);
+    unique.forEach((p) => signed.delete(p));
+  }
+  async function DELETE(path, body) {
+    let m = path.match(/^\/api\/entries\/(\d{4}-\d{2}-\d{2})\/delete$/);
+    if (m) {
+      const date = m[1]; let photos = [];
+      await mutate("entries", (entries) => {
+        const i = entries.findIndex((e) => e.date === date);
+        if (i < 0) throw missing("no entry for " + date);
+        photos = entries[i].photos || [];
+        entries.splice(i, 1);
+      });
+      await mutate("outbox", (ob) => { for (let i = ob.length - 1; i >= 0; i--) if (ob[i].date === date && (ob[i].kind === "self_draw" || ob[i].kind === "self_photo")) { photos.push(...(ob[i].photos || [])); ob.splice(i, 1); } });
+      await removePrivatePhotos(photos);
+      return { ok: true, date };
+    }
+    m = path.match(/^\/api\/entries\/(\d{4}-\d{2}-\d{2})\/cards\/delete$/);
+    if (m) {
+      const date = m[1], index = Number(body.index);
+      if (!Number.isInteger(index) || index < 0) throw bad("A valid card index is required");
+      let removed;
+      await mutate("entries", (entries) => {
+        const day = entries.find((e) => e.date === date);
+        if (!day) throw missing("no entry for " + date);
+        if (index >= (day.cards || []).length) throw missing("no card at that position");
+        removed = day.cards.splice(index, 1)[0];
+        if (!day.cards.length && !day.photos?.length && !day.notes) entries.splice(entries.indexOf(day), 1);
+      });
+      await mutate("outbox", (ob) => { for (const o of ob) if (o.date === date && o.kind === "self_draw" && (o.cards || []).some((x) => x.name === removed.name)) o.cards = o.cards.filter((x) => x.name !== removed.name); });
+      return { ok: true, date, card: removed };
+    }
+    m = path.match(/^\/api\/guests\/([\w-]+)\/readings\/([\w-]+)\/delete$/);
+    if (m) {
+      const [, gid, rid] = m; let photos = [];
+      await mutate("guests", (guests) => {
+        const g = findGuest(guests, gid), i = (g.readings || []).findIndex((r) => r.id === rid);
+        if (i < 0) throw missing("no such reading");
+        photos = g.readings[i].photos || []; g.readings.splice(i, 1);
+      });
+      await mutate("outbox", (ob) => { for (let i = ob.length - 1; i >= 0; i--) if (ob[i].kind === "guest_reading" && ob[i].guest_id === gid && ob[i].reading_id === rid) { photos.push(...(ob[i].photos || [])); ob.splice(i, 1); } });
+      await removePrivatePhotos(photos);
+      return { ok: true, guest_id: gid, reading_id: rid };
+    }
+    m = path.match(/^\/api\/guests\/([\w-]+)\/readings\/([\w-]+)\/cards\/delete$/);
+    if (m) {
+      const [, gid, rid] = m, index = Number(body.index);
+      if (!Number.isInteger(index) || index < 0) throw bad("A valid card index is required");
+      let removed;
+      await mutate("guests", (guests) => {
+        const g = findGuest(guests, gid), r = (g.readings || []).find((x) => x.id === rid);
+        if (!r) throw missing("no such reading");
+        if (index >= (r.cards || []).length) throw missing("no card at that position");
+        removed = r.cards.splice(index, 1)[0];
+      });
+      await mutate("outbox", (ob) => { for (const o of ob) if (o.kind === "guest_reading" && o.guest_id === gid && o.reading_id === rid) o.cards = (o.cards || []).filter((x) => x.name !== removed.name); });
+      return { ok: true, guest_id: gid, reading_id: rid, card: removed };
+    }
+    throw missing("not found");
+  }
+
   async function SHARE(gid, rid, fmt, body) {
     const g = findGuest(await getDoc("guests"), gid), r = (g.readings || []).find((x) => x.id === rid);
     if (!r) throw missing("no such reading");
@@ -549,14 +615,14 @@
     if (url.origin !== location.origin || !(path.startsWith("/api/") || path.startsWith("/social/") || path === "/auth/status")) return _fetch(input, init);
     const method = String(init.method || (typeof input !== "string" && input.method) || "GET").toUpperCase();
     let body = {};
-    if (method === "POST" && init.body) { try { body = JSON.parse(init.body); } catch (_) { return json({ error: "bad json" }, 400); } if (!body || typeof body !== "object" || Array.isArray(body)) return json({ error: "JSON object expected" }, 400); }
+    if ((method === "POST" || method === "DELETE") && init.body) { try { body = JSON.parse(init.body); } catch (_) { return json({ error: "bad json" }, 400); } if (!body || typeof body !== "object" || Array.isArray(body)) return json({ error: "JSON object expected" }, 400); }
     const cacheKey = "tt-api-" + path;
     try {
       if (path === "/auth/status") return json(await AUTH_STATUS());
       if (path.startsWith("/social/")) return json(await SOCIAL(method, path, body));
       const sm = path.match(/^\/api\/guests\/([\w-]+)\/readings\/([\w-]+)\/share\.(png|pdf)$/);
       if (sm && method === "POST") return await SHARE(sm[1], sm[2], sm[3], body);
-      const data = method === "GET" ? await GET(path) : await POST(path, body);
+      const data = method === "GET" ? await GET(path) : method === "DELETE" ? await DELETE(path, body) : await POST(path, body);
       if (method === "GET" && OFFLINE_OK.test(path)) { try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {} }
       return json(data);
     } catch (e) {
