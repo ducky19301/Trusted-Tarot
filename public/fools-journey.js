@@ -356,8 +356,33 @@
       practice:"Review a completed project or life chapter. Name three skills gained, one thing to release and one intention for the next cycle."
     }
   ];
+  const numberThemes = [
+    "Zero: open potential, the unformed beginning and freedom before a fixed identity.",
+    "One: initiative, focus and the first act that gives potential a direction.",
+    "Two: duality, receptivity, listening and the relationship between opposing forces.",
+    "Three: creation, expression and the first visible growth from a union of ideas.",
+    "Four: foundations, order, boundaries and the structures that hold a life together.",
+    "Five: friction, challenge and the disruption that tests a stable pattern.",
+    "Six: harmony, choice, adjustment and the work of bringing needs into relationship.",
+    "Seven: testing, movement and the search for direction through uncertainty.",
+    "Eight: sustained power, discipline and the capacity to work with strong forces.",
+    "Nine: inner maturity, reflection and knowledge gathered before a new phase.",
+    "Ten: the turning of a cycle, completion and the conditions for another beginning.",
+    "Eleven: ethical balance, accountability and the weighing of competing claims.",
+    "Twelve: suspension, a changed viewpoint and the willingness to see from another angle.",
+    "Thirteen: transition, release and the transformation that follows an ending.",
+    "Fourteen: integration, measure and the blending of different needs into a workable whole.",
+    "Fifteen: attachment, desire and the examination of what holds power over choice.",
+    "Sixteen: disruption, revelation and the collapse of an unstable structure.",
+    "Seventeen: renewal, orientation and hope made practical through steady care.",
+    "Eighteen: uncertainty, imagination and the need to distinguish intuition from projection.",
+    "Nineteen: vitality, clarity and the confidence to meet what is visible.",
+    "Twenty: awakening, review and the response that follows an honest reckoning.",
+    "Twenty-one: integration, completion and the whole made from distinct parts."
+  ];
   const JOURNEY = chapters.map((c, i) => ({
     ...c,
+    numberTheme: numberThemes[i],
     previous: i ? chapters[i - 1].title : null,
     next: i < chapters.length - 1 ? chapters[i + 1].title : null
   }));
