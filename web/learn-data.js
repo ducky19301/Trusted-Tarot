@@ -308,7 +308,30 @@
     return Number.isFinite(score) && Number.isFinite(total) && total > 0 && score >= Math.ceil(total * 0.8);
   }
   function build(D) {
-    const secs = tarotSections(D).concat(CHART);
+    const journey = (W.FOOLS_JOURNEY || []).map((chapter) => ({
+      id: "journey." + String(chapter.number).padStart(2, "0"),
+      area: "journey",
+      system: "fools-journey",
+      title: String(chapter.number).padStart(2, "0") + " · " + chapter.title,
+      deckCardId: chapter.cardId,
+      chapter,
+      cards: [
+        { text: chapter.title + ": " + chapter.archetype + ".", kind: "ourmethod", source: "app" },
+        ...chapter.story.map((text) => ({ text, kind: "ourmethod", source: "app" })),
+        ...chapter.symbolism.map((text) => ({ text, kind: "how-to", source: "app" })),
+        { text: "Upright: " + chapter.upright, kind: "traditional", source: "app" },
+        { text: "Reversed: " + chapter.reversed, kind: "traditional", source: "app" },
+        { text: "Astrology correspondence: " + chapter.astrology, kind: "ourmethod", source: "app" },
+        { text: "Number and sequence: Major Arcana " + chapter.number + " is the card’s place in the 22-stage teaching sequence. Treat number symbolism as an interpretive layer, not a fixed historical fact.", kind: "ourmethod", source: "app" },
+        { text: "In a reading: " + chapter.reading, kind: "how-to", source: "app" },
+        { text: "History and image context: " + chapter.history, kind: "traditional", source: "app" },
+        { text: "Journey connection: " + (chapter.previous ? "Before this stage comes " + chapter.previous + ". " : "This is the opening card. ") + (chapter.next ? "The next stage is " + chapter.next + "." : "This completes the numbered journey and opens the possibility of a new cycle."), kind: "ourmethod", source: "app" }
+      ],
+      tryThis: chapter.practice,
+      sources: ["app"],
+      put: { prompt: chapter.practice, fields: ["My first interpretation", "What the story and symbols add", "My interpretation after review"] }
+    }));
+    const secs = tarotSections(D).concat(journey, CHART);
     for (const s of secs) s.cards.forEach((c, i) => { c.id = `${s.id}.${String(i + 1).padStart(2, "0")}`; });
     return secs;
   }
