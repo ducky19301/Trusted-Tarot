@@ -39,8 +39,8 @@ test("shared bottom navigation stays outside theme-specific screen composition",
   assert.match(nav, /data-tab="journal"/);
   assert.match(nav, /data-tab="cards"/);
   assert.match(nav, /data-tab="practice"/);
-  assert.match(html, /theme-layouts\\.js/);
-  assert.match(htmlMirror, /theme-layouts\\.js/);
+  assert.match(html, /theme-layouts\.js/);
+  assert.match(htmlMirror, /theme-layouts\.js/);
   assert.ok(controller.indexOf('document.getElementById("panel-"') >= 0);
 });
 
