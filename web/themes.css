@@ -529,3 +529,10 @@ html[data-screen-layout] .tj-modal { box-shadow:0 20px 70px rgba(0,0,0,.28); }
   html[data-screen-layout] .modal-card,
   html[data-screen-layout] .tj-modal { width:calc(100vw - 1.25rem); max-height:88dvh; }
 }
+
+
+/* Visible keyboard focus is preserved in every visual world. */
+html[data-screen-layout] :is(button,a,input,select,textarea,iframe,[tabindex]):focus-visible {
+  outline:2px solid var(--gold,#d8b767);
+  outline-offset:3px;
+}
