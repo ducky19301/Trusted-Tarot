@@ -19,7 +19,7 @@ test('lesson cards rejoin into the original lesson text', () => {
     assert.equal(joined, norm(l.body.join(' ')), l.id); }
 });
 test('the Fool’s Journey is a complete ordered 22-chapter course with connected card lessons', () => {
-  const journey = D.FOOLS_JOURNEY;
+  const journey = window.FOOLS_JOURNEY;
   assert.equal(journey.length, 22);
   assert.deepEqual(journey.map((x) => x.number), Array.from({length:22}, (_, i) => i));
   for (const chapter of journey) {
@@ -36,9 +36,9 @@ test('the Fool’s Journey is a complete ordered 22-chapter course with connecte
   }
 });
 test('Fool’s Journey chapters retain their previous and next story connections', () => {
-  for (const chapter of D.FOOLS_JOURNEY) {
-    const expectedPrevious = chapter.number === 0 ? null : D.FOOLS_JOURNEY[chapter.number - 1].title;
-    const expectedNext = chapter.number === 21 ? null : D.FOOLS_JOURNEY[chapter.number + 1].title;
+  for (const chapter of window.FOOLS_JOURNEY) {
+    const expectedPrevious = chapter.number === 0 ? null : window.FOOLS_JOURNEY[chapter.number - 1].title;
+    const expectedNext = chapter.number === 21 ? null : window.FOOLS_JOURNEY[chapter.number + 1].title;
     assert.equal(chapter.previous, expectedPrevious, chapter.title + ' previous');
     assert.equal(chapter.next, expectedNext, chapter.title + ' next');
   }
