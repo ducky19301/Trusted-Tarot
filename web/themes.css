@@ -334,3 +334,33 @@ html[data-screen-layout] #panel-guests .people,html[data-screen-layout] #panel-g
  html[data-screen-layout] #todayDraw{gap:.8rem}
  html[data-screen-layout] #panel-meditate .med-frame iframe{width:100%}
 }
+
+
+/* Guest, compatibility and community screens receive theme-specific information hierarchy too. */
+html[data-screen-layout="celestial"] #panel-guests .guests-layout{display:grid;grid-template-areas:"people profile";gap:1rem}
+html[data-screen-layout="celestial"] #panel-guests .people{grid-area:people;padding:1rem;border:1px solid var(--gold-dim);border-radius:20px;background:rgba(var(--surf-rgb),.62)}
+html[data-screen-layout="celestial"] #panel-guests .profile{grid-area:profile;padding:1.1rem;border:1px solid var(--gold-dim);border-radius:22px;background:radial-gradient(ellipse at 50% 0%,rgba(216,183,103,.1),transparent 70%),var(--panel)}
+html[data-screen-layout="celestial"] #compatBody,html[data-screen-layout="celestial"] #friendsBody{padding:.4rem}
+html[data-screen-layout="celestial"] #panel-compat .cx-hero,html[data-screen-layout="celestial"] #panel-friends .friends{border:1px solid var(--gold-dim);border-radius:22px}
+html[data-screen-layout="editorial"] #panel-guests .guests-layout{display:flex;flex-direction:column;gap:.8rem}
+html[data-screen-layout="editorial"] #panel-guests .people{order:0;padding:.8rem 0;border-block:1px solid rgba(132,57,69,.3);background:transparent}
+html[data-screen-layout="editorial"] #panel-guests .profile{order:1;padding:1rem;background:#f5eddd;border:1px solid #d5c3a8;box-shadow:0 8px 22px rgba(70,48,37,.07)}
+html[data-screen-layout="editorial"] #panel-compat .cx,html[data-screen-layout="editorial"] #panel-friends .friends{padding:1rem;background:#f5eddd;border:1px solid #d5c3a8;color:#332b27}
+html[data-screen-layout="editorial"] #panel-compat .cx-item{border-radius:5px;background:#fffaf0;border-color:rgba(132,57,69,.25);color:#843945}
+html[data-screen-layout="cosmic"] #panel-guests .guests-layout{display:grid;grid-template-areas:"profile" "people";gap:.85rem}
+html[data-screen-layout="cosmic"] #panel-guests .profile{grid-area:profile;order:0;padding:1rem;border:1px solid rgba(75,221,205,.3);border-radius:22px;background:linear-gradient(135deg,rgba(34,30,78,.96),rgba(18,17,48,.96))}
+html[data-screen-layout="cosmic"] #panel-guests .people{grid-area:people;order:1;padding:.85rem;border:1px solid rgba(139,125,255,.3);border-radius:18px;background:rgba(24,22,55,.72)}
+html[data-screen-layout="cosmic"] #panel-compat .cx,html[data-screen-layout="cosmic"] #panel-friends .friends{padding:.8rem;border:1px solid rgba(139,125,255,.28);border-radius:22px;background:linear-gradient(145deg,rgba(34,30,78,.5),rgba(18,17,48,.5))}
+html[data-screen-layout="cosmic"] #panel-compat .cx-item{border-radius:16px;background:linear-gradient(120deg,rgba(75,221,205,.1),rgba(255,117,177,.1));border-color:rgba(139,125,255,.35)}
+html[data-screen-layout="cosmic"] #panel-cards #cardGrid{grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:.9rem}
+html[data-screen-layout="celestial"] #panel-cards #cardGrid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:1rem}
+html[data-screen-layout="editorial"] #panel-cards #cardGrid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.7rem}
+html[data-screen-layout="editorial"] #panel-cards #cardGrid .card{box-shadow:0 5px 15px rgba(70,48,37,.08);border-radius:7px}
+html[data-screen-layout="cosmic"] #panel-practice #practiceRoot>*{border-radius:20px}
+html[data-screen-layout="celestial"] #panel-practice #practiceRoot>*{border:1px solid var(--gold-dim)}
+html[data-screen-layout="editorial"] #panel-practice #practiceRoot>*{border-radius:7px;border-color:rgba(132,57,69,.25);box-shadow:0 6px 18px rgba(70,48,37,.06)}
+@media(min-width:760px){
+ html[data-screen-layout="celestial"] #panel-guests .guests-layout{grid-template-areas:"people profile"}
+ html[data-screen-layout="cosmic"] #panel-guests .guests-layout{grid-template-areas:"profile profile" "people people"}
+ html[data-screen-layout="cosmic"] #panel-guests .people{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.5rem}
+}
