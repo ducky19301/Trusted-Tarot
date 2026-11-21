@@ -367,3 +367,165 @@ html[data-screen-layout="editorial"] #panel-practice #practiceRoot>*{border-radi
 
 /* Keep the journal export action at the end of each theme's reading flow. */
 html[data-screen-layout] #panel-journal [data-layout-part="journal-export"]{order:4}
+
+
+/* COMPLETE SCREEN SYSTEMS — secondary destinations and live-rendered content.
+   These rules deliberately change hierarchy, grouping and page rhythm per theme. */
+html[data-screen-layout] .panel[data-screen-composition] > [data-layout-part],
+html[data-screen-layout] [data-layout-part] { min-width:0; }
+html[data-screen-layout] #panel-guests .guests-layout { display:grid; gap:1rem; }
+html[data-screen-layout] #panel-friends #friendsBody { display:grid; gap:.85rem; }
+html[data-screen-layout] #panel-compat #compatBody { min-width:0; }
+html[data-screen-layout] .cx-sheet,
+html[data-screen-layout] .modal-card,
+html[data-screen-layout] .tj-modal { max-width:min(100%,760px); }
+html[data-screen-layout] .cx-sheet,
+html[data-screen-layout] .modal-card,
+html[data-screen-layout] .tj-modal { max-height:88dvh; overflow:auto; }
+html[data-screen-layout] .feed-item,
+html[data-screen-layout] .fr-row,
+html[data-screen-layout] .cx-item { min-width:0; overflow-wrap:anywhere; }
+
+/* Celestial: the guest book becomes a left-hand index, with readings as framed dossiers.
+   Compatibility is a chart room; friends are a constellation feed. */
+html[data-screen-layout="celestial"] #panel-guests .guests-layout {
+  grid-template-columns:minmax(190px,.72fr) minmax(0,1.65fr);
+  align-items:start; gap:1.15rem;
+}
+html[data-screen-layout="celestial"] #panel-guests [data-layout-part="guest-list"] {
+  position:sticky; top:1rem; padding:.9rem; border:1px solid rgba(216,183,103,.32);
+  border-radius:18px; background:linear-gradient(160deg,rgba(48,37,68,.92),rgba(17,14,34,.96));
+}
+html[data-screen-layout="celestial"] #panel-guests [data-layout-part="guest-profile"] {
+  padding:1.2rem; border:1px solid rgba(216,183,103,.3); border-radius:20px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(216,183,103,.12),transparent 55%),var(--panel);
+}
+html[data-screen-layout="celestial"] #panel-guests [data-layout-part="guest-reading"],
+html[data-screen-layout="celestial"] #panel-friends [data-layout-part="friend-feed"] {
+  padding:1rem; border:1px solid rgba(216,183,103,.25); border-radius:16px;
+  background:linear-gradient(145deg,rgba(37,29,56,.92),rgba(15,13,29,.94));
+}
+html[data-screen-layout="celestial"] #panel-compat [data-layout-part="compatibility-content"] {
+  display:grid; gap:1rem; grid-template-columns:minmax(0,1.2fr) minmax(220px,.8fr);
+}
+html[data-screen-layout="celestial"] #panel-compat [data-layout-part="compatibility-hero"] {
+  grid-column:1/-1; padding:1.3rem; border:1px solid rgba(216,183,103,.35); border-radius:22px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(216,183,103,.18),transparent 65%),var(--panel);
+}
+html[data-screen-layout="celestial"] #panel-compat [data-layout-part="compatibility-wheel"] {
+  grid-row:span 2; align-self:start; padding:1rem; border:1px solid rgba(216,183,103,.28); border-radius:50%;
+}
+html[data-screen-layout="celestial"] #panel-friends [data-layout-part="friend-identity"] {
+  padding:1rem 1.2rem; border:1px solid rgba(216,183,103,.32); border-radius:18px;
+  background:linear-gradient(135deg,rgba(71,52,91,.7),rgba(20,16,36,.9));
+}
+html[data-screen-layout="celestial"] #panel-friends [data-layout-part="friend-actions"] {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem;
+}
+html[data-screen-layout="celestial"] #panel-friends [data-layout-part="friend-feed"] { margin-top:.25rem; }
+
+/* Editorial: a two-column archive with a contents rail, printed case notes and a research folio. */
+html[data-screen-layout="editorial"] #panel-guests .guests-layout {
+  grid-template-columns:minmax(170px,.65fr) minmax(0,1.8fr);
+  align-items:start; gap:1.25rem;
+}
+html[data-screen-layout="editorial"] #panel-guests [data-layout-part="guest-list"] {
+  padding:.65rem; border-inline-start:3px solid #843945; background:rgba(229,216,194,.55);
+}
+html[data-screen-layout="editorial"] #panel-guests [data-layout-part="guest-profile"] {
+  padding:1.2rem; border:1px solid #d4c1a5; background:#fffaf0;
+  box-shadow:inset 0 0 0 5px rgba(132,57,69,.035),0 8px 20px rgba(64,45,35,.06);
+}
+html[data-screen-layout="editorial"] #panel-guests [data-layout-part="guest-reading"],
+html[data-screen-layout="editorial"] #panel-friends [data-layout-part="friend-feed"] {
+  padding:1rem 0; border-top:1px solid rgba(132,57,69,.3); border-radius:0; background:transparent;
+}
+html[data-screen-layout="editorial"] #panel-compat [data-layout-part="compatibility-content"] {
+  display:flex; flex-direction:column; gap:1rem;
+}
+html[data-screen-layout="editorial"] #panel-compat [data-layout-part="compatibility-hero"] {
+  padding:1.2rem; border-block:2px solid rgba(132,57,69,.35);
+  background:linear-gradient(90deg,rgba(132,57,69,.055),transparent);
+}
+html[data-screen-layout="editorial"] #panel-compat [data-layout-part="compatibility-wheel"] {
+  max-width:420px; margin-inline:auto; padding:1rem; border:1px solid #d4c1a5;
+  background:#fffaf0; box-shadow:inset 0 0 0 5px rgba(132,57,69,.035);
+}
+html[data-screen-layout="editorial"] #panel-friends [data-layout-part="friend-identity"] {
+  padding:.8rem 0; border-block:2px solid rgba(132,57,69,.3); font:1.1rem Georgia,serif;
+}
+html[data-screen-layout="editorial"] #panel-friends [data-layout-part="friend-actions"] {
+  display:flex; flex-direction:column; align-items:stretch; gap:.5rem; padding:.8rem 0;
+}
+html[data-screen-layout="editorial"] #panel-friends [data-layout-part="friend-list"] {
+  padding:.55rem .2rem; border-bottom:1px solid rgba(132,57,69,.16);
+}
+html[data-screen-layout="editorial"] #panel-friends [data-layout-part="friend-feed"] {
+  border-bottom:1px solid rgba(132,57,69,.2);
+}
+
+/* Cosmic: modular dashboard cards, split panes and a compact social/learning studio. */
+html[data-screen-layout="cosmic"] #panel-guests .guests-layout {
+  grid-template-columns:minmax(0,1fr); gap:.9rem;
+}
+html[data-screen-layout="cosmic"] #panel-guests [data-layout-part="guest-list"] {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:.65rem;
+  padding:1rem; border:1px solid rgba(139,125,255,.32); border-radius:22px;
+  background:linear-gradient(130deg,rgba(65,49,130,.35),rgba(15,18,48,.85));
+}
+html[data-screen-layout="cosmic"] #panel-guests [data-layout-part="guest-profile"] {
+  padding:1rem; border:1px solid rgba(75,221,205,.32); border-radius:22px;
+  background:linear-gradient(135deg,rgba(34,30,78,.95),rgba(18,17,48,.95));
+}
+html[data-screen-layout="cosmic"] #panel-guests [data-layout-part="guest-reading"],
+html[data-screen-layout="cosmic"] #panel-friends [data-layout-part="friend-feed"] {
+  padding:1rem; border:1px solid rgba(139,125,255,.3); border-radius:20px;
+  background:linear-gradient(145deg,rgba(34,30,78,.95),rgba(18,17,48,.95));
+}
+html[data-screen-layout="cosmic"] #panel-compat [data-layout-part="compatibility-content"] {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.8rem;
+}
+html[data-screen-layout="cosmic"] #panel-compat [data-layout-part="compatibility-hero"] {
+  grid-column:1/-1; padding:1rem; border:1px solid rgba(75,221,205,.35); border-radius:22px;
+  background:linear-gradient(125deg,rgba(75,221,205,.12),rgba(160,126,255,.14),rgba(255,125,184,.12));
+}
+html[data-screen-layout="cosmic"] #panel-compat [data-layout-part="compatibility-wheel"] {
+  grid-column:1/-1; max-width:440px; justify-self:center; padding:1rem;
+  border:1px solid rgba(139,125,255,.35); border-radius:24px;
+  background:radial-gradient(circle at 50% 45%,rgba(75,221,205,.12),transparent 70%),rgba(18,17,48,.8);
+}
+html[data-screen-layout="cosmic"] #panel-friends [data-layout-part="friend-identity"] {
+  padding:1rem; border:1px solid rgba(75,221,205,.35); border-radius:20px;
+  background:linear-gradient(125deg,rgba(75,221,205,.12),rgba(160,126,255,.14),rgba(255,125,184,.1));
+}
+html[data-screen-layout="cosmic"] #panel-friends [data-layout-part="friend-actions"] {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.7rem;
+}
+html[data-screen-layout="cosmic"] #panel-friends [data-layout-part="friend-list"] {
+  padding:.8rem; border:1px solid rgba(139,125,255,.24); border-radius:16px;
+  background:rgba(34,30,78,.58);
+}
+html[data-screen-layout="cosmic"] #panel-friends [data-layout-part="friend-feed"] { margin-top:.2rem; }
+
+html[data-screen-layout] #panel-friends .feed-item,
+html[data-screen-layout] #panel-guests .g-reading { margin-block:.45rem; }
+html[data-screen-layout] #panel-friends .g-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(105px,1fr)); gap:.6rem; }
+html[data-screen-layout] #panel-cards [data-layout-part="card-collection"] { min-width:0; }
+html[data-screen-layout] #panel-practice [data-layout-part="learning-content"] { min-width:0; }
+html[data-screen-layout] #panel-astro [data-layout-part="astro-library"] { display:grid; gap:.8rem; }
+html[data-screen-layout] #panel-meditate [data-layout-part="meditation-stage"] { width:100%; }
+html[data-screen-layout] .cx-sheet,
+html[data-screen-layout] .modal-card,
+html[data-screen-layout] .tj-modal { box-shadow:0 20px 70px rgba(0,0,0,.28); }
+
+@media(max-width:640px) {
+  html[data-screen-layout] #panel-guests .guests-layout { grid-template-columns:minmax(0,1fr); }
+  html[data-screen-layout] #panel-guests [data-layout-part="guest-list"] { position:relative; top:auto; }
+  html[data-screen-layout] #panel-compat [data-layout-part="compatibility-content"] { display:flex; flex-direction:column; }
+  html[data-screen-layout] #panel-compat [data-layout-part="compatibility-wheel"] { width:min(100%,360px); }
+  html[data-screen-layout] #panel-friends [data-layout-part="friend-actions"] { grid-template-columns:minmax(0,1fr); }
+  html[data-screen-layout] #panel-friends .fr-row { display:flex; flex-wrap:wrap; gap:.5rem; justify-content:space-between; }
+  html[data-screen-layout] .cx-sheet,
+  html[data-screen-layout] .modal-card,
+  html[data-screen-layout] .tj-modal { width:calc(100vw - 1.25rem); max-height:88dvh; }
+}
