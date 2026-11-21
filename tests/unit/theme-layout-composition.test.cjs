@@ -31,12 +31,14 @@ test("all major feature screens receive a composition without changing their rou
 });
 
 test("shared bottom navigation stays outside theme-specific screen composition", () => {
-  const nav = html.match(/<nav class="tabs"[\\s\\S]*?<\\/nav>/);
-  assert.ok(nav, "shared bottom navigation not found");
-  assert.match(nav[0], /data-tab="today"/);
-  assert.match(nav[0], /data-tab="journal"/);
-  assert.match(nav[0], /data-tab="cards"/);
-  assert.match(nav[0], /data-tab="practice"/);
+  const navStart = html.indexOf('<nav class="tabs"');
+  const navEnd = html.indexOf("</nav>", navStart);
+  const nav = html.slice(navStart, navEnd + 6);
+  assert.ok(navStart >= 0 && navEnd > navStart, "shared bottom navigation not found");
+  assert.match(nav, /data-tab="today"/);
+  assert.match(nav, /data-tab="journal"/);
+  assert.match(nav, /data-tab="cards"/);
+  assert.match(nav, /data-tab="practice"/);
   assert.match(html, /theme-layouts\\.js/);
   assert.match(htmlMirror, /theme-layouts\\.js/);
   assert.ok(controller.indexOf('document.getElementById("panel-"') >= 0);
