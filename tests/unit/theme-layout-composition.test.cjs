@@ -9,6 +9,7 @@ const mirror = read("web/theme-layouts.js");
 const html = read("public/index.html");
 const htmlMirror = read("web/index.html");
 const css = read("public/themes.css");
+const appCss = read("public/app.css");
 const cssMirror = read("web/themes.css");
 
 test("theme composition controller supports all three selectable themes", () => {
@@ -53,7 +54,7 @@ test("theme composition supports dynamic content, mobile layouts and accessible 
   assert.match(controller, /childList:\s*true/);
   assert.match(controller, /subtree:\s*true/);
   assert.match(css, /@media\s*\(max-width:\s*640px\)/);
-  assert.match(css, /:focus-visible/);
+  assert.match(appCss, /:focus-visible/);
   assert.match(html, /role="tablist"/);
   assert.match(html, /id="moreMenu"/);
 });
