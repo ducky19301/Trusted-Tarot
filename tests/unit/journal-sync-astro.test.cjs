@@ -10,8 +10,30 @@ const backend = read("public/backend.js");
 const journal = read("public/journal-ui.js");
 const css = read("public/themes.css");
 
+
+function routePatternFor(suffix) {
+  const parts = suffix.split("/").filter(Boolean);
+  const line = backend.split("\n").find(line => line.includes("path.match") && parts.every(part => line.includes(part)));
+  assert.ok(line, "missing route for " + suffix);
+  const literal = line.match(/path\.match\((\/.*\/)\)/);
+  assert.ok(literal, "could not extract route regex for " + suffix);
+  const raw = literal[1], end = raw.lastIndexOf("/");
+  return new RegExp(raw.slice(1, end), raw.slice(end + 1));
+}
+
+test("journal and Astro endpoints match real ISO calendar dates", () => {
+  const date = "2026-11-23";
+  const journalRoute = routePatternFor("/journal");
+  const astroRoute = routePatternFor("/astro/auto");
+  assert.equal(journalRoute.exec("/api/entries/" + date + "/journal")?.[1], date);
+  assert.equal(astroRoute.exec("/api/entries/" + date + "/astro/auto")?.[1], date);
+  assert.equal(journalRoute.test("/api/entries/not-a-date/journal"), false);
+  assert.equal(astroRoute.test("/api/entries/not-a-date/astro/auto"), false);
+});
+
 test("journal editor loads before app and mounts into the saved journal page", () => {
   assert.ok(html.indexOf("journal-ui.js") < html.indexOf("app.js"));
+  assert.equal(html.includes("\\n  <script src=\"app.js"), false, "script tags must be separated by a real newline");
   assert.match(app, /JournalSyncUI\.mount\(day, api, loadAll\)/);
   assert.match(journal, /data-journal-text/);
   assert.match(journal, /\/journal\"/);
