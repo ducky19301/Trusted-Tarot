@@ -354,6 +354,75 @@
     const date = body.date || today();
     if (!DATE_RE.test(String(date))) throw bad("date must be YYYY-MM-DD");
     let m;
+    async function deletePrivatePhotos(paths) {
+      const safe = [...new Set((paths || []).filter((p) => typeof p === "string" && /^uploads\/[A-Za-z0-9/_-]+\.(?:jpg|jpeg|png|webp|gif|heic)$/i.test(p)))];
+      if (!safe.length) return;
+      const id = await uid();
+      const { error } = await sb.storage.from("uploads").remove(safe.map((p) => id + "/" + p));
+      if (error) throw error;
+    }
+    if ((m = path.match(/^\/api\/entries\/(\d{4}-\d{2}-\d{2})\/delete$/))) {
+      const d = m[1]; let photos = [];
+      await mutate("entries", (entries) => {
+        const i = entries.findIndex((entry) => entry.date === d);
+        if (i < 0) throw missing("no entry for " + d);
+        photos = (entries[i].photos || []).slice(); entries.splice(i, 1);
+      });
+      await mutate("outbox", (ob) => {
+        for (const rec of ob) if (rec.date === d && rec.kind === "self_photo") photos.push(...(rec.photos || []));
+        return ob.filter((rec) => !(rec.date === d && (rec.kind === "self_draw" || rec.kind === "self_photo")));
+      });
+      await deletePrivatePhotos(photos);
+      return { ok: true, date: d, deleted: true };
+    }
+    if ((m = path.match(/^\/api\/entries\/(\d{4}-\d{2}-\d{2})\/cards\/delete$/))) {
+      const d = m[1]; let removed;
+      await mutate("entries", (entries) => {
+        const day = entries.find((entry) => entry.date === d); if (!day) throw missing("no entry for " + d);
+        const i = Number.isInteger(body.index) ? body.index : -1;
+        const at = i >= 0 && i < day.cards.length && (!body.name || day.cards[i].name === body.name) ? i : day.cards.findIndex((card) => card.name === body.name && (!body.orientation || card.orientation === body.orientation));
+        if (at < 0) throw missing("no matching card"); removed = day.cards.splice(at, 1)[0];
+      });
+      await mutate("outbox", (ob) => {
+        for (const rec of ob) if (rec.date === d && rec.kind === "self_draw" && Array.isArray(rec.cards)) {
+          let skipped = false;
+          rec.cards = rec.cards.filter((card) => { if (!skipped && card.name === removed.name && card.orientation === removed.orientation) { skipped = true; return false; } return true; });
+        }
+        return ob.filter((rec) => !(rec.date === d && rec.kind === "self_draw" && (!rec.cards || !rec.cards.length)));
+      });
+      return { ok: true, date: d, deleted_card: removed.name };
+    }
+    if ((m = path.match(/^\/api\/guests\/([\w-]+)\/readings\/([\w-]+)\/delete$/))) {
+      const gid = m[1], rid = m[2]; let photos = [], guestId;
+      await mutate("guests", (guests) => {
+        const guest = findGuest(guests, gid); guestId = guest.id;
+        const at = (guest.readings || []).findIndex((reading) => reading.id === rid); if (at < 0) throw missing("no such reading");
+        photos = (guest.readings[at].photos || []).slice(); guest.readings.splice(at, 1);
+      });
+      await mutate("outbox", (ob) => {
+        for (const rec of ob) if (rec.kind === "guest_reading" && rec.guest_id === guestId && rec.reading_id === rid) photos.push(...(rec.photos || []));
+        return ob.filter((rec) => !(rec.kind === "guest_reading" && rec.guest_id === guestId && rec.reading_id === rid));
+      });
+      await deletePrivatePhotos(photos);
+      return { ok: true, guest_id: guestId, reading_id: rid, deleted: true };
+    }
+    if ((m = path.match(/^\/api\/guests\/([\w-]+)\/readings\/([\w-]+)\/cards\/delete$/))) {
+      const gid = m[1], rid = m[2]; let removed, guestId;
+      await mutate("guests", (guests) => {
+        const guest = findGuest(guests, gid); guestId = guest.id;
+        const reading = (guest.readings || []).find((item) => item.id === rid); if (!reading) throw missing("no such reading");
+        const cards = reading.cards || [], i = Number.isInteger(body.index) ? body.index : -1;
+        const at = i >= 0 && i < cards.length && (!body.name || cards[i].name === body.name) ? i : cards.findIndex((card) => card.name === body.name && (!body.orientation || card.orientation === body.orientation));
+        if (at < 0) throw missing("no matching card"); removed = cards.splice(at, 1)[0];
+      });
+      await mutate("outbox", (ob) => {
+        for (const rec of ob) if (rec.kind === "guest_reading" && rec.guest_id === guestId && rec.reading_id === rid && Array.isArray(rec.cards)) {
+          let skipped = false;
+          rec.cards = rec.cards.filter((card) => { if (!skipped && card.name === removed.name && card.orientation === removed.orientation) { skipped = true; return false; } return true; });
+        }
+      });
+      return { ok: true, guest_id: guestId, reading_id: rid, deleted_card: removed.name };
+    }
     if (path === "/api/practice/review") {
       const c = await practiceCard(body.card || body.id), rating = String(body.rating || "").toLowerCase();
       const r = await practiceMutate((p) => {
