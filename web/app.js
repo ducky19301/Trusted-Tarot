@@ -1178,9 +1178,10 @@
     const n = day.cards.length;
     $("#jPage").innerHTML = `
       <h2 class="page-date">${esc(fmtDate(day.date))}</h2>
+      <div class="actions" style="justify-content:flex-end"><button type="button" class="btn btn-ghost btn-sm" data-delete-personal-reading="${esc(day.date)}">Delete reading</button></div>
       <p class="page-sub">${n} card${n === 1 ? "" : "s"} · ${esc([...new Set(day.cards.map((c) => c.source || "draw"))].join(" · "))}</p>
       ${(() => { const nm=ME.birth?numerology(ME.birth,null,day.date):null, pd=nm&&nm.rows.find(r=>r.label==="Personal Day"), current=S.astroToday&&S.astroToday.date===day.date?S.astroToday:null, historic=S.birthProfile&&window.TarotAstro?window.TarotAstro.run(S.birthProfile,day.date):current; return pd?`<div class="astro-journal-summary"><b>Astro + numerology · Personal Day ${pd.n}</b><p>Life Path ${nm.lp}: ${esc(NUM_MEAN[nm.lp]||"")}. Personal Day: ${esc(pd.meaning)}.</p>${historic&&historic.moon?`<p>Moon in ${esc(historic.moon.sign)} · ${esc(historic.moon.phase)}.</p>`:""}${historic&&historic.aspects&&historic.aspects.length?`<p>Transits: ${historic.aspects.slice(0,2).map(x=>`${esc(x.transit)} ${esc(x.aspect)} natal ${esc(x.natal)} · ${x.orb}°`).join(" · ")}.</p>`:""}<p class="muted">Reflection: where did these themes appear in your choices, relationships or daily routines?</p></div>`:""; })()}
-      <div class="day-cards">${day.cards.map((c) => `
+      <div class="day-cards">${day.cards.map((c, cardIndex) => `
         <div class="day-card">
           <img src="${thumbImg(c.img)}" alt="${esc(c.name)}" class="${isRev(c.orientation) ? "reversed-img" : ""}" loading="lazy" />
           <div>
@@ -1188,6 +1189,7 @@
             <div class="meta" style="display:flex;gap:.4rem;align-items:center;margin:.35rem 0 .6rem">${badge(c.orientation)}<span class="tag">${esc(c.source || "")}</span></div>
             <p>${esc(c.summary || "")}</p>
             <p class="sit">${esc(c.sitWith || "")}</p>
+            <button type="button" class="link-btn" data-delete-personal-card data-date="${esc(day.date)}" data-index="${cardIndex}" data-name="${esc(c.name)}" data-orientation="${esc(c.orientation)}">Remove this card</button>
             ${(() => { const k = S.cards.find((x) => x.id === c.id) || S.byName.get(String(c.name || "").toLowerCase()); return k ? infoHTML(k, c.orientation, { open: [], skip: ["sit"] }) : ""; })()}
             <span class="label">Astro · chart weave</span>
             ${astroLine(day.date, c)}
@@ -1208,6 +1210,35 @@
   }
   $("#jPrev").addEventListener("click", () => S.jIndex > 0 && showDay(S.jIndex - 1));
   $("#jNext").addEventListener("click", () => S.jIndex < S.entries.length - 1 && showDay(S.jIndex + 1));
+  document.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-delete-personal-reading], [data-delete-personal-card], [data-delete-guest-reading], [data-delete-guest-card]");
+    if (!button) return;
+    const personalReading = button.hasAttribute("data-delete-personal-reading");
+    const personalCard = button.hasAttribute("data-delete-personal-card");
+    const guestReading = button.hasAttribute("data-delete-guest-reading");
+    const label = personalReading || guestReading ? "this entire reading and its saved photos" : "this card from the reading";
+    if (!confirm("Delete " + label + "? This cannot be undone.")) return;
+    button.disabled = true;
+    try {
+      if (personalReading) {
+        const date = button.getAttribute("data-delete-personal-reading");
+        await api("/api/entries/" + encodeURIComponent(date) + "/delete", { date });
+      } else if (personalCard) {
+        const date = button.dataset.date;
+        await api("/api/entries/" + encodeURIComponent(date) + "/cards/delete", { date, index: Number(button.dataset.index), name: button.dataset.name, orientation: button.dataset.orientation });
+      } else if (guestReading) {
+        const gid = button.dataset.gid, rid = button.dataset.rid;
+        await api("/api/guests/" + encodeURIComponent(gid) + "/readings/" + encodeURIComponent(rid) + "/delete", {});
+      } else {
+        const gid = button.dataset.gid, rid = button.dataset.rid;
+        await api("/api/guests/" + encodeURIComponent(gid) + "/readings/" + encodeURIComponent(rid) + "/cards/delete", { index: Number(button.dataset.index), name: button.dataset.name, orientation: button.dataset.orientation });
+      }
+      await loadAll();
+    } catch (error) {
+      button.disabled = false;
+      alert("Could not delete: " + error.message);
+    }
+  });
   document.addEventListener("keydown", (e) => {
     if ($("#panel-journal").hidden || e.target.matches("input, textarea, select") || e.target.closest(".tabs")) return;
     if (e.key === "ArrowLeft") $("#jPrev").click();
@@ -1296,10 +1327,11 @@
       <div class="timeline">${readingsSorted.length ? readingsSorted.map((r) => `
         <article class="g-reading">
           <header><h3>${esc(fmtDate(r.date, { weekday: "short", month: "long", day: "numeric", year: "numeric" }))}</h3>
-            ${r.reading ? `<span class="pill">Read</span>` : `<span class="pill wait">Awaiting TaroBot</span>`}</header>
+            <div class="actions"><button type="button" class="link-btn" data-delete-guest-reading data-gid="${esc(g.id)}" data-rid="${esc(r.id)}">Delete reading</button>
+            ${r.reading ? `<span class="pill">Read</span>` : `<span class="pill wait">Awaiting TaroBot</span>`}</div></header>
           ${r.question ? `<p class="q">“${esc(r.question)}”</p>` : ""}
           ${r.spread ? `<span class="tag">${esc(r.spread)}</span>` : ""}
-          ${r.cards && r.cards.length ? `<div class="g-cards">${r.cards.map((c) => { const k = S.byName.get(c.name.toLowerCase()); return `<div class="g-card"><img src="${thumbImg(c.img || (k && k.img))}" alt="" loading="lazy" class="${isRev(c.orientation) ? "reversed-img" : ""}" /><div>${esc(c.name)}<small>${c.position ? esc(c.position) + " · " : ""}${isRev(c.orientation) ? "reversed" : "upright"}</small></div></div>`; }).join("")}</div>` : ""}
+          ${r.cards && r.cards.length ? `<div class="g-cards">${r.cards.map((c, cardIndex) => { const k = S.byName.get(c.name.toLowerCase()); return `<div class="g-card"><img src="${thumbImg(c.img || (k && k.img))}" alt="" loading="lazy" class="${isRev(c.orientation) ? "reversed-img" : ""}" /><div>${esc(c.name)}<small>${c.position ? esc(c.position) + " · " : ""}${isRev(c.orientation) ? "reversed" : "upright"}</small></div><button type="button" class="link-btn" data-delete-guest-card data-gid="${esc(g.id)}" data-rid="${esc(r.id)}" data-index="${cardIndex}" data-name="${esc(c.name)}" data-orientation="${esc(c.orientation)}" aria-label="Remove ${esc(c.name)}">×</button></div>`; }).join("")}</div>` : ""}
           ${photosHTML(r.photos)}
           ${cohGuestHTML(g, r)}
           ${r.generated_reading ? `<details class="gen-wrap" open><summary>Card-by-card reading</summary>${genReadingHTML(r.generated_reading)}</details>` : ""}
