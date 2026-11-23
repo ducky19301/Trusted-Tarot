@@ -12,7 +12,8 @@ const css = read("public/themes.css");
 
 
 function routePatternFor(suffix) {
-  const line = backend.split("\n").find(line => line.includes("path.match") && line.includes(suffix));
+  const parts = suffix.split("/").filter(Boolean);
+  const line = backend.split("\n").find(line => line.includes("path.match") && parts.every(part => line.includes(part)));
   assert.ok(line, "missing route for " + suffix);
   const literal = line.match(/path\.match\((\/.*\/)\)/);
   assert.ok(literal, "could not extract route regex for " + suffix);
