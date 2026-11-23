@@ -136,6 +136,7 @@
   function apply() {
     const theme = themes.includes(root.dataset.designTheme) ? root.dataset.designTheme : "celestial";
     root.dataset.screenLayout = theme;
+    root.dataset.designTheme = theme;
     Object.keys(maps).forEach(markPanel);
   }
   apply();
