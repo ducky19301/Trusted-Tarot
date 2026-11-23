@@ -21,7 +21,7 @@
   function apply(p) {
     p = clean(p); const h = document.documentElement;
     const theme = p.theme === "system" ? (mq && mq.matches ? "light" : "dark") : p.theme;
-    Object.assign(h.dataset, { designTheme: p.designTheme, theme, accent: p.accent, cardback: p.cardback, size: p.size, typeface: p.typeface, stars: p.stars ? "on" : "off", motion: p.motion ? "reduce" : "full", density: p.density });
+    Object.assign(h.dataset, { designTheme: p.designTheme, screenLayout: p.designTheme, theme, accent: p.accent, cardback: p.cardback, size: p.size, typeface: p.typeface, stars: p.stars ? "on" : "off", motion: p.motion ? "reduce" : "full", density: p.density });
     const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = theme === "light" ? "#f6f1e7" : "#07060f";
     return p;
   }
@@ -33,6 +33,7 @@
   }
   function set(patch, opts = {}) {
     cur = apply({ ...cur, ...patch });
+    if (root.TAROT_THEME_LAYOUTS && typeof root.TAROT_THEME_LAYOUTS.apply === "function") root.TAROT_THEME_LAYOUTS.apply();
     try { localStorage.setItem(KEY, JSON.stringify(cur)); } catch (_) {}
     if (!opts.local) syncUp(cur);
     return cur;

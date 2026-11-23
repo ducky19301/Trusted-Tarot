@@ -536,3 +536,78 @@ html[data-screen-layout] :is(button,a,input,select,textarea,iframe,[tabindex]):f
   outline:2px solid var(--gold,#d8b767);
   outline-offset:3px;
 }
+
+
+/* Mobile viewport system: the device stays fixed; only the active screen's content area scrolls. */
+@media (max-width: 640px) {
+  html, body { width:100%; height:100%; min-height:100%; overflow:hidden; }
+  body { min-height:100dvh; overscroll-behavior:none; }
+  .app {
+    display:flex; flex-direction:column; height:100dvh; min-height:0; max-height:100dvh;
+    overflow:hidden; padding-top:calc(.45rem + env(safe-area-inset-top));
+    padding-bottom:calc(5.4rem + env(safe-area-inset-bottom));
+  }
+  .header { flex:0 0 auto; margin:0 0 .45rem; padding:.35rem .5rem .45rem !important; }
+  .header h1 { font-size:clamp(1.55rem,7vw,2rem) !important; line-height:1.05; margin:.1rem 0; }
+  .eyebrow { font-size:.58rem; letter-spacing:.2em !important; }
+  .tagline { font-size:.76rem; line-height:1.2; }
+  .header::before { width:76px !important; height:76px !important; right:0 !important; opacity:.16 !important; }
+  .header::after { font-size:1.1rem !important; margin-top:.1rem !important; }
+  .tabs { flex:0 0 auto; }
+  .panel:not([hidden]) {
+    flex:1 1 0; min-height:0; max-height:100%; overflow-x:hidden; overflow-y:auto;
+    overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+    padding:0 0 .75rem; scrollbar-width:none;
+  }
+  .panel:not([hidden])::-webkit-scrollbar { display:none; }
+  .footer { display:none; }
+  .intro { margin:0 auto .65rem; font-size:.82rem; line-height:1.35; }
+  #panel-guests .guests-layout { display:flex !important; flex-direction:column; gap:.65rem; min-height:0; }
+  #panel-guests .people {
+    position:static !important; display:flex; flex-direction:row; align-items:center;
+    gap:.5rem; width:100%; min-width:0; overflow:visible; padding:.15rem 0 .35rem;
+  }
+  #panel-guests #peopleList {
+    display:flex; flex:1 1 auto; min-width:0; gap:.45rem; overflow-x:auto; overflow-y:hidden;
+    padding:.1rem .1rem .45rem; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+  }
+  #panel-guests #peopleList::-webkit-scrollbar { display:none; }
+  #panel-guests .person {
+    flex:0 0 auto; width:min(172px,58vw); min-height:54px; padding:.5rem .65rem;
+    border-radius:13px; white-space:normal;
+  }
+  #panel-guests .person b { font-size:1rem; line-height:1.1; }
+  #panel-guests .person small { display:block; margin-top:.15rem; font-size:.68rem; line-height:1.2; }
+  #panel-guests .add-wrap {
+    flex:0 0 auto; align-self:stretch; display:flex; align-items:center; margin:0;
+    border:1px dashed var(--gold-dim); border-radius:12px; padding:0 .55rem;
+  }
+  #panel-guests .add-wrap summary { white-space:nowrap; font-size:.76rem; padding:.55rem 0; }
+  #panel-guests .add-person {
+    position:absolute; z-index:5; top:100%; right:.5rem; width:min(280px,90vw);
+    padding:.7rem; background:var(--bg-elevated); box-shadow:var(--shadow);
+  }
+  #panel-guests .profile { width:100%; min-width:0; min-height:0; }
+  #panel-guests .profile-head {
+    padding:.8rem .9rem; margin-bottom:.65rem; border-radius:15px;
+  }
+  #panel-guests .profile-head h2 { font-size:1.55rem; }
+  #panel-guests .profile-head .note { font-size:.8rem; line-height:1.4; }
+  #panel-guests .g-birth, #panel-guests .new-reading, #panel-guests .g-insights {
+    margin:.5rem 0; padding:.7rem .8rem; border-radius:14px;
+  }
+  #panel-guests .nr-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.5rem; }
+  #panel-guests .nr-grid .field:first-child { grid-column:1/-1; }
+  #panel-guests .g-reading { padding:.75rem .8rem; margin:.45rem 0; }
+  #panel-guests .g-reading h3 { font-size:1.08rem; line-height:1.2; }
+  #panel-guests .g-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(88px,1fr)); gap:.5rem; }
+  #panel-guests .g-card { min-width:0; font-size:.75rem; }
+  #panel-guests .g-card img { width:30px; flex:0 0 30px; }
+  #panel-guests .pt-wrap { margin:.5rem 0; }
+  #panel-guests .pt-wrap summary, #panel-guests details > summary { line-height:1.3; }
+  #panel-guests .actions { gap:.4rem; }
+  #panel-guests .btn { padding:.55rem .8rem; font-size:.82rem; }
+  #panel-guests .timeline { gap:.55rem; }
+  #panel-guests .nr-live { min-width:0; overflow-wrap:anywhere; }
+  #panel-guests input, #panel-guests textarea, #panel-guests select { min-width:0; }
+}
