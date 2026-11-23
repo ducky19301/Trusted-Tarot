@@ -79,6 +79,7 @@
     storage: { from: () => ({
       upload: async (path, bytes, o) => { if (!path.startsWith(me() + "/")) return { error: { message: "rls" } }; let s = ""; bytes.forEach((b) => (s += String.fromCharCode(b))); db.files[path] = { type: o.contentType, b64: btoa(s) }; save(); return { data: { path }, error: null }; },
       createSignedUrl: async (path) => { const f = db.files[path]; if (!f || !path.startsWith(me() + "/")) return { error: { message: "not found" } }; return { data: { signedUrl: `data:${f.type};base64,${f.b64}` }, error: null }; },
+      remove: async (paths) => { if (paths.some((p) => !p.startsWith(me() + "/"))) return { error: { message: "rls" } }; paths.forEach((p) => delete db.files[p]); save(); return { data: paths.map((name) => ({ name })), error: null }; },
     }) },
   }) };
 })();

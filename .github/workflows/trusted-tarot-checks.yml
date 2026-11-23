@@ -1,0 +1,32 @@
+name: Trusted Tarot checks
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install astronomy test dependency
+        run: npm install --no-save astronomy-engine
+      - name: Check learning JavaScript syntax
+        run: |
+          for file in web/theme-layouts.js public/theme-layouts.js web/fools-journey.js public/fools-journey.js web/learn-data.js web/learn-ui.js web/astro-curriculum.js web/astro-learning-ui.js web/reading-import.js web/astro-ui.js web/app.js web/backend.js public/backend.js public/learn-data.js public/learn-ui.js public/astro-curriculum.js public/astro-learning-ui.js public/reading-import.js public/astro-ui.js public/app.js; do
+            if [ -f "$file" ]; then node --check "$file"; fi
+          done
+      - name: Validate Cloudflare static assets configuration
+        run: npx --yes wrangler@4 deploy --dry-run --outdir=/tmp/trusted-tarot-wrangler-dry-run
+      - name: Run unit tests
+        run: node --test tests/unit/*.test.cjs

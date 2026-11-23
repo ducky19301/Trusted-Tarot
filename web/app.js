@@ -273,8 +273,11 @@
     if (el.dataset.date === localDate() && el.innerHTML) return;
     el.dataset.date = localDate();
     if (window.AstroUI && window.HoroscopeStory) {
-      // v20: story told by Astro from the day's computed facts; tips change daily and don't repeat for 14 days
-      return window.AstroUI.render(el, { name: (ME.name || "").split(" ")[0], date: localDate(), load: async () => { const h = await api("/api/astro/today"); S.astroToday = h; return h; } });
+      // Load the full birth profile once so historical journal dates can be calculated against the same natal chart.
+      if (!S.birthProfile) { try { const profile = await api("/api/profile/birth"); if (profile && profile.birth) S.birthProfile = profile.birth; } catch (_) {} }
+      await window.AstroUI.render(el, { name: (ME.name || "").split(" ")[0], date: localDate(), birthDate: ME.birth, fullName: ME.name, entries: S.entries, load: async () => { const h = await api("/api/astro/today"); S.astroToday = h; return h; } });
+      if (S.birthProfile) { renderJournal(); renderAstro(); }
+      return;
     }
     try {
       const h = await api("/api/astro/today"); S.astroToday = h;
@@ -456,6 +459,110 @@
   window.addEventListener("hashchange", () => showTab(location.hash.slice(1)));
 
   /* ---------------- today ---------------- */
+
+  /* ---------- import a past reading from the home screen ---------- */
+  const importToggle = $("#importReadingToggle"), importPanel = $("#importReadingPanel");
+  if (importToggle && importPanel) {
+    $("#importReadingDate").value = localDate();
+    importToggle.addEventListener("click", () => {
+      importPanel.hidden = !importPanel.hidden;
+      importToggle.setAttribute("aria-expanded", String(!importPanel.hidden));
+    });
+    async function loadPdfText(file) {
+      if (!window.pdfjsLib) {
+        await new Promise((resolve,reject) => {
+          const script=document.createElement("script");
+          script.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+          script.onload=resolve; script.onerror=()=>reject(new Error("Could not load the PDF reader. You can copy and paste the PDF text instead."));
+          document.head.appendChild(script);
+        });
+      }
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise, pages=[];
+      for(let n=1;n<=doc.numPages;n++){const page=await doc.getPage(n),content=await page.getTextContent();pages.push(content.items.map(x=>x.str).join(" "));}
+      return pages.join("\n\n");
+    }
+    function cardLinesFromText(text) {
+      const found=[];
+      const sorted=[...S.cards].sort((a,b)=>b.name.length-a.name.length);
+      const lower=String(text||"").toLowerCase();
+      for(const card of sorted){
+        const at=lower.indexOf(card.name.toLowerCase());
+        if(at<0||found.some(x=>x.name===card.name))continue;
+        const near=lower.slice(Math.max(0,at-50),Math.min(lower.length,at+card.name.length+55));
+        const orientation=/reversed|\brev(?:erse)?\b/.test(near)?"reversed":"upright";
+        const line=String(text).slice(Math.max(0,at-50),Math.min(String(text).length,at+card.name.length+55));
+        const pos=(line.match(/\b(past|present|future|situation|challenge|advice|outcome|self|environment|hopes|fears)\b/i)||[])[0]||"";
+        found.push({name:card.name,orientation,position:pos});
+      }
+      return found;
+    }
+    function writeCardLines(rows) {
+      $("#importReadingCards").value=rows.map(x=>x.name+" | "+(x.orientation||"upright")+" | "+(x.position||"")).join("\n");
+    }
+    function parseCardLines() {
+      const rows=[];
+      $("#importReadingCards").value.split(/\n|;/).map(x=>x.trim()).filter(Boolean).forEach(line=>{
+        const parts=line.split(/\s*\|\s*|\t|,\s*/).map(x=>x.trim()),name=parts[0];
+        const card=S.byName.get(name.toLowerCase())||S.cards.find(x=>x.name.toLowerCase()===name.toLowerCase());
+        if(!card)throw new Error("I couldn't match this card name: "+name+". Check its spelling against the Cards tab.");
+        const orientation=/rev/i.test(parts[1]||"")?"reversed":"upright";
+        const position=parts[2]||"";
+        rows.push({id:card.id,name:card.name,orientation,position,source:"physical deck"});
+      });
+      if(rows.length>12)throw new Error("A reading can contain up to 12 cards.");
+      return rows;
+    }
+    async function selectedFileText(file) {
+      if(!file)return "";
+      const name=file.name.toLowerCase();
+      if(file.type==="application/pdf"||name.endsWith(".pdf"))return loadPdfText(file);
+      if(file.type.startsWith("image/"))return null;
+      return file.text();
+    }
+    $("#importReadingDetect").addEventListener("click",async()=>{
+      const status=$("#importReadingStatus"),file=$("#importReadingFile").files[0];
+      try{
+        status.textContent="Reading file and detecting card names…";
+        if(file&&file.type.startsWith("image/")){status.textContent="This is an image. Save it to the photo-identification queue, then confirm the cards there.";return;}
+        const text=await selectedFileText(file)||$("#importReadingText").value;
+        if(text)$("#importReadingText").value=text.slice(0,8000);
+        let rows=[];
+        if(file&&file.name.toLowerCase().endsWith(".json")){
+          const data=JSON.parse(text),raw=Array.isArray(data)?data:(data.cards||(data.reading&&data.reading.cards)||[]);
+          if(data.date)$("#importReadingDate").value=String(data.date).slice(0,10);
+          if(data.question||data.intent)$("#importReadingQuestion").value=typeof data.intent==="object"?data.intent.text:(data.question||"");
+          if(data.spread||data.spreadName)$("#importReadingSpread").value=data.spread||data.spreadName;
+          const notes=data.note||data.notes||data.overall||(data.reading&&data.reading.overall)||"";
+          if(notes)$("#importReadingText").value=String(notes).slice(0,8000);
+          rows=raw.map(x=>typeof x==="string"?({name:x,orientation:"upright",position:""}):({name:x.name||x.cardName||x.card||"",orientation:/rev/i.test(x.orientation||"")?"reversed":"upright",position:x.position||x.label||""})).filter(x=>x.name);
+        }else rows=cardLinesFromText(text);
+        writeCardLines(rows);
+        status.textContent=rows.length?("Detected "+rows.length+" card"+(rows.length===1?"":"s")+". Review names and orientations before saving."):"No card names were recognized. Add them in the Cards field using one card per line.";
+      }catch(e){status.textContent="Could not read this file: "+e.message;}
+    });
+    $("#importReadingSave").addEventListener("click",async()=>{
+      const status=$("#importReadingStatus"),file=$("#importReadingFile").files[0],date=$("#importReadingDate").value;
+      try{
+        if(!date)throw new Error("Choose the date of the original reading.");
+        status.textContent="Saving…";
+        const note=["Imported past reading",$("#importReadingQuestion").value.trim()?("Question — "+$("#importReadingQuestion").value.trim()):"",$("#importReadingText").value.trim(),file?("Original file — "+file.name):""].filter(Boolean).join("\n\n");
+        if(file&&file.type.startsWith("image/")){
+          const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("Could not read the image."));reader.readAsDataURL(file);});
+          const tags=$("#importReadingCards").value.trim()?parseCardLines():[];
+          await api("/api/photos",{date,photos:[{data}],note,cards:tags});
+          status.textContent="Photo uploaded to the identification queue for "+date+". Confirm the cards there and the reading will be added to Journal and Astro.";
+          await loadAll(); return;
+        }
+        const cards=parseCardLines();
+        if(!cards.length)throw new Error("Add at least one recognized card before saving the reading.");
+        const res=await api("/api/entries",{date,cards,note,spread:$("#importReadingSpread").value.trim()||"Imported reading",intent:$("#importReadingQuestion").value.trim()?{type:"question",text:$("#importReadingQuestion").value.trim()}:null});
+        await loadAll();
+        status.textContent=res.added&&res.added.length?"Saved "+res.added.length+" card"+(res.added.length===1?"":"s")+" to Journal and Astro for "+date+".":"Those cards were already in that day's journal; no duplicates were added.";
+      }catch(e){status.textContent="Could not import: "+e.message;}
+    });
+  }
+
   const stage = $("#stage"), readings = $("#readings"), saveBox = $("#saveBox"), hint = $("#todayHint"), saveStatus = $("#saveStatus");
   const quick = $("#quick"), readMore = $("#readMore");
   const todaysEntry = () => S.entries.find((d) => d.date === localDate() && d.cards && d.cards.length);
@@ -710,14 +817,14 @@
   const elemOf = (c) => String(c.element || "").split(" ")[0];
   const FRIEND = { Fire: ["Air"], Air: ["Fire"], Water: ["Earth"], Earth: ["Water"] }, OPPOSE = { Fire: "Water", Water: "Fire", Air: "Earth", Earth: "Air" };
   const majorsBy = (chain) => chain.map((n) => S.cards.find((c) => c.arcana === "major" && Number(c.number) === n)).filter(Boolean);
-  function personMe() {
+  function personMe(onDate = localDate()) {
     syncSign();
-    const nm = ME.birth ? numerology(ME.birth, null) : { rows: [], lp: null, py: null }, pd = nm.rows.find((r) => r.label === "Personal Day");
+    const nm = ME.birth ? numerology(ME.birth, null, onDate) : { rows: [], lp: null, py: null }, pd = nm.rows.find((r) => r.label === "Personal Day");
     const [by, bm, bd] = ME.birth ? ME.birth.split("-").map(Number) : [];
     const bc = ME.birth && window.TarotPractice && window.TarotPractice.birthCard ? window.TarotPractice.birthCard(by, bm, bd) : null;
-    const past = S.entries.flatMap((e) => (e.cards || []).map((c) => ({ date: e.date, name: c.name, orientation: c.orientation, q: null })));
+    const past = S.entries.filter((e) => e.date < onDate).flatMap((e) => (e.cards || []).map((c) => ({ date: e.date, name: c.name, orientation: c.orientation, q: null })));
     return { isMe: true, name: ME.name, short: ME.short, lp: nm.lp, py: nm.py, pd: pd ? pd.n : null, sign: ME.sign, elem: ME.sign ? SIGN_ELEM[ME.sign] : null,
-      birthCards: bc ? majorsBy(bc.chain) : [], ruler: ME.sign ? S.byName.get((GD_SIGN[ME.sign] || "").toLowerCase()) || null : null, past, astro: S.astroToday || null };
+      birthCards: bc ? majorsBy(bc.chain) : [], ruler: ME.sign ? S.byName.get((GD_SIGN[ME.sign] || "").toLowerCase()) || null : null, past, astro: S.astroToday && S.astroToday.date === onDate ? S.astroToday : null };
   }
   function personFor(g) {
     const past = (g.readings || []).flatMap((r) => (r.cards || []).map((c) => ({ date: r.date, name: c.name, orientation: c.orientation, q: r.question })));
@@ -1071,8 +1178,10 @@
     const n = day.cards.length;
     $("#jPage").innerHTML = `
       <h2 class="page-date">${esc(fmtDate(day.date))}</h2>
+      <div class="actions" style="justify-content:flex-end"><button type="button" class="btn btn-ghost btn-sm" data-delete-personal-reading="${esc(day.date)}">Delete reading</button></div>
       <p class="page-sub">${n} card${n === 1 ? "" : "s"} · ${esc([...new Set(day.cards.map((c) => c.source || "draw"))].join(" · "))}</p>
-      <div class="day-cards">${day.cards.map((c) => `
+      ${(() => { const nm=ME.birth?numerology(ME.birth,null,day.date):null, pd=nm&&nm.rows.find(r=>r.label==="Personal Day"), current=S.astroToday&&S.astroToday.date===day.date?S.astroToday:null, historic=S.birthProfile&&window.TarotAstro?window.TarotAstro.run(S.birthProfile,day.date):current; return pd?`<div class="astro-journal-summary"><b>Astro + numerology · Personal Day ${pd.n}</b><p>Life Path ${nm.lp}: ${esc(NUM_MEAN[nm.lp]||"")}. Personal Day: ${esc(pd.meaning)}.</p>${historic&&historic.moon?`<p>Moon in ${esc(historic.moon.sign)} · ${esc(historic.moon.phase)}.</p>`:""}${historic&&historic.aspects&&historic.aspects.length?`<p>Transits: ${historic.aspects.slice(0,2).map(x=>`${esc(x.transit)} ${esc(x.aspect)} natal ${esc(x.natal)} · ${x.orb}°`).join(" · ")}.</p>`:""}<p class="muted">Reflection: where did these themes appear in your choices, relationships or daily routines?</p></div>`:""; })()}
+      <div class="day-cards">${day.cards.map((c, cardIndex) => `
         <div class="day-card">
           <img src="${thumbImg(c.img)}" alt="${esc(c.name)}" class="${isRev(c.orientation) ? "reversed-img" : ""}" loading="lazy" />
           <div>
@@ -1080,9 +1189,11 @@
             <div class="meta" style="display:flex;gap:.4rem;align-items:center;margin:.35rem 0 .6rem">${badge(c.orientation)}<span class="tag">${esc(c.source || "")}</span></div>
             <p>${esc(c.summary || "")}</p>
             <p class="sit">${esc(c.sitWith || "")}</p>
+            <button type="button" class="link-btn" data-delete-personal-card data-date="${esc(day.date)}" data-index="${cardIndex}" data-name="${esc(c.name)}" data-orientation="${esc(c.orientation)}">Remove this card</button>
             ${(() => { const k = S.cards.find((x) => x.id === c.id) || S.byName.get(String(c.name || "").toLowerCase()); return k ? infoHTML(k, c.orientation, { open: [], skip: ["sit"] }) : ""; })()}
             <span class="label">Astro · chart weave</span>
             ${astroLine(day.date, c)}
+            ${(() => { const k = S.cards.find((x) => x.id === c.id) || S.byName.get(String(c.name || "").toLowerCase()); const ties = k ? cardTies(k, c.orientation, personMe(day.date)) : []; return ties.length ? `<div class="astro-card-ties"><b>Chart + numerology links</b>${ties.map((t) => `<p>${esc(t)}</p>`).join("")}</div>` : ""; })()}
           </div>
         </div>`).join("")}</div>
       ${cohJournalHTML(day)}
@@ -1099,6 +1210,35 @@
   }
   $("#jPrev").addEventListener("click", () => S.jIndex > 0 && showDay(S.jIndex - 1));
   $("#jNext").addEventListener("click", () => S.jIndex < S.entries.length - 1 && showDay(S.jIndex + 1));
+  document.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-delete-personal-reading], [data-delete-personal-card], [data-delete-guest-reading], [data-delete-guest-card]");
+    if (!button) return;
+    const personalReading = button.hasAttribute("data-delete-personal-reading");
+    const personalCard = button.hasAttribute("data-delete-personal-card");
+    const guestReading = button.hasAttribute("data-delete-guest-reading");
+    const label = personalReading || guestReading ? "this entire reading and its saved photos" : "this card from the reading";
+    if (!confirm("Delete " + label + "? This cannot be undone.")) return;
+    button.disabled = true;
+    try {
+      if (personalReading) {
+        const date = button.getAttribute("data-delete-personal-reading");
+        await api("/api/entries/" + encodeURIComponent(date) + "/delete", { date });
+      } else if (personalCard) {
+        const date = button.dataset.date;
+        await api("/api/entries/" + encodeURIComponent(date) + "/cards/delete", { date, index: Number(button.dataset.index), name: button.dataset.name, orientation: button.dataset.orientation });
+      } else if (guestReading) {
+        const gid = button.dataset.gid, rid = button.dataset.rid;
+        await api("/api/guests/" + encodeURIComponent(gid) + "/readings/" + encodeURIComponent(rid) + "/delete", {});
+      } else {
+        const gid = button.dataset.gid, rid = button.dataset.rid;
+        await api("/api/guests/" + encodeURIComponent(gid) + "/readings/" + encodeURIComponent(rid) + "/cards/delete", { index: Number(button.dataset.index), name: button.dataset.name, orientation: button.dataset.orientation });
+      }
+      await loadAll();
+    } catch (error) {
+      button.disabled = false;
+      alert("Could not delete: " + error.message);
+    }
+  });
   document.addEventListener("keydown", (e) => {
     if ($("#panel-journal").hidden || e.target.matches("input, textarea, select") || e.target.closest(".tabs")) return;
     if (e.key === "ArrowLeft") $("#jPrev").click();
@@ -1187,10 +1327,11 @@
       <div class="timeline">${readingsSorted.length ? readingsSorted.map((r) => `
         <article class="g-reading">
           <header><h3>${esc(fmtDate(r.date, { weekday: "short", month: "long", day: "numeric", year: "numeric" }))}</h3>
-            ${r.reading ? `<span class="pill">Read</span>` : `<span class="pill wait">Awaiting TaroBot</span>`}</header>
+            <div class="actions"><button type="button" class="link-btn" data-delete-guest-reading data-gid="${esc(g.id)}" data-rid="${esc(r.id)}">Delete reading</button>
+            ${r.reading ? `<span class="pill">Read</span>` : `<span class="pill wait">Awaiting TaroBot</span>`}</div></header>
           ${r.question ? `<p class="q">“${esc(r.question)}”</p>` : ""}
           ${r.spread ? `<span class="tag">${esc(r.spread)}</span>` : ""}
-          ${r.cards && r.cards.length ? `<div class="g-cards">${r.cards.map((c) => { const k = S.byName.get(c.name.toLowerCase()); return `<div class="g-card"><img src="${thumbImg(c.img || (k && k.img))}" alt="" loading="lazy" class="${isRev(c.orientation) ? "reversed-img" : ""}" /><div>${esc(c.name)}<small>${c.position ? esc(c.position) + " · " : ""}${isRev(c.orientation) ? "reversed" : "upright"}</small></div></div>`; }).join("")}</div>` : ""}
+          ${r.cards && r.cards.length ? `<div class="g-cards">${r.cards.map((c, cardIndex) => { const k = S.byName.get(c.name.toLowerCase()); return `<div class="g-card"><img src="${thumbImg(c.img || (k && k.img))}" alt="" loading="lazy" class="${isRev(c.orientation) ? "reversed-img" : ""}" /><div>${esc(c.name)}<small>${c.position ? esc(c.position) + " · " : ""}${isRev(c.orientation) ? "reversed" : "upright"}</small></div><button type="button" class="link-btn" data-delete-guest-card data-gid="${esc(g.id)}" data-rid="${esc(r.id)}" data-index="${cardIndex}" data-name="${esc(c.name)}" data-orientation="${esc(c.orientation)}" aria-label="Remove ${esc(c.name)}">×</button></div>`; }).join("")}</div>` : ""}
           ${photosHTML(r.photos)}
           ${cohGuestHTML(g, r)}
           ${r.generated_reading ? `<details class="gen-wrap" open><summary>Card-by-card reading</summary>${genReadingHTML(r.generated_reading)}</details>` : ""}
@@ -1318,12 +1459,18 @@
       const missing = day.cards.filter((c) => !c.astro).length;
       const pend = day.cards.filter((c) => !c.astro && astroPending(day.date, c.name)).length;
       const weave = weaveOf(day.notes);
+      const historical = S.birthProfile && window.TarotAstro ? window.TarotAstro.run(S.birthProfile, day.date) : null;
+      const num = ME.birth ? numerology(ME.birth, null, day.date) : null;
+      const personalDay = num && num.rows.find((r) => r.label === "Personal Day");
+      const sky = historical ? `<div class="astro-day-context"><b>Personal sky · ${esc(day.date)}</b><p>Moon in ${esc(historical.moon.sign)} · ${esc(historical.moon.phase)}.</p><p>${historical.aspects.slice(0,3).map(x => `${esc(x.transit)} ${esc(x.aspect)} natal ${esc(x.natal)} · ${x.orb}°`).join(" · ") || "No close natal transits in this guide's orb."}</p>${personalDay ? `<p>Personal Day ${personalDay.n}: ${esc(personalDay.meaning)} · Life Path ${num.lp}</p>` : ""}</div>` : personalDay ? `<div class="astro-day-context"><b>Numerology · Personal Day ${personalDay.n}</b><p>Life Path ${num.lp} · ${esc(personalDay.meaning)}</p></div>` : "";
       return `<section class="astro-day">
         <header><h3>${esc(fmtDate(day.date, { weekday: "short", month: "long", day: "numeric" }))}</h3>
           ${missing === 0 ? `<span class="pill">Woven</span>` : pend ? `<span class="pill wait">${pend === day.cards.length ? "Astro pending" : `${pend} pending`}</span>` : `<span class="pill quiet">${missing === day.cards.length ? "No astro note" : "Partly woven"}</span>`}</header>
+        ${sky}
         ${day.cards.map((c) => `<div class="astro-card"><img src="${thumbImg(c.img)}" alt="" class="${isRev(c.orientation) ? "reversed-img" : ""}" loading="lazy" /><div>
           <div class="nm">${esc(c.name)}${isRev(c.orientation) ? " · reversed" : isUnknown(c.orientation) ? " · orientation not recorded" : ""}</div>
-          ${c.astro ? `<p>${esc(c.astro)}</p>` : astroPending(day.date, c.name) ? `<span class="pending">Astro tie-in pending</span>` : `<span class="no-astro">No astro note</span>`}</div></div>`).join("")}
+          ${c.astro ? `<p>${esc(c.astro)}</p>` : astroPending(day.date, c.name) ? `<span class="pending">Astro tie-in pending</span>` : `<span class="no-astro">No astro note</span>`}
+          ${(() => { const k = S.cards.find((x) => x.id === c.id) || S.byName.get(String(c.name || "").toLowerCase()); const ties = k ? cardTies(k, c.orientation, personMe(day.date)) : []; return ties.length ? `<div class="astro-card-ties"><b>Chart + numerology links</b>${ties.map((t) => `<p>${esc(t)}</p>`).join("")}</div>` : ""; })()}</div></div>`).join("")}
         ${weave ? `<div class="weave">${weave}</div>` : ""}
       </section>`;
     }).join("");
@@ -1340,6 +1487,7 @@
     Object.assign(S, { entries, gaps, guests, outbox });
     renderRecap(); renderGaps(); renderJournal(); renderAstro(); renderGuestsTab(); renderSavedToday();
   }
+  document.addEventListener("tarot:reading-imported", () => { loadAll().catch(() => {}); });
 
   /* ---------- v16: account, intention/question, clarifiers, patterns, moon spreads, share, friends ---------- */
   async function loadMe() {

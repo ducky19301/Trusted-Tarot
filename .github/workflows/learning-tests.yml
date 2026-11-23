@@ -1,0 +1,31 @@
+name: Learning regression tests
+
+on:
+  pull_request:
+    branches: [visual-themes-v1]
+    paths:
+      - 'public/**'
+      - 'web/**'
+      - 'tests/**'
+      - '.github/workflows/learning-tests.yml'
+  push:
+    branches: [fools-journey-learning-v1]
+    paths:
+      - 'public/**'
+      - 'web/**'
+      - 'tests/**'
+      - '.github/workflows/learning-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  learning-regressions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run learning regression tests
+        run: node --test tests/unit/learn.test.cjs
