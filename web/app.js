@@ -1200,6 +1200,7 @@
       ${day.photos && day.photos.length ? `<div class="notes"><span class="label">Photo of the spread</span>${photosHTML(day.photos)}</div>` : ""}
       ${day.notes ? `<div class="notes"><span class="label">Day notes</span>${notesHTML(day.notes)}</div>` : ""}
       <div class="j-share">${shareToggle("reading", day.date)}</div>`;
+    if (window.JournalSyncUI) window.JournalSyncUI.mount(day, api, loadAll);
     wireCohPicker($("#jPage"), day.date, renderJournal);
     const chip = $(".date-chip.active"); if (chip && !$("#panel-journal").hidden) chip.scrollIntoView({ block: "nearest", inline: "center" });
   }

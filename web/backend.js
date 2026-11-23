@@ -361,6 +361,45 @@
       const { error } = await sb.storage.from("uploads").remove(safe.map((p) => id + "/" + p));
       if (error) throw error;
     }
+    if ((m = path.match(/^\/api\/entries\/(\\d{4}-\\d{2}-\\d{2})\/journal$/))) {
+      const d = m[1], journal = clean(body.journal, 12000);
+      let entry;
+      await mutate("entries", (entries) => {
+        entry = entries.find((e) => e.date === d);
+        if (!entry) throw missing("no entry for " + d);
+        entry.journal = journal;
+        entry.journal_updated_at = nowIso();
+      });
+      return { ok: true, date: d, journal: entry.journal, updated_at: entry.journal_updated_at };
+    }
+    if ((m = path.match(/^\/api\/entries\/(\\d{4}-\\d{2}-\\d{2})\/astro\/auto$/))) {
+      const d = m[1], p = await profile(), birth = ownBirth(p);
+      if (!birth) throw bad("Add your birth date in account settings before generating personal Astro tie-ins.");
+      const day = (await getDoc("entries")).find((e) => e.date === d);
+      if (!day || !day.cards || !day.cards.length) throw missing("No saved cards for " + d);
+      const sky = window.TarotAstro.run(birth, d);
+      const cards = await loadCards();
+      const aspects = (sky.aspects || []).slice(0, 3);
+      const moon = sky.moon || {};
+      const astroLines = {};
+      for (const drawn of day.cards) {
+        const source = cards.find((c) => c.name.toLowerCase() === String(drawn.name).toLowerCase());
+        const suit = source && source.arcana === "major" ? "a major-life theme" : source ? "a " + String(source.suit || "tarot").toLowerCase() + " theme" : "this card's theme";
+        const lead = aspects.length ? aspects.map(x => x.transit + " " + x.aspect + " natal " + x.natal + " (" + x.orb + "°)").join("; ") : "no close natal aspects in the selected orb";
+        astroLines[drawn.name] = "Personal chart context: Moon in " + (moon.sign || "an unknown sign") + " (" + (moon.phase || "phase unavailable") + "). " + (aspects.length ? "Notable transits: " + lead + ". " : "No close natal transits were found in this guide's orb. ") + "Reflection lens: read " + drawn.name + (drawn.orientation === "reversed" ? " reversed" : " upright") + " as " + suit + "; where does its traditional meaning meet the actual choices and circumstances of this date? This is a reflective association, not a prediction.";
+      }
+      const weave = "Day weave — The sky for this date places the Moon in " + (moon.sign || "an unavailable sign") + " during the " + (moon.phase || "unavailable") + " phase. " + (aspects.length ? "The closest natal contacts are " + aspects.map(x => x.transit + " " + x.aspect + " natal " + x.natal + " (" + x.orb + "°)").join(", ") + ". " : "No close natal contacts were identified in this guide's orb. ") + "Use the cards as prompts for observation, not as evidence that planetary positions caused events.";
+      let saved;
+      await mutate("entries", (entries) => {
+        saved = entries.find((e) => e.date === d);
+        if (!saved) throw missing("No entry for " + d);
+        for (const c of saved.cards || []) c.astro = astroLines[c.name] || c.astro || null;
+        saved.notes = [saved.notes, weave].filter(Boolean).join("\\n\\n");
+        saved.astro_generated_at = nowIso();
+      });
+      await mutate("outbox", (ob) => { for (const o of ob) if (o.date === d && o.status === "pending_astro") { o.status = "done"; o.done_at = nowIso(); o.completed_by = "personal-chart-auto"; } });
+      return { ok: true, date: d, entry: saved, sky };
+    }
     if ((m = path.match(/^\/api\/entries\/(\d{4}-\d{2}-\d{2})\/delete$/))) {
       const d = m[1]; let photos = [];
       await mutate("entries", (entries) => {
