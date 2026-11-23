@@ -24,6 +24,10 @@
         <summary><span>Reading notes & context</span><small>Intentions, spread, and original notes</small></summary>
         <div class="js-content"><p class="js-notes"></p></div>
       </details>`;
+        const cards = page.querySelector(".day-cards");
+    if (cards) { const fold=document.createElement("details"); fold.className="js-section"; fold.innerHTML=`<summary><span>Saved cards · ${day.cards.length}</span><small>Tap to review meanings</small></summary>`; cards.parentNode.insertBefore(fold,cards); fold.appendChild(cards); }
+    const longBits=[page.querySelector(".astro-journal-summary"),page.querySelector(".coh-journal"),...page.querySelectorAll(".notes"),page.querySelector(".j-share")].filter(Boolean);
+    if(longBits.length){const fold=document.createElement("details");fold.className="js-section";fold.innerHTML=`<summary><span>Reading context & reflection</span><small>Astro, notes, and card connections</small></summary>`;longBits[0].parentNode.insertBefore(fold,longBits[0]);longBits.forEach(node=>fold.appendChild(node));}
     page.appendChild(wrap);
     const field=wrap.querySelector("[data-journal-text]"), status=wrap.querySelector(".js-status");
     field.value=day.journal || "";
