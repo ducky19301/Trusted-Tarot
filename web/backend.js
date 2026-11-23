@@ -361,7 +361,7 @@
       const { error } = await sb.storage.from("uploads").remove(safe.map((p) => id + "/" + p));
       if (error) throw error;
     }
-    if ((m = path.match(/^\/api\/entries\/(\\d{4}-\\d{2}-\\d{2})\/journal$/))) {
+    if ((m = path.match(/^\/api\/entries\/(\d{4}-\d{2}-\d{2})\/journal$/))) {
       const d = m[1], journal = clean(body.journal, 12000);
       let entry;
       await mutate("entries", (entries) => {
@@ -372,7 +372,7 @@
       });
       return { ok: true, date: d, journal: entry.journal, updated_at: entry.journal_updated_at };
     }
-    if ((m = path.match(/^\/api\/entries\/(\\d{4}-\\d{2}-\\d{2})\/astro\/auto$/))) {
+    if ((m = path.match(/^\/api\/entries\/(\d{4}-\d{2}-\d{2})\/astro\/auto$/))) {
       const d = m[1], p = await profile(), birth = ownBirth(p);
       if (!birth) throw bad("Add your birth date in account settings before generating personal Astro tie-ins.");
       const day = (await getDoc("entries")).find((e) => e.date === d);
