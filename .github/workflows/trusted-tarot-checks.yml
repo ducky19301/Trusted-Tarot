@@ -22,7 +22,10 @@ jobs:
       - name: Install astronomy test dependency
         run: npm install --no-save astronomy-engine
       - name: Check learning JavaScript syntax
-        run: node --check web/theme-layouts.js && node --check public/theme-layouts.js && node --check web/fools-journey.js && node --check public/fools-journey.js && node --check web/learn-data.js && node --check web/learn-ui.js && node --check web/astro-curriculum.js && node --check web/astro-learning-ui.js && node --check web/reading-import.js && node --check web/astro-ui.js && node --check web/app.js && node --check web/backend.js && node --check public/backend.js && node --check public/learn-data.js && node --check public/learn-ui.js && node --check public/astro-curriculum.js && node --check public/astro-learning-ui.js && node --check public/reading-import.js && node --check public/astro-ui.js && node --check public/app.js
+        run: |
+          for file in web/theme-layouts.js public/theme-layouts.js web/fools-journey.js public/fools-journey.js web/learn-data.js web/learn-ui.js web/astro-curriculum.js web/astro-learning-ui.js web/reading-import.js web/astro-ui.js web/app.js web/backend.js public/backend.js public/learn-data.js public/learn-ui.js public/astro-curriculum.js public/astro-learning-ui.js public/reading-import.js public/astro-ui.js public/app.js; do
+            if [ -f "$file" ]; then node --check "$file"; fi
+          done
       - name: Validate Cloudflare static assets configuration
         run: npx --yes wrangler@4 deploy --dry-run --outdir=/tmp/trusted-tarot-wrangler-dry-run
       - name: Run unit tests
