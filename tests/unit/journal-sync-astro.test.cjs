@@ -32,6 +32,7 @@ test("journal and Astro endpoints match real ISO calendar dates", () => {
 
 test("journal editor loads before app and mounts into the saved journal page", () => {
   assert.ok(html.indexOf("journal-ui.js") < html.indexOf("app.js"));
+  assert.equal(html.includes("\\n  <script src=\"app.js"), false, "script tags must be separated by a real newline");
   assert.match(app, /JournalSyncUI\.mount\(day, api, loadAll\)/);
   assert.match(journal, /data-journal-text/);
   assert.match(journal, /\/journal\"/);
