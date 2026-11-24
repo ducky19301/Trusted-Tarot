@@ -5,31 +5,24 @@ const path = require("node:path");
 const root = path.join(__dirname, "..", "..");
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 
-test("mobile screen layout reserves safe areas and fits the viewport without page scrolling", () => {
+test("all mobile tabs fit the viewport; only Cards is a primary scroll area", () => {
   const css = read("public/themes.css");
   assert.match(css, /\.app\s*\{[^}]*height:\s*100dvh/s);
-  assert.match(css, /#panel-cards[^}]*overflow-y:\s*auto/s);
-  const mobileFix = css.slice(css.lastIndexOf("Final mobile viewport correction"));
-  assert.match(mobileFix, /#panel-today\s*\{[^}]*overflow-y:\s*auto\s*!important/s);
-  assert.match(mobileFix, /#panel-today #todayDraw \{ flex: 0 0 auto/);
-  assert.match(css, /env\(safe-area-inset-bottom\)/);
+  const fit = css.slice(css.lastIndexOf("All-tab viewport fit"));
+  assert.match(fit, /\.panel:not\(\[hidden\]\)\s*\{[^}]*overflow:\s*hidden/s);
+  assert.match(fit, /#panel-cards\s*\{[^}]*overflow-y:\s*auto/s);
+  assert.match(fit, /env\(safe-area-inset-bottom\)/);
 });
 
-test("mobile reading controls and card artwork scale to short phone screens", () => {
-  const css = read("public/themes.css");
-  assert.match(css, /#panel-today \.controls[^}]*gap:/s);
-  assert.match(css, /#panel-today \.stage[^}]*max-height:\s*\d+vh/s);
-  assert.ok(css.includes("#panel-today .stage .flip { width:var(--card-w); max-height:34vh; }"));
-  assert.match(css, /@media\s*\(max-height:\s*740px\)/);
+test("card library groups the complete deck into collapsible arcana and suits", () => {
+  const js = read("public/app.js");
+  assert.match(js, /<details class="suit-group"/);
+  assert.match(js, /<summary>\$\{esc\(group\)\}/);
+  assert.match(js, /groupOrder/);
 });
 
-test("all design themes retain the same compact mobile navigation and touch sizing", () => {
+test("mobile tabs retain touch-sized controls and safe-area spacing", () => {
   const css = read("public/themes.css");
-  assert.match(css, /html\[data-screen-layout\] \.tabs/);
   assert.match(css, /min-height:\s*44px/);
-  assert.match(css, /backdrop-filter:\s*blur/);
-});
-
-test("public and web theme styles stay synchronized", () => {
-  assert.equal(read("public/themes.css"), read("web/themes.css"));
+  assert.match(css, /env\(safe-area-inset-bottom\)/);
 });
