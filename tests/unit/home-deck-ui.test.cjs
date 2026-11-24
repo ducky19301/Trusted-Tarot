@@ -7,6 +7,7 @@ const root = path.resolve(__dirname, "../..");
 const app = fs.readFileSync(path.join(root, "public/app.js"), "utf8");
 const html = fs.readFileSync(path.join(root, "public/index.html"), "utf8");
 const css = fs.readFileSync(path.join(root, "public/app.css"), "utf8");
+const sw = fs.readFileSync(path.join(root, "public/sw.js"), "utf8");
 
 test("Home deck controls expose shuffle, fan and cut", () => {
   for (const id of ["shuffleBtn", "fanBtn", "cutBtn", "drawBtn"]) {
@@ -34,6 +35,15 @@ test("Shuffle uses the Home deck state and respects reduced-motion settings", ()
   assert.match(app, /S\.deck = shuffle\(S\.cards\)/);
   assert.match(app, /prefers-reduced-motion: reduce/);
   assert.match(app, /homeDeckModal\("shuffle"\)/);
+});
+
+test("Service worker cache is bumped and precaches the current Home app assets", () => {
+  const cssVersion = html.match(/app\\.css\\?v=(\\d+)/)?.[1];
+  const jsVersion = html.match(/app\\.js\\?v=(\\d+)/)?.[1];
+  assert.ok(cssVersion && jsVersion);
+  assert.ok(sw.includes('"/app.css?v=' + cssVersion + '"'));
+  assert.ok(sw.includes('"/app.js?v=' + jsVersion + '"'));
+  assert.match(sw, /const VERSION = "[^"]+-v\\d+"/);
 });
 
 test("Mobile layout fits the viewport while keeping content panels independently scrollable", () => {
