@@ -1287,3 +1287,44 @@ html[data-theme="light"] .tj-btn.pri{color:#fff;background:linear-gradient(180de
 .astro-source-list li{margin:.75rem 0;line-height:1.5}
 .astro-source-list a{color:var(--gold,#d6b777);text-decoration:underline;text-underline-offset:3px}
 .astro-source-list p{margin:.3rem 0}
+
+
+/* Home deck handling: shared interaction pattern for shuffle, fan selection and a true cut. */
+.home-deck-overlay{position:fixed;inset:0;z-index:9900;display:flex;align-items:center;justify-content:center;padding:max(.7rem,env(safe-area-inset-top)) max(.7rem,env(safe-area-inset-right)) max(.7rem,env(safe-area-inset-bottom)) max(.7rem,env(safe-area-inset-left));background:rgba(5,4,14,.82);backdrop-filter:blur(10px)}
+.home-deck-sheet{position:relative;width:min(920px,100%);max-height:92dvh;overflow:auto;overscroll-behavior:contain;background:var(--bg-elevated,var(--panel));color:var(--text);border:1px solid var(--gold-dim);border-radius:22px;padding:clamp(.8rem,2.5vw,1.35rem);box-shadow:var(--shadow)}
+.home-deck-sheet h2{text-align:center;color:var(--gold-soft);font:600 clamp(1.35rem,4vw,1.8rem) var(--serif);margin:.2rem 0 .55rem}
+.home-deck-close{position:absolute;right:.65rem;top:.5rem;width:40px;height:40px;border:1px solid var(--gold-dim);border-radius:50%;background:rgba(255,255,255,.06);color:var(--text);font-size:1.5rem;z-index:3}
+.home-shuffle-stack{margin:1.2rem auto .6rem}
+.home-deck-status{text-align:center;color:var(--gold-soft);font-size:.85rem;margin:.25rem 0}
+.home-fan{max-height:min(48dvh,440px);overflow-y:auto;overscroll-behavior:contain}
+.home-fan .fc{min-height:48px;touch-action:manipulation}
+.home-cut-stacks{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;max-width:480px;margin:1.2rem auto}
+.home-cut-stack{display:flex;flex-direction:column;align-items:center;gap:.3rem;color:var(--text-muted);font-size:.8rem}
+.home-cut-stack strong{color:var(--gold-soft);font-size:1.15rem}
+.home-cut-stack .cardback{width:72px;height:120px;pointer-events:none}
+.home-cut-label{display:block;text-align:center;margin:.7rem 0 .2rem;color:var(--text-muted)}
+#homeCutRange{display:block;width:min(480px,100%);margin:0 auto 1rem;accent-color:var(--gold)}
+.home-deck-sheet .actions{justify-content:center;flex-wrap:wrap}
+@media(max-width:640px){.home-deck-sheet{max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1rem);padding:.8rem}.home-fan{max-height:48dvh;grid-template-columns:repeat(auto-fill,minmax(30px,1fr));gap:4px}.home-fan .fc{min-height:45px}.home-deck-sheet .hint{font-size:.8rem;line-height:1.35}.home-cut-stack .cardback{width:60px;height:100px}}
+/* Phone viewport fit: keep the app shell fixed and give each content panel its own scroll area. */
+@media(max-width:640px){
+  html,body{height:100%;min-height:100%;overflow:hidden}
+  .app.fit-shell{height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding-top:calc(.35rem + env(safe-area-inset-top));padding-bottom:calc(.5rem + env(safe-area-inset-bottom))}
+  .app.fit-shell>.header,.app.fit-shell>.tabs{flex:0 0 auto}
+  .panel.fit-panel{flex:1 1 auto;min-height:0;max-height:100%;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  #panel-cards.fit-panel{overflow-y:auto}
+  #panel-today.fit-panel{padding-bottom:.5rem}
+  #panel-today .controls{margin:.2rem 0 .35rem}
+  #panel-today .stage{max-height:34dvh;overflow:hidden}
+  #panel-today .quick,#panel-today .readings{max-height:30dvh;overflow:auto;overscroll-behavior:contain}
+  #panel-practice.fit-panel{overflow-y:auto}
+}
+@media(max-height:720px) and (max-width:640px){
+  .app.fit-shell{padding-top:calc(.2rem + env(safe-area-inset-top));gap:.15rem}
+  .app.fit-shell .header h1{font-size:1.18rem;line-height:1.05}
+  .app.fit-shell .tagline,.app.fit-shell .header .eyebrow{display:none}
+  .app.fit-shell .tabs{margin:0}
+  #panel-today .stage{max-height:29dvh}
+  #panel-today .flip{width:clamp(74px,21vw,108px)}
+}
+@media(prefers-reduced-motion:reduce){.home-deck-overlay *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
