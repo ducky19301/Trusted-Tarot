@@ -14,9 +14,9 @@ test("appearance changes synchronously update the active screen composition", ()
 test("mobile app keeps the document fixed and allows scrolling only in the Cards panel", () => {
   const css = read("public/themes.css");
   assert.ok(css.includes("height:100dvh; min-height:0; max-height:100dvh"));
-  assert.ok(css.includes(".panel:not([hidden]) {\n    flex:1 1 0; min-height:0; max-height:100%; overflow-x:hidden; overflow-y:hidden;"));
+  assert.ok(css.includes(".app > .panel:not([hidden]) {\n    display:flex; flex:1 1 auto; flex-direction:column; min-height:0;\n    height:auto; max-height:none; overflow:hidden; overscroll-behavior:none;"));
   assert.ok(css.includes("html, body { width:100%; height:100%; min-height:100%; overflow:hidden; }"));
-  assert.ok(css.includes("#panel-cards { overflow-y: auto !important; }"));
+  assert.ok(css.includes(".app > #panel-cards:not([hidden]) { overflow-x:hidden; overflow-y:auto;"));
 });
 
 test("guest screen uses compact horizontal guest navigation and a bounded profile workspace on phones", () => {
