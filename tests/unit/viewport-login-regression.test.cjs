@@ -5,7 +5,7 @@ const path = require("node:path");
 const root = path.join(__dirname, "..", "..");
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 
-test("only the Cards tab is vertically scrollable on mobile", () => {
+test("only the Cards tab is vertically scrollable on mobile devices", () => {
   const css = read("public/themes.css");
   const mobileFix = css.slice(css.lastIndexOf("Final mobile viewport correction"));
   assert.match(mobileFix, /\.panel:not\(\[hidden\]\)[^{]*\{[^}]*overflow-y:\s*hidden/s);
