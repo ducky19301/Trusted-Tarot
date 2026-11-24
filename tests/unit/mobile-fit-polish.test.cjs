@@ -9,7 +9,8 @@ test("mobile screen layout reserves safe areas and fits the viewport without pag
   const css = read("public/themes.css");
   assert.match(css, /\.app\s*\{[^}]*height:\s*100dvh/s);
   assert.match(css, /#panel-cards[^}]*overflow-y:\s*auto/s);
-  assert.match(css, /#panel-today[^}]*overflow-y:\s*hidden/s);
+  assert.match(css, /#panel-today\s*\{[^}]*overflow-y:\s*auto/s);
+  assert.doesNotMatch(css, /#panel-today\s*\{[^}]*overflow-y:\s*hidden\s*!important/s);
   assert.match(css, /env\(safe-area-inset-bottom\)/);
 });
 
