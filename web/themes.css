@@ -790,3 +790,5 @@ html[data-screen-layout] .seg-btn:focus-visible { outline:2px solid var(--gold-s
   .panel:not(#panel-cards) { scrollbar-width:none; }
   .panel:not(#panel-cards)::-webkit-scrollbar { display:none; }
 }
+
+/* production deployment trigger: mobile viewport fit and collapsible suit library */
