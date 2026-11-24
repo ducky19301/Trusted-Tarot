@@ -711,3 +711,47 @@ html[data-screen-layout] :is(.btn,.seg,.chip,.field input,.field textarea,.field
 html[data-screen-layout] .btn:focus-visible,
 html[data-screen-layout] .tab:focus-visible,
 html[data-screen-layout] .seg-btn:focus-visible { outline:2px solid var(--gold-soft); outline-offset:2px; }
+
+
+/* Final mobile viewport correction: keep the shell fixed, but let every active screen scroll. */
+@media (max-width: 640px) {
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    min-height: 0;
+    max-height: 100dvh;
+    overflow: hidden;
+    padding-bottom: calc(4.9rem + env(safe-area-inset-bottom));
+  }
+
+  .header { flex: 0 0 auto; }
+
+  .panel:not([hidden]) {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    max-height: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  #panel-today {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    height: auto;
+    max-height: none;
+    overflow-x: hidden;
+    overflow-y: auto !important;
+    touch-action: pan-y;
+  }
+
+  #panel-today #todayDraw { flex: 0 0 auto; min-height: max-content; }
+  #panel-cards { overflow-y: auto !important; }
+}
