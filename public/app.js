@@ -690,6 +690,7 @@
   function updateDrawButtons() {
     const drawn = S.src === "digital" && S.drawn.length > 0;
     $("#shuffleBtn").hidden = $("#drawBtn").hidden = drawn;
+    const fan=$("#fanBtn"),cut=$("#cutBtn"); if(fan) fan.hidden=drawn; if(cut) cut.hidden=drawn;
     const r = $("#redrawBtn"); r.hidden = !drawn;
     r.innerHTML = S.saved ? `<span aria-hidden="true">✦</span> Pull another` : `<span aria-hidden="true">↺</span> Redraw`;
   }
@@ -767,7 +768,7 @@
     if (el) el.remove();
   }
   function ensureHomeDeck() {
-    if (!Array.isArray(S.deck) || S.deck.length < 1) S.deck = shuffle(S.cards);
+    if (!Array.isArray(S.deck) || S.deck.length < S.count) S.deck = shuffle(S.cards);
   }
   function homeDeckModal(mode) {
     closeHomeDeck();
@@ -893,12 +894,14 @@
     renderToday();
   }
   function doRedraw() {
-    S.drawn = []; S.saved = false; S.savedMine = false; S.deck = shuffle(S.cards); setSaveStatus("");
+    closeHomeDeck(); S.homeSelected=[]; S.drawn = []; S.saved = false; S.savedMine = false; S.deck = shuffle(S.cards); setSaveStatus("");
     renderToday();
     hint.textContent = "Fresh deck. Shuffle or draw when you’re ready.";
   }
   $("#shuffleBtn").addEventListener("click", doShuffle);
-  $("#drawBtn").addEventListener("click", () => { if (S.drawn.length) return; openWho(doDraw); });
+  $("#fanBtn").addEventListener("click", () => homeDeckModal("fan"));
+  $("#cutBtn").addEventListener("click", () => homeDeckModal("cut"));
+  $("#drawBtn").addEventListener("click", () => { if (S.drawn.length) return; if(S.homeSelected.length===S.count) openWho(drawHomeSelected); else openWho(doDraw); });
   $("#redrawBtn").addEventListener("click", doRedraw);
   /* ---------- v15: spreads, who-is-it-for, live full readings, guest routing, one-card pop-up ---------- */
   const SPREADS = {
