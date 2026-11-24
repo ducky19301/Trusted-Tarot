@@ -1,7 +1,7 @@
 /* Tarot service worker: caches the static app shell (plus, since v10, the last good copy of read-only /api GETs for link drops) so the app opens instantly.
    Never caches /api writes, uploads, journal PDF/images, meditate audio, login/logout or anything private.
    Bump VERSION whenever index.html / app.css / app.js / practice*.js change so phones pick up the update. */
-const VERSION = "tarot-shell-v24";
+const VERSION = "tarot-shell-v25";
 const NG = {};
 const SHELL = [
   "/", "/app.css?v=33", "/app.js?v=34", "/practice-data.js?v=23", "/practice.js?v=23", "/learn-data.js?v=23", "/learn-ui.js?v=23", "/cohesive.js?v=23", "/habits.js?v=23", "/horoscope-story.js?v=23", "/astro-ui.js?v=23", "/config.js", "/vendor/supabase.js?v=23", "/vendor/astronomy.browser.min.js?v=23", "/places.js?v=23", "/astro.js?v=23", "/backend.js?v=23", "/appearance.js?v=23", "/settings.js?v=23", "/compat.js?v=23", "/compat-kb.js?v=23", "/compat-story.js?v=23", "/compat-ui.js?v=23", "/data/cards.json", "/login", "/manifest.webmanifest",
