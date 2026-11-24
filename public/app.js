@@ -1517,7 +1517,18 @@
     const q = S.query.trim().toLowerCase();
     const hay = (c) => [c.name, c.upright, c.reversed, ...(c.keywords ? [...(c.keywords.upright || []), ...(c.keywords.reversed || [])] : [])].join(" ").toLowerCase();
     const list = S.cards.filter((c) => (S.suit === "all" || (S.suit === "major" ? c.arcana === "major" : c.suit === S.suit)) && (!q || hay(c).includes(q)));
-    $("#cardGrid").innerHTML = list.length ? list.map((c) => `<button class="tile" data-id="${c.id}"><img src="${thumbImg(c.img)}" alt="" loading="lazy" /><span>${esc(c.name)}</span></button>`).join("") : `<p class="empty">No cards match “${esc(S.query)}”.</p>`;
+    const groupOrder = ["Major Arcana", "Wands", "Cups", "Swords", "Pentacles"];
+    const groups = new Map(groupOrder.map((name) => [name, []]));
+    list.forEach((card) => {
+      const group = card.arcana === "major" ? "Major Arcana" : card.suit;
+      if (groups.has(group)) groups.get(group).push(card);
+    });
+    const sections = groupOrder.filter((group) => groups.get(group).length).map((group, index) => {
+      const items = groups.get(group);
+      const tiles = items.map((c) => `<button class="tile" data-id="${c.id}"><img src="${thumbImg(c.img)}" alt="" loading="lazy" /><span>${esc(c.name)}</span></button>`).join("");
+      return `<details class="suit-group" ${q || index === 0 ? "open" : ""}><summary>${esc(group)} <span class="suit-count">${items.length}</span></summary><div class="grid suit-grid">${tiles}</div></details>`;
+    }).join("");
+    $("#cardGrid").innerHTML = sections || `<p class="empty">No cards match “${esc(S.query)}”.</p>`;
     $$(".tile").forEach((t) => t.addEventListener("click", () => openCard(t.dataset.id)));
   }
   $("#resBtn").addEventListener("click", openResources);
