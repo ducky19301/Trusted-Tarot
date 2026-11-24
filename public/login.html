@@ -57,27 +57,26 @@ a { color:var(--gold-soft); }
   <p class="eyebrow">Tarot</p>
   <h1 id="title">Welcome back</h1>
   <p class="sub" id="sub">Sign in to your deck.</p>
-  <form id="f" autocomplete="on">
+  <form id="f" autocomplete="on" novalidate>
     <div id="signupOnly" hidden><label for="dn">Your name</label><input id="dn" type="text" name="display" maxlength="40" /></div>
     <label for="un">Username</label>
-    <input id="un" type="text" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required placeholder="letters, numbers, _" />
+    <input id="un" type="text" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required aria-describedby="err" placeholder="letters, numbers, _" />
     <label for="pw">Password</label>
-    <input id="pw" type="password" name="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" required />
+    <input id="pw" type="password" name="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" required aria-describedby="err" />
     <div id="signupOnly2" hidden><label for="pw2">Password again</label><input id="pw2" type="password" name="password2" autocomplete="new-password" />
       <label for="bd">Birthday <em>(optional, for your horoscope and numerology)</em></label><input id="bd" type="date" name="birth" /></div>
     <button type="submit" id="go">Sign in</button>
-    <p class="err" role="alert" id="err"></p>
+    <p class="err" id="err" role="alert" aria-live="assertive"></p>
   </form>
   <p class="foot"><a id="swap" href="/signup">New here? Create your own account</a></p>
   <p class="foot">Private · stays signed in on this device</p>
 </main>
 <script>
 (() => {
-  const C = window.TAROT_CONFIG || {}, DOMAIN = C.emailDomain || "users.trustedtarot.app";
-  const sb = window.supabase.createClient(C.supabaseUrl, C.supabaseKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: "trusted-tarot-auth" } });
-  const $ = (id) => document.getElementById(id), q = new URLSearchParams(location.search);
+  const C = window.TAROT_CONFIG || {}, $ = (id) => document.getElementById(id);
   const signup = location.pathname.startsWith("/signup");
-  let next = q.get("next") || "/"; if (!next.startsWith("/") || next.startsWith("//")) next = "/";
+  let next = new URLSearchParams(location.search).get("next") || "/";
+  if (!next.startsWith("/") || next.startsWith("//")) next = "/";
   const nq = next === "/" ? "" : "?next=" + encodeURIComponent(next);
   if (signup) {
     $("title").textContent = "Create your account"; $("sub").textContent = "Your own private deck. Nothing you save is shared unless you choose to.";
@@ -85,29 +84,60 @@ a { color:var(--gold-soft); }
     $("pw").autocomplete = "new-password"; $("go").textContent = "Create account"; document.title = "Tarot · Create account";
     $("swap").textContent = "Already have an account? Sign in"; $("swap").href = "/login" + nq;
   } else $("swap").href = "/signup" + nq;
-  sb.auth.getSession().then(({ data }) => { if (data.session) location.replace(next); });
+
+  if (!C.supabaseUrl || !C.supabaseKey || !window.supabase || typeof window.supabase.createClient !== "function") {
+    $("err").textContent = "Sign-in is temporarily unavailable because authentication settings did not load. Refresh and try again.";
+    $("go").disabled = true;
+    return;
+  }
+  const DOMAIN = C.emailDomain || "users.trustedtarot.app";
+  const sb = window.supabase.createClient(C.supabaseUrl, C.supabaseKey, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: "trusted-tarot-auth" }
+  });
+  sb.auth.getSession().then(({ data, error }) => {
+    if (error) throw error;
+    if (data && data.session) location.replace(next);
+  }).catch(() => {
+    $("err").textContent = "We couldn’t check your saved sign-in. Refresh the page and try again.";
+  });
+
   const NAME_RE = /^[a-z0-9_]{3,20}$/;
+  const showError = (message, field) => {
+    $("err").textContent = message;
+    for (const el of [$("un"), $("pw"), $("pw2")]) el.removeAttribute("aria-invalid");
+    if (field) { field.setAttribute("aria-invalid", "true"); field.focus(); }
+  };
   $("f").addEventListener("submit", async (e) => {
-    e.preventDefault(); $("err").textContent = ""; $("go").disabled = true;
+    e.preventDefault(); $("err").textContent = "";
+    for (const el of [$("un"), $("pw"), $("pw2")]) el.removeAttribute("aria-invalid");
+    $("go").disabled = true;
     try {
-      let u = $("un").value.trim().toLowerCase().replace(/^@/, "") || "natalie";
-      const pw = $("pw").value;
+      const u = $("un").value.trim().toLowerCase().replace(/^@/, ""), pw = $("pw").value;
+      if (!u) { showError("Enter your username.", $("un")); return; }
+      if (!NAME_RE.test(u)) { showError("Usernames are 3–20 letters, numbers or _.", $("un")); return; }
+      if (!pw) { showError("Enter your password.", $("pw")); return; }
       if (signup) {
-        if (!NAME_RE.test(u)) throw new Error("Usernames are 3–20 letters, numbers or _.");
-        if (pw.length < 8) throw new Error("Use at least 8 characters for your password.");
-        if (pw !== $("pw2").value) throw new Error("The two passwords don’t match.");
-        const { data: free } = await sb.rpc("username_available", { p_username: u });
-        if (free === false) throw new Error("That username is taken.");
-        const { data, error } = await sb.auth.signUp({ email: `${u}@${DOMAIN}`, password: pw, options: { data: { username: u, display: $("dn").value.trim().slice(0, 40) || u, birth: $("bd").value || null } } });
+        if (pw.length < 8) { showError("Use at least 8 characters for your password.", $("pw")); return; }
+        if (pw !== $("pw2").value) { showError("The two passwords don’t match.", $("pw2")); return; }
+        const { data: free, error: lookupError } = await sb.rpc("username_available", { p_username: u });
+        if (lookupError || typeof free !== "boolean") throw new Error("Could not check username availability. Please try again.");
+        if (!free) throw new Error("That username is taken.");
+        const { data, error } = await sb.auth.signUp({
+          email: `${u}@${DOMAIN}`, password: pw,
+          options: { data: { username: u, display: $("dn").value.trim().slice(0, 40) || u, birth: $("bd").value || null } }
+        });
         if (error) throw error;
-        if (!data.session) throw new Error("Account made, but sign-in is waiting on email confirmation. (Owner: turn off “Confirm email” in Supabase.)");
+        if (!data || !data.session) throw new Error("Your account was created, but sign-in is waiting on email confirmation. This username-based app requires email confirmation to be disabled in its Supabase project.");
       } else {
         const { error } = await sb.auth.signInWithPassword({ email: `${u}@${DOMAIN}`, password: pw });
-        if (error) throw new Error(/invalid/i.test(error.message) ? "That username and password don’t match." : error.message);
+        if (error) throw new Error(/invalid/i.test(error.message) ? "That username and password don’t match." : /confirm/i.test(error.message) ? "This account is waiting for email confirmation. Contact the app owner to check authentication settings." : error.message);
       }
       location.replace(next);
-    } catch (err) { $("err").textContent = err.message || String(err); }
-    finally { $("go").disabled = false; }
+    } catch (err) {
+      showError(err && err.message ? err.message : "Sign-in failed. Please try again.");
+    } finally {
+      $("go").disabled = false;
+    }
   });
 })();
 </script>
