@@ -17,7 +17,7 @@ test("mobile reading controls and card artwork scale to short phone screens", ()
   const css = read("public/themes.css");
   assert.match(css, /#panel-today \.controls[^}]*gap:/s);
   assert.match(css, /#panel-today \.stage[^}]*max-height:\s*\d+vh/s);
-  assert.match(css, /#panel-today \.stage \\.flip[^}]*max-height:\s*\d+vh/s);
+  assert.match(css, /#panel-today \.stage \.flip[^}]*max-height:\s*\d+vh/s);
   assert.match(css, /@media\s*\(max-height:\s*740px\)/);
 });
 
