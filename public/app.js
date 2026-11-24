@@ -16,7 +16,7 @@
 
   const S = {
     cards: [], byName: new Map(), entries: [], gaps: [], guests: [], outbox: [],
-    src: "digital", count: 1, labels: "lcr", deck: [], drawn: [], saved: false, savedMine: false, todayView: "draw",
+    src: "digital", count: 1, labels: "lcr", deck: [], drawn: [], saved: false, savedMine: false, todayView: "draw", homeSelected: [],
     pickSlot: 0, pickOpen: true, pickGroup: null, lastShare: null,
     jIndex: 0, suit: "all", query: "", medLoaded: false, guestSel: null,
   };
@@ -762,11 +762,117 @@
       : "Tap the card" + (S.count > 1 ? "s" : "") + " you pulled, then set how " + (S.count > 1 ? "each" : "it") + " landed.";
   }
 
-  function doShuffle() {
-    if (S.src === "digital" && S.drawn.length) return;   // a drawn card stays until it is saved or Redraw is tapped
-    S.deck = shuffle(S.cards); S.drawn = []; S.saved = false; setSaveStatus("");
+  function closeHomeDeck() {
+    const el = $("#homeDeckOverlay");
+    if (el) el.remove();
+  }
+  function ensureHomeDeck() {
+    if (!Array.isArray(S.deck) || S.deck.length < 1) S.deck = shuffle(S.cards);
+  }
+  function homeDeckModal(mode) {
+    closeHomeDeck();
+    const el = document.createElement("div");
+    el.id = "homeDeckOverlay";
+    el.className = "home-deck-overlay";
+    el.setAttribute("role", "presentation");
+    if (mode === "shuffle") {
+      el.innerHTML = `<section class="home-deck-sheet" role="dialog" aria-modal="true" aria-labelledby="homeDeckTitle">
+        <button class="home-deck-close" type="button" data-close aria-label="Close">×</button>
+        <p class="eyebrow">Home deck</p><h2 id="homeDeckTitle">Shuffling the deck</h2>
+        <div class="sp-deck shuffling home-shuffle-stack" aria-hidden="true">${Array.from({length:16},(_,i)=>`<div class="cardback mini" style="--i:${i}"></div>`).join("")}</div>
+        <p class="hint center">78 cards are being mixed into a fresh order…</p>
+      </section>`;
+      document.body.appendChild(el);
+      $(".mini",el).forEach((m,i)=>{
+        const half=i%2?1:-1;
+        m.style.setProperty("--hx",`${half*(60+Math.random()*20)}px`);
+        m.style.setProperty("--hr",`${half*(6+Math.random()*6)}deg`);
+        m.style.setProperty("--ry",`${(i-8)*1.2}px`);
+        m.style.setProperty("--dx",`${(Math.random()-.5)*260}px`);
+        m.style.setProperty("--dy",`${(Math.random()-.5)*150}px`);
+        m.style.setProperty("--dr",`${(Math.random()-.5)*80}deg`);
+      });
+      return el;
+    }
+    ensureHomeDeck();
+    if (mode === "fan") {
+      S.homeSelected = [];
+      const half=Math.ceil(S.deck.length/2);
+      const cards=S.deck.map((card,i)=>{
+        const row=i<half?0:1,rowN=row?S.deck.length-half:half,j=row?i-half:i;
+        const t=rowN>1?j/(rowN-1):.5;
+        return `<button type="button" class="cardback fc home-fan-card" data-home-card="${esc(card.id)}" aria-label="Face-down card ${i+1}" aria-pressed="false" style="--i:${i};--x:${(t*92).toFixed(2)};--y:${(row*150+44*Math.pow(2*t-1,2)).toFixed(1)};--r:${((t-.5)*44).toFixed(1)}deg"></button>`;
+      }).join("");
+      el.innerHTML=`<section class="home-deck-sheet" role="dialog" aria-modal="true" aria-labelledby="homeDeckTitle">
+        <button class="home-deck-close" type="button" data-close aria-label="Close">×</button>
+        <p class="eyebrow">Choose your cards</p><h2 id="homeDeckTitle">Fan the deck</h2>
+        <p class="hint center">Choose ${S.count} card${S.count===1?"":"s"} in the order you want them laid out. Your picks stay face down until the reading begins.</p>
+        <div class="sp-fan home-fan" id="homeFan" role="group" aria-label="Face-down tarot deck">${cards}</div>
+        <p class="home-deck-status" id="homeFanStatus" role="status" aria-live="polite">0 of ${S.count} selected</p>
+        <div class="actions"><button type="button" class="btn btn-gold" id="homeFanDraw" disabled>Use selected cards</button><button type="button" class="btn btn-ghost" id="homeFanReshuffle">Shuffle again</button></div>
+      </section>`;
+      document.body.appendChild(el);
+      $(".home-fan-card",el).forEach(btn=>btn.addEventListener("click",()=>{
+        const id=btn.dataset.homeCard,at=S.homeSelected.indexOf(id);
+        if(at>=0) S.homeSelected.splice(at,1);
+        else if(S.homeSelected.length<S.count) S.homeSelected.push(id);
+        const picked=S.homeSelected.indexOf(id);
+        btn.classList.toggle("sel",picked>=0);
+        btn.setAttribute("aria-pressed",String(picked>=0));
+        btn.setAttribute("aria-label",`Face-down card ${S.deck.findIndex(x=>String(x.id)===id)+1}${picked>=0?", selected":""}`);
+        const status=$("#homeFanStatus",el),draw=$("#homeFanDraw",el);
+        if(status) status.textContent=`${S.homeSelected.length} of ${S.count} selected`;
+        if(draw) draw.disabled=S.homeSelected.length!==S.count;
+      }));
+      $("#homeFanDraw",el).addEventListener("click",()=>{ if(S.homeSelected.length!==S.count)return; closeHomeDeck(); openWho(drawHomeSelected); });
+      $("#homeFanReshuffle",el).addEventListener("click",()=>{ closeHomeDeck(); doShuffle(); });
+    } else {
+      const cut=Math.max(1,Math.min(77,Math.floor(S.deck.length/2)));
+      el.innerHTML=`<section class="home-deck-sheet" role="dialog" aria-modal="true" aria-labelledby="homeDeckTitle">
+        <button class="home-deck-close" type="button" data-close aria-label="Close">×</button>
+        <p class="eyebrow">Deck handling</p><h2 id="homeDeckTitle">Cut the deck</h2>
+        <p class="hint center">Choose where to split the stack, then move the top half beneath the bottom half. This changes the deck order without replacing or removing any cards.</p>
+        <div class="home-cut-stacks"><div class="home-cut-stack"><span>Top stack</span><strong id="homeCutTop">${cut}</strong><div class="cardback"></div></div><div class="home-cut-stack"><span>Bottom stack</span><strong id="homeCutBottom">${S.deck.length-cut}</strong><div class="cardback"></div></div></div>
+        <label class="home-cut-label" for="homeCutRange">Cut position</label><input id="homeCutRange" type="range" min="1" max="${Math.max(2,S.deck.length-1)}" value="${cut}" />
+        <div class="actions"><button type="button" class="btn btn-gold" id="homeCutApply">Complete cut</button><button type="button" class="btn btn-ghost" data-close>Cancel</button></div>
+      </section>`;
+      document.body.appendChild(el);
+      $("#homeCutRange",el).addEventListener("input",e=>{
+        const n=Number(e.target.value);
+        $("#homeCutTop",el).textContent=String(n);
+        $("#homeCutBottom",el).textContent=String(S.deck.length-n);
+      });
+      $("#homeCutApply",el).addEventListener("click",()=>{
+        const n=Number($("#homeCutRange",el).value);
+        S.deck=[...S.deck.slice(n),...S.deck.slice(0,n)];
+        S.homeSelected=[];
+        closeHomeDeck();
+        hint.textContent=`Cut complete · ${n} cards moved beneath the remaining ${S.deck.length-n}. The full deck is intact.`;
+      });
+    }
+    el.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",closeHomeDeck));
+    el.addEventListener("click",e=>{if(e.target===el)closeHomeDeck();});
+    return el;
+  }
+  function drawHomeSelected() {
+    if(S.drawn.length||S.homeSelected.length!==S.count)return;
+    const picked=S.homeSelected.map(id=>S.deck.find(card=>String(card.id)===String(id))).filter(Boolean);
+    if(picked.length!==S.count)return;
+    const ids=new Set(S.homeSelected.map(String));
+    S.deck=S.deck.filter(card=>!ids.has(String(card.id)));
+    S.drawn=picked.map(card=>({card,orientation:Math.random()<REVERSED_CHANCE?"reversed":"upright",flipped:false}));
+    S.homeSelected=[];
+    preload(S.drawn.map(d=>d.card));
+    S.saved=false;S.savedMine=false;S.dfDone=false;S.clar=[];setSaveStatus("");
     renderToday();
-    $$(".flip", stage).forEach((f, i) => f.animate([{ transform: "none" }, { transform: `translateX(${i % 2 ? 14 : -14}px) rotate(${i % 2 ? 4 : -4}deg)` }, { transform: "none" }], { duration: 520, iterations: 2 }));
+  }
+  async function doShuffle() {
+    if (S.src === "digital" && S.drawn.length) return;
+    S.deck = shuffle(S.cards); S.homeSelected=[]; S.drawn=[]; S.saved=false; setSaveStatus("");
+    renderToday();
+    const modal=homeDeckModal("shuffle");
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) await new Promise(resolve=>setTimeout(resolve,1750));
+    if ($("#homeDeckOverlay")===modal) closeHomeDeck();
     hint.textContent = "Shuffled · 78 cards, ready when you are.";
   }
   /* v15: a card picture that fails (link drop) retries twice, then falls back to the small thumbnail */
