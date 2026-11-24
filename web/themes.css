@@ -755,3 +755,39 @@ html[data-screen-layout] .seg-btn:focus-visible { outline:2px solid var(--gold-s
   #panel-today #todayDraw { flex: 0 0 auto; min-height: max-content; }
   #panel-cards { overflow-y: auto !important; }
 }
+
+/* All-tab viewport fit: fixed chrome, compact content, no primary-page scrolling. */
+@media (max-width: 640px) {
+  html, body { height:100%; min-height:100%; overflow:hidden; }
+  .app {
+    height:100dvh; min-height:0; max-height:100dvh; box-sizing:border-box;
+    display:flex; flex-direction:column; overflow:hidden;
+    padding-top:calc(.25rem + env(safe-area-inset-top));
+    padding-bottom:calc(4.65rem + env(safe-area-inset-bottom));
+    gap:.2rem;
+  }
+  .app > .header, .app > .tabs { flex:0 0 auto; }
+  .app > .header { margin:.1rem 0 .25rem !important; }
+  .app > .header h1 { font-size:clamp(1.25rem,5.5vw,1.65rem) !important; line-height:1.02; }
+  .app > .header .tagline { display:none; }
+  .app > .tabs { position:fixed; left:0; right:0; bottom:0; z-index:100;
+    padding:.25rem max(.4rem,env(safe-area-inset-right)) calc(.25rem + env(safe-area-inset-bottom)) max(.4rem,env(safe-area-inset-left));
+  }
+  .app > .panel:not([hidden]) {
+    display:flex; flex:1 1 auto; flex-direction:column; min-height:0;
+    height:auto; max-height:none; overflow:hidden; overscroll-behavior:none;
+    padding-bottom:.35rem;
+  }
+  .app > .panel:not([hidden]) > :first-child { flex:0 0 auto; }
+  .app > .panel:not([hidden]) :is(.section,.card-section,.profile,.book,.practice-root,.astro-curriculum) { min-height:0; }
+  .app > #panel-cards:not([hidden]) { overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+  #panel-cards .suit-group { margin:.4rem 0; border:1px solid var(--gold-dim); border-radius:14px; background:rgba(255,255,255,.025); overflow:hidden; }
+  #panel-cards .suit-group > summary { display:flex; align-items:center; justify-content:space-between; gap:.6rem; padding:.65rem .8rem; cursor:pointer; list-style:none; font-weight:650; color:var(--gold-soft); }
+  #panel-cards .suit-group > summary::-webkit-details-marker { display:none; }
+  #panel-cards .suit-group > summary:after { content:"＋"; opacity:.7; }
+  #panel-cards .suit-group[open] > summary:after { content:"−"; }
+  #panel-cards .suit-count { margin-left:auto; color:var(--muted); font-size:.75rem; font-weight:500; }
+  #panel-cards .suit-grid { padding:.25rem .55rem .65rem; }
+  .panel:not(#panel-cards) { scrollbar-width:none; }
+  .panel:not(#panel-cards)::-webkit-scrollbar { display:none; }
+}
