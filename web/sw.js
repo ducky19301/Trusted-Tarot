@@ -4,7 +4,7 @@
 const VERSION = "tarot-shell-v24";
 const NG = {};
 const SHELL = [
-  "/", "/app.css?v=23", "/app.js?v=23", "/practice-data.js?v=23", "/practice.js?v=23", "/learn-data.js?v=23", "/learn-ui.js?v=23", "/cohesive.js?v=23", "/habits.js?v=23", "/horoscope-story.js?v=23", "/astro-ui.js?v=23", "/config.js", "/vendor/supabase.js?v=23", "/vendor/astronomy.browser.min.js?v=23", "/places.js?v=23", "/astro.js?v=23", "/backend.js?v=23", "/appearance.js?v=23", "/settings.js?v=23", "/compat.js?v=23", "/compat-kb.js?v=23", "/compat-story.js?v=23", "/compat-ui.js?v=23", "/data/cards.json", "/login", "/manifest.webmanifest",
+  "/", "/app.css?v=33", "/app.js?v=34", "/practice-data.js?v=23", "/practice.js?v=23", "/learn-data.js?v=23", "/learn-ui.js?v=23", "/cohesive.js?v=23", "/habits.js?v=23", "/horoscope-story.js?v=23", "/astro-ui.js?v=23", "/config.js", "/vendor/supabase.js?v=23", "/vendor/astronomy.browser.min.js?v=23", "/places.js?v=23", "/astro.js?v=23", "/backend.js?v=23", "/appearance.js?v=23", "/settings.js?v=23", "/compat.js?v=23", "/compat-kb.js?v=23", "/compat-story.js?v=23", "/compat-ui.js?v=23", "/data/cards.json", "/login", "/manifest.webmanifest",
   "/icons/icon-192.png", "/icons/icon-512.png", "/icons/apple-touch-icon.png", "/icons/favicon-32.png",
 ];
 // v10: last good copy of a few read-only /api GETs, served only while the public link is down
