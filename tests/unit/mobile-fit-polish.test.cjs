@@ -9,7 +9,7 @@ test("all mobile tabs fit the viewport; only Cards is a primary scroll area", ()
   const css = read("public/themes.css");
   assert.match(css, /\.app\s*\{[^}]*height:\s*100dvh/s);
   const fit = css.slice(css.lastIndexOf("All-tab viewport fit"));
-  assert.match(fit, /\.panel:not\(\[hidden\]\)\s*\{[^}]*overflow:\s*hidden/s);
+  assert.match(fit, /\.app > \.panel:not\(\[hidden\]\)\s*\{[^}]*overflow:\s*hidden/s);
   assert.match(fit, /#panel-cards\s*\{[^}]*overflow-y:\s*auto/s);
   assert.match(fit, /env\(safe-area-inset-bottom\)/);
 });
