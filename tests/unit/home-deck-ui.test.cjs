@@ -38,12 +38,12 @@ test("Shuffle uses the Home deck state and respects reduced-motion settings", ()
 });
 
 test("Service worker cache is bumped and precaches the current Home app assets", () => {
-  const cssVersion = html.match(/app\\.css\\?v=(\\d+)/)?.[1];
-  const jsVersion = html.match(/app\\.js\\?v=(\\d+)/)?.[1];
+  const cssVersion = html.match(/app\.css\?v=(\d+)/)?.[1];
+  const jsVersion = html.match(/app\.js\?v=(\d+)/)?.[1];
   assert.ok(cssVersion && jsVersion);
   assert.ok(sw.includes('"/app.css?v=' + cssVersion + '"'));
   assert.ok(sw.includes('"/app.js?v=' + jsVersion + '"'));
-  assert.match(sw, /const VERSION = "[^"]+-v\\d+"/);
+  assert.match(sw, /const VERSION = "[^"]+-v\d+"/);
 });
 
 test("Mobile layout fits the viewport while keeping content panels independently scrollable", () => {
