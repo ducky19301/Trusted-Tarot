@@ -713,7 +713,7 @@ html[data-screen-layout] .tab:focus-visible,
 html[data-screen-layout] .seg-btn:focus-visible { outline:2px solid var(--gold-soft); outline-offset:2px; }
 
 
-/* Final mobile viewport correction: keep the shell fixed, but let every active screen scroll. */
+/* Final mobile viewport correction: fixed screens; only the Cards library scrolls. */
 @media (max-width: 640px) {
   .app {
     display: flex;
@@ -733,11 +733,10 @@ html[data-screen-layout] .seg-btn:focus-visible { outline:2px solid var(--gold-s
     height: auto;
     max-height: none;
     overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior-y: contain;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    overflow-y: hidden;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+    padding-bottom: calc(.5rem + env(safe-area-inset-bottom));
   }
 
   #panel-today {
@@ -748,8 +747,8 @@ html[data-screen-layout] .seg-btn:focus-visible { outline:2px solid var(--gold-s
     height: auto;
     max-height: none;
     overflow-x: hidden;
-    overflow-y: auto !important;
-    touch-action: pan-y;
+    overflow-y: hidden !important;
+    touch-action: manipulation;
   }
 
   #panel-today #todayDraw { flex: 0 0 auto; min-height: max-content; }
@@ -791,3 +790,5 @@ html[data-screen-layout] .seg-btn:focus-visible { outline:2px solid var(--gold-s
   .panel:not(#panel-cards) { scrollbar-width:none; }
   .panel:not(#panel-cards)::-webkit-scrollbar { display:none; }
 }
+
+/* production deployment trigger: mobile viewport fit and collapsible suit library */
