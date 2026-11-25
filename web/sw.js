@@ -1,7 +1,7 @@
 /* Tarot service worker: caches the static app shell (plus, since v10, the last good copy of read-only /api GETs for link drops) so the app opens instantly.
    Never caches /api writes, uploads, journal PDF/images, meditate audio, login/logout or anything private.
    Bump VERSION whenever index.html / app.css / app.js / practice*.js change so phones pick up the update. */
-const VERSION = "tarot-shell-v26";
+const VERSION = "tarot-shell-v27";
 const NG = {};
 const SHELL = [
   "/", "/app.css?v=33", "/themes.css?v=8", "/app.js?v=34", "/practice-data.js?v=23", "/practice.js?v=23", "/learn-data.js?v=23", "/learn-ui.js?v=23", "/cohesive.js?v=23", "/habits.js?v=23", "/horoscope-story.js?v=23", "/astro-ui.js?v=23", "/config.js", "/vendor/supabase.js?v=23", "/vendor/astronomy.browser.min.js?v=23", "/places.js?v=23", "/astro.js?v=23", "/backend.js?v=23", "/appearance.js?v=23", "/settings.js?v=23", "/compat.js?v=23", "/compat-kb.js?v=23", "/compat-story.js?v=23", "/compat-ui.js?v=23", "/data/cards.json", "/login", "/manifest.webmanifest",
@@ -11,7 +11,7 @@ const SHELL = [
 const API_CACHE = "tarot-api-v1";
 const API_RE = /^$/;   // v17: data comes from Supabase (backend.js keeps its own offline copy)
 const CACHE_OK = (res) => res && res.ok && !res.redirected && res.type === "basic";
-const STATIC_RE = /^\/(app\.css|app\.js|practice\.js|practice-data\.js|backend\.js|appearance\.js|settings\.js|compat(-kb|-story|-ui)?\.js|astro\.js|places\.js|vendor\/[\w.-]+\.js|data\/cards\.json|manifest\.webmanifest|icons\/[\w.-]+\.png|(deck-img|deck-thumb)\/[a-z0-9]{4}\.jpg)$/;
+const STATIC_RE = /^\/(app\.css|themes\.css|app\.js|practice\.js|practice-data\.js|backend\.js|appearance\.js|settings\.js|compat(-kb|-story|-ui)?\.js|astro\.js|places\.js|vendor\/[\w.-]+\.js|data\/cards\.json|manifest\.webmanifest|icons\/[\w.-]+\.png|(deck-img|deck-thumb)\/[a-z0-9]{4}\.jpg)$/;
 
 self.addEventListener("install", (e) => {
   e.waitUntil((async () => {
