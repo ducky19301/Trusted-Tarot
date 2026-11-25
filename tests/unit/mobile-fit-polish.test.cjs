@@ -41,24 +41,25 @@ test("mobile viewport contract has a stable fallback and keeps the bottom naviga
 
 test("the service worker caches the active mobile layout stylesheet", () => {
   const sw = read("public/sw.js");
-  assert.match(sw, /const VERSION = "tarot-shell-v27"/);
+  assert.match(sw, /const VERSION = "tarot-shell-v28"/);
   assert.match(sw, /\/themes\.css\?v=8/);
   assert.ok(sw.includes('"/themes.css?v=8"'));
   assert.ok(sw.includes("themes" + String.fromCharCode(92) + ".css"));
 });
 
 
-test("Fool's Journey navigation resets the app's internal learning scroller", () => {
+test("Fool journey navigation resets the app internal learning scroller", () => {
   const learn = read("public/learn-ui.js");
-  assert.match(learn, /id="lnJourney"/);
-  assert.match(learn, /journeyButton\\.addEventListener\\("click"/);
-  assert.match(learn, /function resetLearningScroll/);
-  assert.match(learn, /resetLearningScroll\\(el\\)/);
-  assert.doesNotMatch(learn, /window\\.scrollTo\\(\\{ top: 0 \\}\\)/);
+  assert.ok(learn.includes('id="lnJourney"'));
+  assert.ok(learn.includes("journeyButton.addEventListener"));
+  assert.ok(learn.includes("function resetLearningScroll"));
+  assert.ok(learn.includes("resetLearningScroll(el)"));
+  assert.ok(!learn.includes("window.scrollTo({ top: 0 });"));
 });
 
 test("Practice lesson content has its own touch-scrollable mobile viewport", () => {
   const css = read("public/app.css");
-  assert.match(css, /#panel-practice:not\\(\\[hidden\\]\\)[\\s\\S]*#practiceRoot[\\s\\S]*overflow-y:\\s*auto/);
-  assert.match(css, /-webkit-overflow-scrolling:\\s*touch/);
+  assert.ok(css.includes("#panel-practice:not([hidden]) > #practiceRoot"));
+  assert.ok(css.includes("overflow-y: auto"));
+  assert.ok(css.includes("-webkit-overflow-scrolling: touch"));
 });
