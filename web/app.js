@@ -867,14 +867,32 @@
     S.saved=false;S.savedMine=false;S.dfDone=false;S.clar=[];setSaveStatus("");
     renderToday();
   }
+  let shuffleInProgress = false;
   async function doShuffle() {
-    if (S.src === "digital" && S.drawn.length) return;
-    S.deck = shuffle(S.cards); S.homeSelected=[]; S.drawn=[]; S.saved=false; setSaveStatus("");
-    renderToday();
-    const modal=homeDeckModal("shuffle");
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) await new Promise(resolve=>setTimeout(resolve,1750));
-    if ($("#homeDeckOverlay")===modal) closeHomeDeck();
-    hint.textContent = "Shuffled · 78 cards, ready when you are.";
+    if (shuffleInProgress || (S.src === "digital" && S.drawn.length)) return;
+    const button = $("#shuffleBtn");
+    shuffleInProgress = true;
+    if (button) { button.disabled = true; button.setAttribute("aria-busy", "true"); }
+    let modal = null;
+    try {
+      if (!Array.isArray(S.cards) || !S.cards.length) throw new Error("The deck has not loaded yet.");
+      S.deck = shuffle(S.cards); S.homeSelected = []; S.drawn = []; S.saved = false; setSaveStatus("");
+      renderToday();
+      modal = homeDeckModal("shuffle");
+      const reduceMotion = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduceMotion) await new Promise(resolve => setTimeout(resolve, 1750));
+      if (modal && modal.isConnected && $("#homeDeckOverlay") === modal) closeHomeDeck();
+      hint.textContent = "Shuffled · 78 cards, ready when you are.";
+    } catch (error) {
+      if (modal && modal.isConnected && $("#homeDeckOverlay") === modal) closeHomeDeck();
+      hint.textContent = "The shuffle couldn't finish. Please try again.";
+      console.error("Home deck shuffle failed:", error);
+    } finally {
+      if (modal && modal.isConnected && $("#homeDeckOverlay") === modal) closeHomeDeck();
+      shuffleInProgress = false;
+      const currentButton = $("#shuffleBtn");
+      if (currentButton) { currentButton.disabled = false; currentButton.removeAttribute("aria-busy"); }
+    }
   }
   /* v15: a card picture that fails (link drop) retries twice, then falls back to the small thumbnail */
   window.__tarotImgRetry = (img) => {
