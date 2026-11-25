@@ -16,6 +16,7 @@ test("all mobile tabs fit the viewport; only Cards is a primary scroll area", ()
 
 test("card library groups the complete deck into collapsible arcana and suits", () => {
   const js = read("public/app.js");
+  const sw = read("public/sw.js");
   assert.match(js, /<details class="suit-group"/);
   assert.match(js, /<summary>\$\{esc\(group\)\}/);
   assert.match(js, /groupOrder/);
@@ -36,4 +37,13 @@ test("mobile viewport contract has a stable fallback and keeps the bottom naviga
   assert.match(fit, /env\(safe-area-inset-left\)/);
   assert.match(fit, /env\(safe-area-inset-right\)/);
   assert.match(fit, /touch-action:\s*pan-y/);
+});
+
+
+test("the service worker caches the active mobile layout stylesheet", () => {
+  const sw = read("public/sw.js");
+  assert.match(sw, /const VERSION = "tarot-shell-v27"/);
+  assert.match(sw, /\/themes\.css\?v=8/);
+  assert.match(sw, /STATIC_RE = \/\^\\\\\//);
+  assert.match(sw, /themes\\\\\.css/);
 });
