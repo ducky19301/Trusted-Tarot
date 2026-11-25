@@ -1350,3 +1350,29 @@ html[data-theme="light"] .tj-btn.pri{color:#fff;background:linear-gradient(180de
   #panel-today .stage{max-height:29dvh}
   #panel-today .flip{width:clamp(74px,21vw,108px)}
 }
+
+/* Learning screens use their own scroll surface inside the fixed mobile shell. */
+@media (max-width: 640px) {
+  #panel-practice:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  #panel-practice:not([hidden]) > .p-subnav {
+    flex: 0 0 auto;
+    max-width: 100%;
+    overflow-x: auto;
+    touch-action: pan-x;
+  }
+  #panel-practice:not([hidden]) > #practiceRoot {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+}
