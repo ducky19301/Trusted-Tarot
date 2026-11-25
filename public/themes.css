@@ -793,3 +793,45 @@ html[data-screen-layout] .seg-btn:focus-visible { outline:2px solid var(--gold-s
 }
 
 /* production deployment trigger: mobile viewport fit and collapsible suit library */
+
+
+/* All-tab viewport fit: final viewport and scroll ownership contract v2. */
+@media (max-width: 640px) {
+  html, body {
+    width: 100%; height: 100%; min-height: 0; max-height: 100%;
+    overflow: hidden; overscroll-behavior: none;
+  }
+  .app {
+    height: 100vh; height: 100dvh; min-height: 0; max-height: 100dvh;
+    box-sizing: border-box; overflow: hidden;
+    padding-left: max(.55rem, env(safe-area-inset-left));
+    padding-right: max(.55rem, env(safe-area-inset-right));
+    padding-bottom: calc(4.65rem + env(safe-area-inset-bottom));
+  }
+  .app > .header, .app > .tabs { flex: 0 0 auto; }
+  .app > .tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 100;
+    display: flex; flex-wrap: nowrap; justify-content: flex-start;
+    max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding: .25rem max(.4rem, env(safe-area-inset-right))
+      calc(.25rem + env(safe-area-inset-bottom))
+      max(.4rem, env(safe-area-inset-left));
+  }
+  .app > .tabs::-webkit-scrollbar { display: none; }
+  .app > .panel:not([hidden]) {
+    display: flex; flex: 1 1 0; flex-direction: column;
+    min-width: 0; min-height: 0; max-height: none;
+    overflow: hidden; overscroll-behavior: none;
+  }
+  .app > #panel-cards:not([hidden]) {
+    flex: 1 1 0; min-height: 0; overflow-x: hidden; overflow-y: auto;
+    touch-action: pan-y; overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+@media (max-width: 640px) and (max-height: 720px) {
+  .app { padding-top: calc(.15rem + env(safe-area-inset-top)); }
+  .app > .header { margin-top: 0 !important; margin-bottom: .1rem !important; }
+  .app > .header h1 { font-size: clamp(1.12rem, 5vw, 1.4rem) !important; }
+}
