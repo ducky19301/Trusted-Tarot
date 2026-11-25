@@ -46,3 +46,19 @@ test("the service worker caches the active mobile layout stylesheet", () => {
   assert.ok(sw.includes('"/themes.css?v=8"'));
   assert.ok(sw.includes("themes" + String.fromCharCode(92) + ".css"));
 });
+
+
+test("Fool's Journey navigation resets the app's internal learning scroller", () => {
+  const learn = read("public/learn-ui.js");
+  assert.match(learn, /id="lnJourney"/);
+  assert.match(learn, /journeyButton\\.addEventListener\\("click"/);
+  assert.match(learn, /function resetLearningScroll/);
+  assert.match(learn, /resetLearningScroll\\(el\\)/);
+  assert.doesNotMatch(learn, /window\\.scrollTo\\(\\{ top: 0 \\}\\)/);
+});
+
+test("Practice lesson content has its own touch-scrollable mobile viewport", () => {
+  const css = read("public/app.css");
+  assert.match(css, /#panel-practice:not\\(\\[hidden\\]\\)[\\s\\S]*#practiceRoot[\\s\\S]*overflow-y:\\s*auto/);
+  assert.match(css, /-webkit-overflow-scrolling:\\s*touch/);
+});
