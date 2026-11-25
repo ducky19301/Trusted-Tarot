@@ -44,5 +44,5 @@ test("the service worker caches the active mobile layout stylesheet", () => {
   assert.match(sw, /const VERSION = "tarot-shell-v27"/);
   assert.match(sw, /\/themes\.css\?v=8/);
   assert.ok(sw.includes('"/themes.css?v=8"'));
-  assert.ok(sw.includes("themes\\.css"));
+  assert.ok(sw.includes("themes" + String.fromCharCode(92) + ".css"));
 });
