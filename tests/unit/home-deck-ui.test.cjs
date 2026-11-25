@@ -51,3 +51,10 @@ test("Mobile layout fits the viewport while keeping content panels independently
   assert.match(css, /overflow-y:auto/);
   assert.match(css, /prefers-reduced-motion:reduce/);
 });
+
+
+test("Shuffle cannot remain busy when motion or overlay setup fails", () => {
+  assert.match(app, /let shuffleInProgress = false/);
+  assert.match(app, /finally\\s*\\{[\\s\\S]*shuffleInProgress = false/);
+  assert.match(app, /aria-busy/);
+});
