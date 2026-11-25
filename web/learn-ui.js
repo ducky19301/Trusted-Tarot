@@ -7,6 +7,12 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  function resetLearningScroll(el) {
+    if (!el) return;
+    el.scrollTop = 0;
+    const panel = el.closest && el.closest(".panel");
+    if (panel) panel.scrollTop = 0;
+  }
   const shuffle = (a) => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const KEY = "tt.learn.v1";
@@ -50,15 +56,16 @@
         <p>Follow the Major Arcana as one connected story: beginnings, choices, trials, transformation and integration. Each chapter includes symbolism, upright and reversed meanings, history, astrology, reflection and practice.</p>
         <p class="muted small">${completed} of 22 chapters mastered · ${current ? "Continue with " + esc(current.title) : "Course complete"}</p>
         <div class="ln-bar"><i style="width:${Math.round(100 * completed / 22)}%"></i></div>
-        <div class="actions"><button class="btn btn-gold" id="lnJourney">${completed === 22 ? "Review the journey" : "Open the journey map"} ›</button></div>
+        <div class="actions"><button type="button" class="btn btn-gold" id="lnJourney">${completed === 22 ? "Review the journey" : "Open the journey map"} ›</button></div>
       </article>` : ""}
       <div class="ln-secs">${list.map((s) => { const seen = Math.min((st.seen[s.id] || 0), s.cards.length); return `<button class="ln-sec ${st.mastered && st.mastered[s.id] ? "done" : ""}" data-sec="${s.id}">
         <b>${esc(s.title)}</b><small>${s.cards.length} cards${st.mastered && st.mastered[s.id] ? " · mastered ✓" : st.reviewQueue && st.reviewQueue[s.id] ? " · review due" : seen ? ` · ${seen} seen` : ""}</small><span class="ln-bar"><i style="width:${Math.round(100 * seen / s.cards.length)}%"></i></span></button>`; }).join("")}</div>
       <div class="actions"><button class="btn btn-ghost btn-sm" id="lnNotes">My notes (${st.notes.length})</button></div></section>`;
     $("[data-sec]", el).forEach((b) => b.addEventListener("click", () => deck(el, b.dataset.sec, 0, () => home(el, area, opts))));
     const journeyButton = $("#lnJourney", el);
-    if (journeyButton) journeyButton.addEventListener("click", () => journeyHome(el, () => home(el, area, opts)));
+    if (journeyButton) journeyButton.addEventListener("click", (event) => { event.preventDefault(); journeyHome(el, () => home(el, area, opts)); });
     $("#lnNotes", el).addEventListener("click", () => notes(el, () => home(el, area, opts)));
+    resetLearningScroll(el);
   }
 
   function journeyHome(el, back = () => home(el, "tarot", { title: "Learn" })) {
@@ -84,6 +91,7 @@
     $("#journeyBack", el).addEventListener("click", back);
     $("[data-jchapter]", el).forEach((b) => b.addEventListener("click", () => deck(el, b.dataset.jchapter, 0, () => journeyHome(el, back))));
     $("#journeyNotes", el).addEventListener("click", () => notes(el, () => journeyHome(el, back)));
+    resetLearningScroll(el);
   }
 
   /* ---------- deck ---------- */
@@ -104,7 +112,7 @@
     $("#lnPrev", el).addEventListener("click", () => deck(el, id, i - 1, back));
     $("#lnNext", el).addEventListener("click", () => deck(el, id, i + 1, back));
     swipe($(".ln-card", el), () => deck(el, id, i + 1, back), () => i && deck(el, id, i - 1, back));
-    window.scrollTo({ top: 0 });
+    resetLearningScroll(el);
   }
   function swipe(node, next, prev) {
     let x0 = null;
@@ -145,7 +153,7 @@
       const sh = sheet(`<h3>Leave the app?</h3><p>This opens ${esc(new URL(b.dataset.url).hostname)} in your browser. Your place here is saved.</p><div class="actions"><button class="btn btn-ghost" data-x>Stay</button><button class="btn btn-gold" id="lnGo">Open</button></div>`);
       $("#lnGo", sh).addEventListener("click", () => { window.open(b.dataset.url, "_blank", "noopener"); sh.hidden = true; });
     }));
-    window.scrollTo({ top: 0 });
+    resetLearningScroll(el);
   }
 
   /* ---------- Put it together + My notes ---------- */
@@ -356,7 +364,7 @@
       firstTip: "Check each position, any reversal, shared suits, elements or numbers, and the Major cards.", hints,
       reveal: sec_("together").concat(sec_("connect").slice(0, 1)), revealLabel: "The app's combined reading (Our method, from the app's card text)",
       extra: { label: "Questions to think about", text: res.questions.slice(0, 3).join(" ") }, onNext: () => cohPractice(el, back) });
-    window.scrollTo({ top: 0 });
+    resetLearningScroll(el);
   }
   // a small hints block (for places that already have their own write box, like Shuffle & pick and Spreads practice)
   function hintsBlock(el, hints) {
