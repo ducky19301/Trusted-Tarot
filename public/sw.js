@@ -11,7 +11,7 @@ const SHELL = [
 const API_CACHE = "tarot-api-v1";
 const API_RE = /^$/;   // v17: data comes from Supabase (backend.js keeps its own offline copy)
 const CACHE_OK = (res) => res && res.ok && !res.redirected && res.type === "basic";
-const STATIC_RE = /^\/(app\.css|app\.js|practice\.js|practice-data\.js|backend\.js|appearance\.js|settings\.js|compat(-kb|-story|-ui)?\.js|astro\.js|places\.js|vendor\/[\w.-]+\.js|data\/cards\.json|manifest\.webmanifest|icons\/[\w.-]+\.png|(deck-img|deck-thumb)\/[a-z0-9]{4}\.jpg)$/;
+const STATIC_RE = /^\/(app\.css|themes\.css|app\.js|practice\.js|practice-data\.js|backend\.js|appearance\.js|settings\.js|compat(-kb|-story|-ui)?\.js|astro\.js|places\.js|vendor\/[\w.-]+\.js|data\/cards\.json|manifest\.webmanifest|icons\/[\w.-]+\.png|(deck-img|deck-thumb)\/[a-z0-9]{4}\.jpg)$/;
 
 self.addEventListener("install", (e) => {
   e.waitUntil((async () => {
