@@ -26,3 +26,14 @@ test("mobile tabs retain touch-sized controls and safe-area spacing", () => {
   assert.match(css, /min-height:\s*44px/);
   assert.match(css, /env\(safe-area-inset-bottom\)/);
 });
+
+
+test("mobile viewport contract has a stable fallback and keeps the bottom navigation inside the safe area", () => {
+  const css = read("public/themes.css");
+  const fit = css.slice(css.lastIndexOf("All-tab viewport fit"));
+  assert.match(fit, /height:\s*100vh[\s\S]*height:\s*100dvh/);
+  assert.match(fit, /position:\s*fixed[\s\S]*bottom:\s*0/);
+  assert.match(fit, /env\(safe-area-inset-left\)/);
+  assert.match(fit, /env\(safe-area-inset-right\)/);
+  assert.match(fit, /touch-action:\s*pan-y/);
+});
