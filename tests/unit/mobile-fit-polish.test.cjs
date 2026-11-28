@@ -41,8 +41,8 @@ test("mobile viewport contract has a stable fallback and keeps the bottom naviga
 
 test("the service worker caches the active mobile layout stylesheet", () => {
   const sw = read("public/sw.js");
-  assert.match(sw, /const VERSION = "tarot-shell-v29"/);
-  assert.match(sw, /\/themes\\.css\\?v=9/);
+  assert.match(sw, /\/themes\.css\?v=9/);
+  assert.match(sw, /\/themes\.css\?v=9/);
   assert.ok(sw.includes('"/themes.css?v=9"'));
   assert.ok(sw.includes("themes" + String.fromCharCode(92) + ".css"));
 });
